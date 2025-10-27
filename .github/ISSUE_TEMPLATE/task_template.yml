@@ -92,13 +92,13 @@ body:
       placeholder: "Detailed description, acceptance criteria, and attachments"
       required: true
   - type: checkboxes
-      id: done
-      attributes:
-        label: "Definition of Done"
-        description: "Check all that apply when the task is complete"
-        options:
-          - label: "Code implemented"
-          - label: "Tests written and passing"
-          - label: "Code reviewed and approved"
-          - label: "Documentation updated"
-          - label: "Merged into main branch"
+    id: done
+    attributes:
+      label: "Definition of Done"
+      description: "Check all that apply when the task is complete"
+      options:
+        - label: "Code implemented"
+        - label: "Tests written and passing"
+        - label: "Code reviewed and approved"
+        - label: "Documentation updated"
+        - label: "Merged into main branch"
