@@ -9,15 +9,6 @@ body:
       value: |
         Use this form to create a task. You can attach files or screenshots by dragging them into the "Description and attachments" field below.
 
-  - type: input
-    id: task_title
-    attributes:
-      label: "Task title"
-      description: "Short, descriptive title for the task (this does not set the Issue title automatically)."
-      placeholder: "Implement user login"
-    validations:
-      required: true
-
   - type: dropdown
     id: status
     attributes:
@@ -44,32 +35,6 @@ body:
     validations:
       required: true
 
-  - type: checkboxes
-    id: work_labels
-    attributes:
-      label: "Labels (informational)"
-      description: "Select relevant areas. These do not auto-apply repo labels; use the sidebar after creating the issue."
-      options:
-        - label: "frontend"
-        - label: "backend"
-        - label: "bug"
-        - label: "feature"
-        - label: "testing"
-        - label: "documentation"
-
-  - type: input
-    id: assignee_handles
-    attributes:
-      label: "Assignee GitHub handle(s)"
-      description: "Optional. Example: @alice @bob"
-      placeholder: "@username"
-
-  - type: input
-    id: linked_issues
-    attributes:
-      label: "Linked issues / Dependencies"
-      description: "Mention related issues. Example: Depends on #12"
-      placeholder: "Depends on #12"
 
   - type: textarea
     id: user_story
@@ -93,7 +58,7 @@ body:
   - type: input
     id: due_date
     attributes:
-      label: "Due date (optional)"
+      label: "Due date"
       description: "Enter an ISO date or milestone"
       placeholder: "2025-11-15"
 
@@ -105,15 +70,3 @@ body:
       placeholder: "Details, steps, acceptance criteria, screenshots/logs"
     validations:
       required: true
-
-  - type: checkboxes
-    id: dod
-    attributes:
-      label: "Definition of Done"
-      description: "Check all that apply when the task is complete"
-      options:
-        - label: "Code implemented"
-        - label: "Tests written and passing"
-        - label: "Code reviewed and approved"
-        - label: "Documentation updated"
-        - label: "Merged into main branch"
