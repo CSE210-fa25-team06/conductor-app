@@ -9,8 +9,5 @@ assignees: ""
 ### Description
 Type your description here...
 
-### Definition of Done
-- [ ] Code complete
-- [ ] Tests passing
-- [ ] Reviewed and approved
-- [ ] Merged to main
+### Additional Notes
+(Optional) Add any extra context, ideas, screenshots, or references
