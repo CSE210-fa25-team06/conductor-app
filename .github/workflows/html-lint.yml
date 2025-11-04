@@ -2,9 +2,6 @@ name: HTML Lint
 
 on: [push, pull_request]
 
-env:
-  RUN_PA11Y: false #this should only be false when npm start would fail (i.e. there is no app to start yet)
-
 jobs:
   htmlhint:
     runs-on: ubuntu-latest
@@ -24,6 +21,8 @@ jobs:
         run: htmlhint --config ./config/.htmlhintrc '**/*.html'
 
   pa11y:
+    env:
+      RUN_PA11Y: false #this should only be false when npm start would fail (i.e. there is no app to start yet)
     if: ${{ env.RUN_PA11Y == 'true' }}
     runs-on: ubuntu-latest
     steps:
