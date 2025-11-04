@@ -1,0 +1,11 @@
+/*
+  This file defines the global styling and default typography used across the app.
+  It sets font, color, and base layout rules shared by all pages.
+*/
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #fafafa;
+  color: #333;
+}

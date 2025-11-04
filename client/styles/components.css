@@ -1,0 +1,12 @@
+/*
+  This file contains reusable component styles such as buttons, cards, and form elements.
+  These styles are modular and can be imported wherever needed.
+*/
+
+.button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #0066cc;
+  color: white;
+  cursor: pointer;
+}
