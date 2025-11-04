@@ -1,0 +1,8 @@
+/*
+  This file contains layout-related CSS including page structure, spacing, and positioning.
+  It ensures consistent alignment for headers, footers, and main content sections.
+*/
+
+header, main, footer {
+  padding: 1rem;
+}
