@@ -36,7 +36,8 @@ Holds the backend logic built with **Node.js and Express**.
 Contains all database setup and migration scripts for **PostgreSQL**.
 
 - **schema.sql** – defines database tables and relationships  
-- **seed.sql** – inserts sample data for local testing  
+- **seed.sql** – inserts sample data for local testing
+- **verify_data.sql** - verifies that the database schema and seed data work properly
 - **migrations/** – includes SQL files for versioned schema updates  
 
 ---
