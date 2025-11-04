@@ -18,13 +18,11 @@ jobs:
         run: npm install -g htmlhint
 
       - name: Check all HTML files
-        run: htmlhint '**/*.html'
+        run: htmlhint "**/*.html"
 
   pa11y:
-    env:
-      RUN_PA11Y: false #this should only be false when npm start would fail (i.e. there is no app to start yet)
-    if: ${{ env.RUN_PA11Y == 'true' }}
     runs-on: ubuntu-latest
+    needs: htmlhint
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
