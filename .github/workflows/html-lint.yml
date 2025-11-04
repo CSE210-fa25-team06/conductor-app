@@ -18,7 +18,7 @@ jobs:
         run: npm install -g htmlhint
 
       - name: Check all HTML files
-        run: htmlhint --config ./config/.htmlhintrc '**/*.html'
+        run: htmlhint '**/*.html'
 
   pa11y:
     env:
@@ -48,4 +48,4 @@ jobs:
         run: npm install -g pa11y-ci
 
       - name: Run pa11y tests
-        run: pa11y-ci --config ./config/.pa11yci
+        run: pa11y-ci
