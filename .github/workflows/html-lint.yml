@@ -1,0 +1,52 @@
+name: HTML Lint
+
+on: [push, pull_request]
+
+env:
+  RUN_PA11Y: false #this should only be false when npm start would fail (i.e. there is no app to start yet)
+
+jobs:
+  htmlhint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4 
+        with:
+          node-version: 20
+      
+      - name: Install HTMLhint
+        run: npm install -g htmlhint
+
+      - name: Check all HTML files
+        run: htmlhint '**/*.html'
+
+  pa11y:
+    if: ${{ env.RUN_PA11Y == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4 
+        with:
+          node-version: 20
+      
+      - name: Install app dependencies
+        run: npm ci
+      
+      - name: Start app
+        run: npm start &
+      
+      - name: Wait for app
+        run: npx wait-on http://localhost:3000 --timeout 60000
+        #if we run on a different port we will need to change this
+
+      - name: Install Pa11y-CI
+        run: npm install -g pa11y-ci
+
+      - name: Run pa11y tests
+        run: pa11y-ci --config ./config/.pa11yci
