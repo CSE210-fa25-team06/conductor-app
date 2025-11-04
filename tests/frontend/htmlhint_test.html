@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTMLHint Test</title>
+    <!-- Missing viewport meta (common warning) -->
+    <script src="script.js"></script> <!-- Inline script src without type attribute (may trigger a warning in older rules) -->
+</head>
+<body>
+    <h1>Welcome to HTMLHint Test</h1>
+
+    <img src="image.jpg"> <!-- Missing alt attribute -->
+    <a href="#">Click me</a> <!-- Might trigger empty href warning -->
+    <br> <!-- Self-closing tag without slash in XHTML mode -->
+    <div>
+        <p>Paragraph without closing div
+    </div>
+
+    <input type="text" name="username"> <!-- Missing label -->
+    <form action="submit.php" method="post">
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        var unusedVar; // Inline script
+    </script>
+</body>
+</html>

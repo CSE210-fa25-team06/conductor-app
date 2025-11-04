@@ -21,7 +21,7 @@ jobs:
         run: npm install -g htmlhint
 
       - name: Check all HTML files
-        run: htmlhint '**/*.html'
+        run: htmlhint --config ./config/.htmlhintrc '**/*.html'
 
   pa11y:
     if: ${{ env.RUN_PA11Y == 'true' }}
