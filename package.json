@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "htmlhint": "^1.7.1",
+    "pa11y-ci": "^4.0.1"
+  }
+}
