@@ -1,7 +1,6 @@
 {
   "defaults": {
-    "standard": "WCAG2.1AA",
-    "timeout": 30000
+    "standard": "WCAG2AA"
   },
   "urls": [
     "http://localhost:3000/"
