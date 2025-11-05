@@ -1,0 +1,22 @@
+{
+  "name": "conductor-app",
+  "version": "1.0.0",
+  "description": "Conductor is a lightweight platform to help instructors, TAs, and students manage course activities like attendance, scheduling, and group tracking.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}

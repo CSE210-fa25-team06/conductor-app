@@ -43,9 +43,14 @@ Contains all database setup and migration scripts for **PostgreSQL**.
 ---
 
 ### **tests/**
-Stores automated test files for both frontend and backend.
+Stores automated test files for both frontend and backend. Make sure the files have a .test in the name as Jest automatically looks for files with the .test.js pattern to call.
 
-- **frontend/** – HTML and accessibility tests (`html_test.js`)  
-- **backend/** – route and API tests (`routes_test.js`)  
+- **frontend/** – HTML and UI-related tests  
+  - `html.test.js` – accessibility and structural validation for HTML pages  
+  - `journal_ui.test.js` – placeholder and future tests for the Evaluation Journal frontend behavior  
+
+- **backend/** – database, route, and API tests  
+  - `routes.test.js` – verifies Express routes and API endpoints  
+  - `journal.test.js` – tests for the Evaluation Journal feature including database integrity, foreign key behavior, and future API route specifications
 
 ---
