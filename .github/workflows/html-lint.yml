@@ -21,7 +21,7 @@ jobs:
         run: npx htmlhint "**/*.html"
       
       - name: Start app
-        run: npm start
+        run: npm start &
       
       - name: Wait for app
         run: npx wait-on http://localhost:3000 --timeout 60000
