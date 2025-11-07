@@ -3,8 +3,17 @@
   It handles requests made to the root endpoint ("/").
 */
 import express from "express";
+import { router as usersRouter } from "./users.js";
+import { router as groupsRouter } from "./groups.js";
+import { router as journalsRouter } from "./journals.js";
+
 export const router = express.Router();
 
 router.get("/", (req, res) => {
   res.send("Welcome to the Conductor API");
 });
+
+// Mount sub-routers
+router.use("/users", usersRouter);
+router.use("/groups", groupsRouter);
+router.use("/journal", journalsRouter);
