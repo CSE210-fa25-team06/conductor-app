@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Page - Input</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: white;
+            padding: 12px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            color: #666;
+            font-size: 18px;
+            font-weight: normal;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            background-color: #e8e8e8;
+            padding: 0;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background-color: #e8e8e8;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+
+        .nav-tab:hover {
+            background-color: #d0d0d0;
+        }
+
+        .nav-tab.active {
+            background-color: #9e9e9e;
+            color: white;
+        }
+
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .controls {
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .controls-left {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .date-input {
+            padding: 6px 12px;
+            border: 2px solid #333;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sort-btn {
+            padding: 8px 16px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .sort-btn:hover {
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .submit-btn {
+            padding: 10px 30px;
+            background-color: #7dd3c0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #6bc2af;
+        }
+
+        .student-list {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .student-row {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .student-row:hover {
+            background-color: #f9f9f9;
+        }
+
+        .student-row.selected {
+            background-color: #9e9e9e;
+        }
+
+        .student-row.selected .student-name,
+        .student-row.selected .student-group {
+            color: white;
+        }
+
+        .student-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0),
+                linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0);
+            background-size: 10px 10px;
+            background-position: 0 0, 5px 5px;
+            border-radius: 4px;
+            margin-right: 20px;
+        }
+
+        .student-info {
+            flex: 1;
+            display: flex;
+            gap: 40px;
+        }
+
+        .student-name {
+            font-weight: 500;
+            color: #333;
+            min-width: 150px;
+        }
+
+        .student-group {
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .controls-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .controls-left {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .bottom-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .student-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 class="page-title">Attendance Page - Input, Rows</h1>
+        <div class="user-icon">👤</div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab">Fleetwood Stack</button>
+        <button class="nav-tab">Directory</button>
+        <button class="nav-tab active">Attendance</button>
+        <button class="nav-tab">Journal</button>
+        <button class="nav-tab">Evaluation</button>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <div class="controls-row">
+                <div class="controls-left">
+                    <div class="form-group">
+                        <label for="meetingDate">Meeting date:</label>
+                        <input type="text" id="meetingDate" class="date-input" placeholder="____/__/____">
+                    </div>
+                    <div class="form-group">
+                        <label>Meeting type:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="lecture" name="meetingType">
+                                <span>Lecture</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="informal" name="meetingType">
+                                <span>Informal</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-row">
+                <button class="sort-btn">Sort ⋯</button>
+                <button class="submit-btn">Submit</button>
+            </div>
+        </div>
+
+        <div class="student-list">
+            <div class="student-row">
+                <div class="student-avatar"></div>
+                <div class="student-info">
+                    <div class="student-name">FName LName</div>
+                    <div class="student-group">Group N</div>
+                </div>
+            </div>
+            <div class="student-row selected">
+                <div class="student-avatar"></div>
+                <div class="student-info">
+                    <div class="student-name">FName LName</div>
+                    <div class="student-group">Group N</div>
+                </div>
+            </div>
+            <div class="student-row selected">
+                <div class="student-avatar"></div>
+                <div class="student-info">
+                    <div class="student-name">FName LName</div>
+                    <div class="student-group">Group N</div>
+                </div>
+            </div>
+            <div class="student-row">
+                <div class="student-avatar"></div>
+                <div class="student-info">
+                    <div class="student-name">FName LName</div>
+                    <div class="student-group">Group N</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle student selection
+        const studentRows = document.querySelectorAll('.student-row');
+        studentRows.forEach(row => {
+            row.addEventListener('click', function () {
+                this.classList.toggle('selected');
+            });
+        });
+
+        // Tab navigation
+        const tabs = document.querySelectorAll('.nav-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Date input formatting
+        const dateInput = document.getElementById('meetingDate');
+        dateInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 4) {
+                value = value.slice(0, 4) + '/' + value.slice(4);
+            }
+            if (value.length >= 7) {
+                value = value.slice(0, 7) + '/' + value.slice(7, 11);
+            }
+            e.target.value = value;
+        });
+
+        // Submit button
+        document.querySelector('.submit-btn').addEventListener('click', function () {
+            const selectedStudents = document.querySelectorAll('.student-row.selected');
+            const date = document.getElementById('meetingDate').value;
+            const lecture = document.getElementById('lecture').checked;
+            const informal = document.getElementById('informal').checked;
+
+            console.log('Attendance submission:', {
+                date: date,
+                meetingType: { lecture, informal },
+                attendees: selectedStudents.length
+            });
+
+            alert(`Attendance recorded for ${selectedStudents.length} student(s)`);
+        });
+
+        // Sort button
+        document.querySelector('.sort-btn').addEventListener('click', function () {
+            alert('Sort options would appear here');
+        });
+    </script>
+</body>
+
+</html>
