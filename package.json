@@ -1,7 +1,20 @@
 {
+  "type": "module",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js",
+    "test": "node test-api-simple.js",
+    "test:journal": "node test-journal-api.js",
+    "test:direct": "node test-direct.js"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
     "globals": "^16.5.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.16.3"
   }
 }
