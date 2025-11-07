@@ -84,3 +84,5 @@ Monitoring, Testing, or Fallback Considerations
 - [Design doc link](https://github.com/CSE210-fa25-team06/conductor-app/blob/main/specs/pitch/design-spec.pdf)
 - Database mappings are located in our [github repository](https://github.com/CSE210-fa25-team06/conductor-app/tree/main/specs/pitch)
 - Systems diagrams for the general architecture and for each feature are located in our [github repository](https://github.com/CSE210-fa25-team06/conductor-app/tree/main/specs/pitch)
+- [Model View Controller Beginner's Guide](https://medium.com/@kasuniwijesiri2002/a-beginners-guide-to-understanding-mvc-architecture-in-web-development-c23b9a266171)
+![MVC Diagram](images/mvc_diagram.webp)
