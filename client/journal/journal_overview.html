@@ -1,0 +1,307 @@
+<!--
+  This file displays all journal submissions in chronological order.
+  Shows each journal entry with timestamp and content, sorted from newest to oldest.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Journal overview page for conductor app" />
+  <title>Journal Overview - Conductor</title>
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <style>
+    .journal-overview-container {
+      max-width: 900px;
+      margin: 2rem auto;
+    }
+
+    .page-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-title {
+      color: #333;
+      margin: 0;
+    }
+
+    .page-description {
+      color: #666;
+      margin: 0;
+    }
+
+    .journal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .journal-entry {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.2s;
+    }
+
+    .journal-entry:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .journal-header {
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .journal-timestamp {
+      color: #666;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .journal-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .journal-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .journal-label {
+      font-weight: bold;
+      color: #333;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .journal-text {
+      color: #555;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .journal-blockers {
+      background: #fff8e1;
+      padding: 0.75rem;
+      border-left: 3px solid #ffa726;
+      border-radius: 4px;
+    }
+
+    .no-blockers {
+      color: #999;
+      font-style: italic;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .empty-state {
+      background: white;
+      padding: 3rem;
+      border-radius: 8px;
+      text-align: center;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="journal-overview-container">
+      <div class="page-header">
+        <div class="header-top">
+          <h2 class="page-title">My Journals</h2>
+          <button class="button" id="createJournalBtn" onclick="window.location.href='journal_submission.html'">
+            + New Journal
+          </button>
+        </div>
+        <p class="page-description">View all your stand-up updates.</p>
+      </div>
+      
+      <div id="journalList" class="journal-list">
+        <div class="loading">Loading journal entries...</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Format timestamp to readable date/time
+    function formatTimestamp(isoString) {
+      const date = new Date(isoString);
+      const options = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      };
+      return date.toLocaleDateString('en-US', options);
+    }
+
+    // Create HTML for a single journal entry
+    function createJournalEntryHTML(entry) {
+      const blockersHTML = entry.blockers 
+        ? `<div class="journal-blockers">
+             <div class="journal-label">Blockers</div>
+             <div class="journal-text">${escapeHtml(entry.blockers)}</div>
+           </div>`
+        : `<div class="journal-section">
+             <div class="journal-label">Blockers</div>
+             <div class="journal-text no-blockers">No blockers reported</div>
+           </div>`;
+
+      return `
+        <div class="journal-entry">
+          <div class="journal-header">
+            <div class="journal-timestamp">${formatTimestamp(entry.timestamp)}</div>
+          </div>
+          <div class="journal-content">
+            <div class="journal-section">
+              <div class="journal-label">What I Did Since Last Meeting</div>
+              <div class="journal-text">${escapeHtml(entry.whatIDid)}</div>
+            </div>
+            <div class="journal-section">
+              <div class="journal-label">What I Will Do Next</div>
+              <div class="journal-text">${escapeHtml(entry.whatIWillDo)}</div>
+            </div>
+            ${blockersHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Mock journal data
+    const mockJournals = [
+      {
+        "id": 1,
+        "whatIDid": "Completed the user authentication module and fixed several bugs in the login flow. Wrote unit tests for the authentication service.",
+        "whatIWillDo": "Start working on the dashboard UI components and integrate with the backend API. Review pull requests from team members.",
+        "blockers": "Waiting for API documentation to be updated by the backend team.",
+        "timestamp": "2024-11-07T10:30:00Z"
+      },
+      {
+        "id": 2,
+        "whatIDid": "Implemented the database schema for journal entries. Set up the initial migration scripts and tested data persistence.",
+        "whatIWillDo": "Create the API endpoints for journal CRUD operations. Write integration tests for the database layer.",
+        "blockers": "",
+        "timestamp": "2024-11-06T14:15:00Z"
+      },
+      {
+        "id": 3,
+        "whatIDid": "Designed the wireframes for the journal submission interface. Got feedback from the team and made revisions.",
+        "whatIWillDo": "Convert wireframes to HTML/CSS implementation. Ensure responsive design for mobile devices.",
+        "blockers": "Need access to the design system documentation.",
+        "timestamp": "2024-11-06T09:00:00Z"
+      },
+      {
+        "id": 4,
+        "whatIDid": "Refactored the group management code to improve performance. Reduced API response time by 40%.",
+        "whatIWillDo": "Work on the notification system for group updates. Set up WebSocket connections for real-time updates.",
+        "blockers": "",
+        "timestamp": "2024-11-05T16:45:00Z"
+      },
+      {
+        "id": 5,
+        "whatIDid": "Fixed critical security vulnerabilities in the authentication middleware. Updated dependencies to latest versions.",
+        "whatIWillDo": "Conduct security audit on the entire codebase. Implement rate limiting for API endpoints.",
+        "blockers": "Need to coordinate with DevOps for deploying security patches.",
+        "timestamp": "2024-11-05T11:20:00Z"
+      },
+      {
+        "id": 6,
+        "whatIDid": "Created documentation for the API endpoints. Added examples and use cases for developers.",
+        "whatIWillDo": "Set up automated API documentation generation. Create developer onboarding guide.",
+        "blockers": "",
+        "timestamp": "2024-11-04T13:30:00Z"
+      }
+    ];
+
+    // Initialize localStorage with mock data if empty
+    function initializeData() {
+      if (!localStorage.getItem('journals')) {
+        localStorage.setItem('journals', JSON.stringify(mockJournals));
+      }
+    }
+
+    // Load and display journal entries
+    function loadJournals() {
+      const journalList = document.getElementById('journalList');
+      
+      try {
+        // Load from localStorage (or use mock data as fallback)
+        const storedJournals = localStorage.getItem('journals');
+        const journals = storedJournals ? JSON.parse(storedJournals) : [...mockJournals];
+        
+        // Sort by timestamp (newest first)
+        journals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Check if there are any journals
+        if (journals.length === 0) {
+          journalList.innerHTML = `
+            <div class="empty-state">
+              <h3>No Journal Entries Yet</h3>
+              <p>Be the first to submit a stand-up update!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Generate HTML for all journal entries
+        const journalsHTML = journals.map(entry => createJournalEntryHTML(entry)).join('');
+        journalList.innerHTML = journalsHTML;
+        
+      } catch (error) {
+        console.error('Error loading journals:', error);
+        journalList.innerHTML = `
+          <div class="error">
+            <strong>Error loading journal entries</strong><br>
+            ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    // Load journals when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeData();
+      loadJournals();
+    });
+  </script>
+</body>
+</html>

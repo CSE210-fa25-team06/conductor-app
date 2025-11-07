@@ -1,0 +1,217 @@
+<!--
+  This file contains the journal submission interface for the Conductor app.
+  Users can submit their stand-up updates including what they did, what they'll do next, and any blockers.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Journal submission page for conductor app" />
+  <title>Journal - Conductor</title>
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <style>
+    .journal-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .journal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    .form-group textarea {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: Arial, sans-serif;
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 100px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #06c;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+
+    .submit-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: #06c;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      transition: background 0.2s;
+      align-self: flex-start;
+    }
+
+    .submit-btn:hover {
+      background: #0056b3;
+    }
+
+    .submit-btn:active {
+      background: #004494;
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .page-title {
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-description {
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .back-btn {
+      padding: 0.75rem 1.5rem;
+      border: 1px solid #06c;
+      background: white;
+      color: #06c;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #f0f7ff;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="journal-container">
+      <h2 class="page-title">Submit Your Stand-up Update</h2>
+      <p class="page-description">Share your progress and any challenges you're facing with your team.</p>
+      
+      <form class="journal-form" id="journalForm">
+        <div class="form-group">
+          <label for="whatIDid">What I did since last meeting</label>
+          <textarea 
+            id="whatIDid" 
+            name="whatIDid" 
+            placeholder="Describe what you accomplished since the last meeting..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="whatIWillDo">What I will do next</label>
+          <textarea 
+            id="whatIWillDo" 
+            name="whatIWillDo" 
+            placeholder="Describe what you plan to work on next..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="blockers">Any blockers</label>
+          <textarea 
+            id="blockers" 
+            name="blockers" 
+            placeholder="Describe any obstacles or issues you're facing (leave blank if none)..."
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="submit-btn">Submit Journal</button>
+          <button type="button" class="back-btn" onclick="window.location.href='journal_overview.html'">
+            Back to Overview
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // Handle form submission
+    document.getElementById('journalForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const whatIDid = document.getElementById('whatIDid').value.trim();
+      const whatIWillDo = document.getElementById('whatIWillDo').value.trim();
+      const blockers = document.getElementById('blockers').value.trim();
+      
+      // Validate required fields
+      if (!whatIDid || !whatIWillDo) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      
+      // Load existing journals from localStorage
+      const storedJournals = localStorage.getItem('journals');
+      const journals = storedJournals ? JSON.parse(storedJournals) : [];
+      
+      // Generate new ID (find max ID and add 1)
+      const maxId = journals.length > 0 ? Math.max(...journals.map(j => j.id)) : 0;
+      
+      // Create journal entry object
+      const journalEntry = {
+        id: maxId + 1,
+        whatIDid: whatIDid,
+        whatIWillDo: whatIWillDo,
+        blockers: blockers,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Add new entry to journals array
+      journals.push(journalEntry);
+      
+      // Save back to localStorage
+      localStorage.setItem('journals', JSON.stringify(journals));
+      
+      // Log to console
+      console.log('Journal Entry Saved:', journalEntry);
+      
+      // Show success message
+      alert('Journal submitted successfully!');
+      
+      // Redirect back to overview page
+      window.location.href = 'journal_overview.html';
+      
+      // TODO: Later this will send data to server using API
+      // This would typically use fetch() to POST to your backend
+    });
+  </script>
+</body>
+</html>
