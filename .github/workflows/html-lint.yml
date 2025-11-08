@@ -1,0 +1,31 @@
+name: HTML Lint
+
+on: [push, pull_request]
+
+jobs:
+  html-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4 
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint with htmlhint
+        run: npx htmlhint "**/*.html"
+      
+      - name: Start app
+        run: npm start &
+      
+      - name: Wait for app
+        run: npx wait-on http://localhost:3000 --timeout 60000
+        #if we run on a different port we will need to change this
+
+      - name: Run accessibility tests
+        run: npx pa11y-ci
