@@ -66,5 +66,5 @@ app.get('/', (req, res) => {
  * Starts the Express server and listens on the configured port.
  */
 app.listen(port, () => {
-  console.log(`Server listening at ${process.env.DB_HOST}:${port}`);
+  console.log(`Server listening at ${process.env.SERVER_HOST}:${port}`);
 });
