@@ -119,7 +119,7 @@ async function logSuccessfulLogin(userId, ipAddress) {
       groupId = groupResult.rows[0].group_id;
     }
   } catch (error) {
-    console.warn('Could not find group_id for logging, proceeding with NULL.');
+    console.warn('Could not find group_id for logging, proceeding with NULL', error);
   }
 
   const logQuery = `
