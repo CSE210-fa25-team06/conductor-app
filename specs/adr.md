@@ -1,4 +1,4 @@
-# Architecture Decision Record (ADR)
+# Architecture Decision Record (ADR) Over System Architecture
 
 **ADR #:** 1  
 **Title:** ADR for the Conductor application for Team 6 Fall 2025.   
