@@ -2,59 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="description" content="Class Directory page for viewing all students, their roles, and group assignments in the Conductor app.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Class Directory</title>
 </head>
 <body>
-  <h1>Class Directory</h1>
+  <main>
+    <h1>Class Directory</h1>
 
-  <!-- ===============================================================
-       SEARCH BAR
-       =============================================================== -->
-  <form>
-    <label for="search">Search by Name or Role:</label>
-    <input type="text" id="search" name="search" placeholder="Search by Name or Role">
-  </form>
+    <!-- ===============================================================
+         SEARCH BAR
+         =============================================================== -->
+    <form aria-label="Search class directory">
+      <label for="search">Search by Name or Role:</label>
+      <input type="text" id="search" name="search" placeholder="Search by Name or Role">
+    </form>
 
-  <!-- ===============================================================
-       TABLE STRUCTURE
-       =============================================================== -->
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Photo</th>
-        <th>Name</th>
-        <th>Role</th>
-        <th>Group</th>
-        <th>Contact</th>
-        <th>Availability</th>
-      </tr>
-    </thead>
-    <tbody id="directory-table-body">
-      <!-- Data goes here -->
-    </tbody>
-  </table>
+    <!-- ===============================================================
+         TABLE STRUCTURE
+         =============================================================== -->
+    <table border="1" cellpadding="8" cellspacing="0">
+      <thead>
+        <tr>
+          <th scope="col">Photo</th>
+          <th scope="col">Name</th>
+          <th scope="col">Role</th>
+          <th scope="col">Group</th>
+          <th scope="col">Contact</th>
+          <th scope="col">Availability</th>
+        </tr>
+      </thead>
+      <tbody id="directory-table-body">
+        <!-- Data goes here -->
+      </tbody>
+    </table>
+  </main>
+
   <script>
     async function loadDirectory() {
       try {
         const response = await fetch('mock-class-directory.json');
         if (!response.ok) {
-          // Backend not ready, keep dummy data
-          return;
+          return; // If mock not found, do nothing
         }
 
         const data = await response.json();
         const tbody = document.getElementById('directory-table-body');
         tbody.innerHTML = '';
 
-        // Render each user row
         data.forEach(person => {
           const row = document.createElement('tr');
           row.innerHTML = `
-            <td><img src="${person.photo_url || 'https://via.placeholder.com/40'}" alt="Photo" width="40" height="40"></td>
+            <td><img src="${person.photo_url || 'https://via.placeholder.com/40'}" alt="Photo of ${person.user_name}" width="40" height="40"></td>
             <td>${person.user_name}</td>
             <td>${person.role_name || '—'}</td>
             <td>${person.group_name || '—'}</td>
-            <td>${person.contact}</td>
+            <td><a href="mailto:${person.contact}">${person.contact}</a></td>
             <td>${formatAvailability(person.availability)}</td>
           `;
           tbody.appendChild(row);
@@ -64,7 +67,7 @@
       }
     }
 
-    // Helper function: format availability JSON into readable text
+    // Helper: Convert JSON availability to readable string
     function formatAvailability(availability) {
       if (!availability) return '—';
       try {
@@ -77,7 +80,6 @@
       }
     }
 
-    // Load data on page load
     loadDirectory();
   </script>
 </body>
