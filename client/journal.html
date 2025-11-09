@@ -9,130 +9,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Journal overview page for conductor app" />
   <title>Journal Overview - Conductor</title>
-  <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="../styles/components.css" />
-  <link rel="stylesheet" href="../styles/layout.css" />
-  <style>
-    .journal-overview-container {
-      max-width: 900px;
-      margin: 2rem auto;
-    }
-
-    .page-header {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-bottom: 2rem;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .page-title {
-      color: #333;
-      margin: 0;
-    }
-
-    .page-description {
-      color: #666;
-      margin: 0;
-    }
-
-    .journal-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .journal-entry {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: box-shadow 0.2s;
-    }
-
-    .journal-entry:hover {
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .journal-header {
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    .journal-timestamp {
-      color: #666;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .journal-content {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .journal-section {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .journal-label {
-      font-weight: bold;
-      color: #333;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .journal-text {
-      color: #555;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    .journal-blockers {
-      background: #fff8e1;
-      padding: 0.75rem;
-      border-left: 3px solid #ffa726;
-      border-radius: 4px;
-    }
-
-    .no-blockers {
-      color: #999;
-      font-style: italic;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .error {
-      background: #ffebee;
-      color: #c62828;
-      padding: 1.5rem;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .empty-state {
-      background: white;
-      padding: 3rem;
-      border-radius: 8px;
-      text-align: center;
-      color: #666;
-    }
-  </style>
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/journal.css" />
 </head>
 <body>
   <main>
@@ -140,7 +20,7 @@
       <div class="page-header">
         <div class="header-top">
           <h1 class="page-title">My Journals</h1>
-          <button type="button" class="button" id="createJournalBtn" onclick="window.location.href='journal_submission.html'">
+          <button type="button" class="button" id="createJournalBtn" onclick="window.location.href='journal/journal_submission.html'">
             + New Journal
           </button>
         </div>

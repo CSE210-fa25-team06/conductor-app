@@ -12,109 +12,7 @@
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="../styles/components.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
-  <style>
-    .journal-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .journal-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .form-group label {
-      font-weight: bold;
-      color: #333;
-      font-size: 1rem;
-    }
-
-    .form-group textarea {
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: Arial, sans-serif;
-      font-size: 0.95rem;
-      resize: vertical;
-      min-height: 100px;
-      transition: border-color 0.2s;
-    }
-
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #06c;
-      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-    }
-
-    .submit-btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      background: #06c;
-      color: white;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 4px;
-      transition: background 0.2s;
-      align-self: flex-start;
-    }
-
-    .submit-btn:hover {
-      background: #0056b3;
-    }
-
-    .submit-btn:active {
-      background: #004494;
-    }
-
-    .submit-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .page-title {
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-
-    .page-description {
-      color: #666;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .back-btn {
-      padding: 0.75rem 1.5rem;
-      border: 1px solid #06c;
-      background: white;
-      color: #06c;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-
-    .back-btn:hover {
-      background: #f0f7ff;
-    }
-  </style>
+  <link rel="stylesheet" href="../styles/journal.css" />
 </head>
 <body>
   <main>
@@ -154,7 +52,7 @@
 
         <div class="form-actions">
           <button type="submit" class="submit-btn">Submit Journal</button>
-          <button type="button" class="back-btn" onclick="window.location.href='journal_overview.html'">
+          <button type="button" class="back-btn" onclick="window.location.href='../journal.html'">
             Back to Overview
           </button>
         </div>
@@ -207,7 +105,7 @@
       alert('Journal submitted successfully!');
       
       // Redirect back to overview page
-      window.location.href = 'journal_overview.html';
+      window.location.href = '../journal.html';
       
       // TODO: Later this will send data to server using API
       // This would typically use fetch() to POST to your backend
