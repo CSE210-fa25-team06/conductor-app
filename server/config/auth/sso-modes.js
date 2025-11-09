@@ -8,9 +8,10 @@
  * @typedef {Object.<string, string>} SsoModeMap
  * @property {string} MOCK - Path to the mock implementation of the SSO handlers.
  */
+
 const SSO_MODE_MAP = {
     // [Mode Name (from .env)]: [Relative Path from sso-authenticator.js to the Mode Handler]
-    'MOCK': '../handlers/mock-sso-handler',
+    'MOCK': '../../services/auth/sso/handlers/mock-sso-handler',
     // Add 'REAL' here when the concrete handler is implemented
 };
 

@@ -8,7 +8,7 @@
 const express = require('express');
 
 // Import DB Model functions (Common to all modes)
-const { findUserIdByEmail, logSuccessfulLogin } = require('../../../../models/db');
+const { findUserIdByEmail, logSuccessfulLogin } = require('../../../models/db');
 
 // The final URL the server redirects the client to after successful internal authentication.
 const HOME_URL = '/'; 

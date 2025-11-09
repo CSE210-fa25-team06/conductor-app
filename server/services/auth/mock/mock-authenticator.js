@@ -9,7 +9,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 
-const { findUserIdByEmail, logSuccessfulLogin } = require('../../../../models/db');
+const { findUserIdByEmail, logSuccessfulLogin } = require('../../../models/db');
 
 // Load .env relative to project root
 require('dotenv').config({ path: path.resolve(__dirname, '../../../../', '.env') }); 

@@ -15,7 +15,7 @@ const {
     logSuccessfulLogin, 
     createGoogleUser, 
     linkGoogleAccount
-} = require('../../../../models/db'); 
+} = require('../../../models/db'); 
 
 // --- Passport Initialization ---
 // NOTE: app.use(passport.initialize()) and app.use(passport.session()) must be called in app.js.
