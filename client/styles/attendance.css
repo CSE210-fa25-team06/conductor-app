@@ -74,7 +74,6 @@ body {
 	padding: 20px;
 	border-radius: 4px;
 	margin-bottom: 20px;
-	/* ✨ modern rgb notation with alpha percentage */
 	box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
 
@@ -168,7 +167,6 @@ body {
 .student-list {
 	background-color: white;
 	border-radius: 4px;
-	/* ✨ modern rgb notation */
 	box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 	overflow: hidden;
 }
