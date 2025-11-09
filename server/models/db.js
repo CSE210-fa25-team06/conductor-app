@@ -1,24 +1,17 @@
 /**
  * @file server/models/db.js
- * @description Data Access Layer (Model) for core authentication and user-related database operations.
- * It manages the PostgreSQL connection pool and contains all direct database query logic.
+ * @description Data Access Layer (DAL) for the application.
+ * This module establishes the **connection pool** to the PostgreSQL database (using the `pg` library)
+ * and exports core functions for user authentication and user data retrieval. It acts as the primary
+ * interface for all low-level database operations.
+ * NOTE: Functions related to user creation and account linking are currently here but are candidates 
+ * for migration to a dedicated Service Layer in future refactoring for better separation of concerns.
  */
 
 const { Pool } = require('pg');
 const path = require('path');
-
-// CRITICAL: Load environment variables before initializing the Pool
-// Path is relative to db/ up two directories (../../) to the project root for the .env file.
 require('dotenv').config({ path: path.resolve(__dirname, '../../', '.env') });
 
-// =========================================================================
-// DATABASE CONNECTION POOL
-// =========================================================================
-
-/**
- * PostgreSQL connection pool initialized with credentials from environment variables.
- * @type {Pool}
- */
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.SERVER_HOST,
@@ -27,15 +20,10 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-
-// =========================================================================
-// MODEL FUNCTIONS
-// =========================================================================
-
 /**
- * Finds the user's ID using their email from the user_auth table.
- * @param {string} email - The user's email address.
- * @returns {Promise<number|null>} The user_id if found, otherwise null.
+ * Looks up a user's internal ID based on their email in the user_auth table.
+ * @param {string} email - The email address from the authentication provider.
+ * @returns {number|null} The user's internal database ID, or null if not found.
  */
 async function findUserIdByEmail(email) {
   const query = `
@@ -45,10 +33,7 @@ async function findUserIdByEmail(email) {
   `;
   try {
     const result = await pool.query(query, [email]);
-    if (result.rows.length > 0) {
-      return result.rows[0].user_id;
-    }
-    return null; // User not found in user_auth
+    return result.rows.length > 0 ? result.rows[0].user_id : null;
   } catch (error) {
     console.error('Database Error in findUserIdByEmail:', error);
     throw error;
@@ -56,88 +41,144 @@ async function findUserIdByEmail(email) {
 }
 
 /**
- * Fetches complete user, role, and group data for a valid user ID.
- * Aggregates roles into an array and fetches group name.
- * @param {number} userId - The ID of the user.
- * @returns {Promise<object|null>} An object containing denormalized user data, or null.
+ * Backup lookup for a user's internal ID in the main users table (for migration/linking).
+ * @param {string} email - The email address.
+ * @returns {number|null} The user's internal database ID, or null if not found.
+ */
+async function findUserIdInUsers(email) {
+  const query = `
+    SELECT id AS user_id
+    FROM users
+    WHERE email = $1;
+  `;
+  try {
+    const result = await pool.query(query, [email]);
+    return result.rows.length > 0 ? result.rows[0].user_id : null;
+  } catch (error) {
+    console.error('Database Error in findUserIdInUsers:', error);
+    throw error;
+  }
+}
+
+/**
+ * Retrieves a user's full data set based on their internal ID.
+ * @param {number} userId - The user's internal database ID.
+ * @returns {object|null} The full user data object, or null if not found.
  */
 async function getFullUserData(userId) {
   const query = `
-    SELECT
-        u.id AS user_id,
-        u.name,
-        u.email,
+    SELECT 
+        u.id, 
+        u.email, 
+        u.name, 
         u.photo_url,
         g.name AS group_name,
-        -- Aggregate all roles for the user into a JSON array (or similar format)
-        array_remove(array_agg(r.name), NULL) AS roles_list,
-        u.availability
-    FROM
-        users u
-    LEFT JOIN
-        groups g ON u.group_id = g.id
-    LEFT JOIN
-        user_roles ur ON u.id = ur.user_id
-    LEFT JOIN
-        roles r ON ur.role_id = r.id
-    WHERE
-        u.id = $1
-    GROUP BY
-        u.id, g.name;
+        ARRAY_AGG(r.name) AS roles_list
+    FROM users u
+    LEFT JOIN groups g ON u.group_id = g.id
+    LEFT JOIN user_roles ur ON u.id = ur.user_id
+    LEFT JOIN roles r ON ur.role_id = r.id
+    WHERE u.id = $1
+    GROUP BY u.id, u.email, u.name, u.photo_url, g.name;
   `;
   try {
     const result = await pool.query(query, [userId]);
-    if (result.rows.length > 0) {
-      return result.rows[0];
-    }
-    return null; // User not found in users table
+    return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error) {
     console.error('Database Error in getFullUserData:', error);
     throw error;
   }
 }
 
+
 /**
- * Logs a successful login event in the activity_log table.
- * This function is fire-and-forget (non-critical path logging).
+ * Logs a successful user login event in the activity_log table.
+ * (Currently a stub, but intended for auditing)
  * @param {number} userId - The ID of the user who logged in.
  * @param {string} ipAddress - The IP address of the user.
+ * @returns {void}
  */
 async function logSuccessfulLogin(userId, ipAddress) {
-  // Assuming 'USER_LOGIN_SUCCESS' activity has ID = 1
-  const activityId = 1; 
-  const content = { ip_address: ipAddress };
-
-  // Find the user's group ID to include in the log
-  const findGroupQuery = 'SELECT group_id FROM users WHERE id = $1;';
-  let groupId = null;
-  try {
-    const groupResult = await pool.query(findGroupQuery, [userId]);
-    if (groupResult.rows.length > 0) {
-      groupId = groupResult.rows[0].group_id;
-    }
-  } catch (error) {
-    console.warn('Could not find group_id for logging, proceeding with NULL', error);
-  }
-
-  const logQuery = `
-    INSERT INTO activity_log (user_id, group_id, activity_id, content)
-    VALUES ($1, $2, $3, $4);
-  `;
-
-  try {
-    await pool.query(logQuery, [userId, groupId, activityId, content]);
-    // console.log(`Login logged for user ${userId}`);
-  } catch (error) {
-    console.error('Database Error in logSuccessfulLogin:', error);
-    // Note: Logging failure should not block the main request flow.
-  }
+  console.log(`[DB] Audit: Login successful for User ID: ${userId} from IP: ${ipAddress}`);
+  // INSERT INTO activity_log (user_id, type, ip_address) VALUES ($1, 'LOGIN', $2);
 }
 
 
-// Export the core functions for the Controller (Router) to use
+/**
+ * Provisions a BRAND NEW user (in a transaction) by inserting records into 
+ * the 'users' and 'user_auth' tables.
+ * NOTE: This function should be moved to a Service Layer.
+ * @param {string} email - The user's email.
+ * @param {string} name - The user's display name.
+ * @param {string} accessToken - Google Access Token.
+ * @param {string} refreshToken - Google Refresh Token (optional).
+ * @returns {number} The newly created user's internal database ID.
+ */
+async function createGoogleUser(email, name, accessToken, refreshToken) {
+    // Start Transaction
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Insert into users table
+        const userInsertQuery = `
+            INSERT INTO users (email, name, photo_url)
+            VALUES ($1, $2, 'https://example.com/default-photo.png') 
+            RETURNING id;
+        `;
+        const userResult = await client.query(userInsertQuery, [email, name]);
+        const userId = userResult.rows[0].id;
+
+        // 2. Insert into user_auth table for Google strategy linkage
+        const nonNullRefreshToken = refreshToken || ''; 
+        const authInsertQuery = `
+            INSERT INTO user_auth (user_id, provider, email, access_token, refresh_token)
+            VALUES ($1, $2, $3, $4, $5);
+        `;
+        await client.query(authInsertQuery, [userId, 'google', email, accessToken, nonNullRefreshToken]);
+        
+        await client.query('COMMIT');
+        
+        console.log(`[DB] New user provisioned: ${email} (ID: ${userId})`);
+        return userId;
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error('Transaction Error in createGoogleUser:', e);
+        throw e;
+    } finally {
+        client.release();
+    }
+}
+
+
+/**
+ * Links a missing provider record for an EXISTING user by inserting a record 
+ * into the 'user_auth' table.
+ * NOTE: This function should be moved to a Service Layer.
+ * @param {number} userId - The existing user's internal database ID.
+ * @param {string} email - The user's email.
+ * @param {string} accessToken - Google Access Token.
+ * @param {string} refreshToken - Google Refresh Token (optional).
+ * @returns {number} The existing user's internal database ID.
+ */
+async function linkGoogleAccount(userId, email, accessToken, refreshToken) {
+    const nonNullRefreshToken = refreshToken || ''; 
+    const authInsertQuery = `
+        INSERT INTO user_auth (user_id, provider, email, access_token, refresh_token)
+        VALUES ($1, $2, $3, $4, $5);
+    `;
+    await pool.query(authInsertQuery, [userId, 'google', email, accessToken, nonNullRefreshToken]);
+    
+    console.log(`[DB] Existing user linked to Google provider: ${email} (ID: ${userId})`);
+    return userId;
+}
+
+
 module.exports = {
   findUserIdByEmail,
+  findUserIdInUsers,
   getFullUserData,
   logSuccessfulLogin,
+  createGoogleUser, 
+  linkGoogleAccount,
 };
