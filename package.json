@@ -5,9 +5,11 @@
     "globals": "^16.5.0",
     "htmlhint": "^1.7.1",
     "http-server": "^14.1.1",
+    "jest": "^30.2.0",
     "pa11y-ci": "^4.0.1",
     "stylelint": "^16.25.0",
-    "stylelint-config-standard": "^39.0.1"
+    "stylelint-config-standard": "^39.0.1",
+    "supertest": "^7.1.4"
   },
   "scripts": {
     "start": "npx http-server ./client -p 3000"

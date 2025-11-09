@@ -123,6 +123,7 @@ CREATE TABLE attendance (
     is_excused     BOOLEAN NOT NULL DEFAULT FALSE,
     reason         TEXT,
     meeting_type   VARCHAR(50) NOT NULL -- e.g., 'Standup', 'Lecture'
+    UNIQUE (user_id, date) -- constraint for only 1 time updates
 );
 
 -- Table: journals
