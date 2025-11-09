@@ -12,14 +12,14 @@
   background: white;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .page-header {
   background: white;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
   margin-bottom: 2rem;
 }
 
@@ -38,7 +38,7 @@
 
 .page-description {
   color: #666;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1.5rem;
 }
 
 /* Lists and cards */
@@ -52,12 +52,12 @@
   background: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
   transition: box-shadow 0.2s;
 }
 
 .journal-entry:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
 }
 
 .journal-header {
@@ -165,7 +165,7 @@
 .form-group textarea:focus {
   outline: none;
   border-color: #06c;
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  box-shadow: 0 0 0 3px rgb(0 102 204 / 10%);
 }
 
 /* Buttons */
@@ -184,7 +184,11 @@
 
 .submit-btn:hover { background: #0056b3; }
 .submit-btn:active { background: #004494; }
-.submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+.submit-btn:disabled { 
+  background: #ccc; 
+  cursor: not-allowed; 
+}
 
 .form-actions {
   display: flex;
