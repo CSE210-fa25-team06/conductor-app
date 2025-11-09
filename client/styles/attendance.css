@@ -74,7 +74,8 @@ body {
 	padding: 20px;
 	border-radius: 4px;
 	margin-bottom: 20px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	/* ✨ modern rgb notation with alpha percentage */
+	box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
 
 .controls-row {
@@ -167,8 +168,19 @@ body {
 .student-list {
 	background-color: white;
 	border-radius: 4px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	/* ✨ modern rgb notation */
+	box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 	overflow: hidden;
+}
+
+.student-name {
+	font-weight: 500;
+	color: #333;
+	min-width: 150px;
+}
+
+.student-group {
+	color: #666;
 }
 
 .student-row {
@@ -224,17 +236,7 @@ body {
 	gap: 40px;
 }
 
-.student-name {
-	font-weight: 500;
-	color: #333;
-	min-width: 150px;
-}
-
-.student-group {
-	color: #666;
-}
-
-@media (max-width: 768px) {
+@media (width <= 768px) {
 	.controls-row {
 		flex-direction: column;
 		align-items: flex-start;
