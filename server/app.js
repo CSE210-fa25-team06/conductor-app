@@ -21,7 +21,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 // Load the Google Authenticator module to initialize the Passport Strategy
 // This ensures passport.use(new GoogleStrategy(...)) runs.
-const { passport: configuredPassport } = require('./services/auth/google/google-authenticator'); 
+require('./services/auth/google/google-authenticator');
 
 const app = express();
 const port = process.env.PORT || 3000;
