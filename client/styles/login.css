@@ -9,7 +9,7 @@ body {
 }
 
 header {
-  background-color: #003366;
+  background-color: #036;
   color: white;
   padding: 1.35em 1em;
   text-align: center;
@@ -35,7 +35,7 @@ main {
 .login-section h2 {
   margin: 0 0 0.5em;
   font-weight: 600;
-  color: #003366;
+  color: #036;
 }
 
 .login-section p {

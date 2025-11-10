@@ -9,16 +9,24 @@ body {
 }
 
 header {
-  background-color: #003366;
+  background-color: #036;
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.5em 1.5em;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
 }
 
-header h1 a {
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+header h1 a,
+nav a:hover {
   color: white;
   text-decoration: none;
 }
@@ -45,14 +53,6 @@ header nav {
   transform: translateX(-50%);
 }
 
-nav a {
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-nav a:hover,
 nav a.active {
   color: #cce0ff;
   border-bottom: 2px solid #cce0ff;
@@ -83,7 +83,7 @@ nav a.active {
   right: 0;
   background-color: white;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   list-style: none;
   margin: 0;
   padding: 0.4em 0;
@@ -129,7 +129,7 @@ main {
 }
 
 .welcome h2 {
-  color: #003366;
+  color: #036;
   margin: 0;
   font-weight: 600;
 }
@@ -140,7 +140,7 @@ main {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 1.2em;
-  color: #003366;
+  color: #036;
   transition: opacity 0.3s ease;
 }
 
