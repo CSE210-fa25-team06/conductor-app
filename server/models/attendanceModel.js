@@ -12,10 +12,10 @@ export async function fetchDirectory() {
   }
   
   // Insert or update a single attendance record
-  export async function recordStudentAttendance({ user_id, date, status, meeting_type, recorded_by, is_excused = false, reason = null }) {
+  export async function recordStudentAttendance({ user_id, group_id, date, status, meeting_type, recorded_by, is_excused = false, reason = null }) {
     const query = `
-      INSERT INTO attendance (user_id, date, status, meeting_type, recorded_by, is_excused, reason)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO attendance (user_id, group_id, date, status, meeting_type, recorded_by, is_excused, reason)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       ON CONFLICT (user_id, date)
       DO UPDATE SET status = EXCLUDED.status,
                     meeting_type = EXCLUDED.meeting_type,
@@ -23,7 +23,7 @@ export async function fetchDirectory() {
                     is_excused = EXCLUDED.is_excused,
                     reason = EXCLUDED.reason;
     `;
-    await pool.query(query, [user_id, date, status, meeting_type, recorded_by, is_excused, reason]);
+    await pool.query(query, [user_id, group_id, date, status, meeting_type, recorded_by, is_excused, reason]);
   }
   
   // Fetch aggregate attendance counts by status

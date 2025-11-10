@@ -1,3 +1,7 @@
+/**
+ * Attendance Controller - Handles HTTP requests for attendance entries and retrieval
+ */
+
 import {
     fetchDirectory,
     recordStudentAttendance,
@@ -5,7 +9,7 @@ import {
     fetchAttendanceByDate
   } from "../models/attendanceModel.js";
   
- // 1. Get all attendance entries for a student
+ // Get all attendance entries for a student
  export async function getDirectory(req, res) {
     try {
       const students = await fetchDirectory();
@@ -16,11 +20,11 @@ import {
     }
   }
   
-  // 2. Submit or update attendance
+  //Submit or update attendance
   export async function markAttendance(req, res) {
     try {
-      const { user_id, date, status, meeting_type, recorded_by, is_excused, reason } = req.body;
-      await recordStudentAttendance({ user_id, date, status, meeting_type, recorded_by, is_excused, reason });
+      const { user_id, group_id, date, status, meeting_type, recorded_by, is_excused, reason } = req.body;
+      await recordStudentAttendance({ user_id, group_id, date, status, meeting_type, recorded_by, is_excused, reason });
       res.json({ message: "Attendance recorded successfully" });
     } catch (err) {
       console.error("Error recording attendance:", err);
@@ -28,7 +32,7 @@ import {
     }
   }
   
-  // 3. Get aggregate attendance history for a student
+  // Get aggregate attendance history for a student
   export async function getStudentAttendanceHistory(req, res) {
     try {
       const { user_id } = req.params;
@@ -39,14 +43,19 @@ import {
       res.status(500).json({ error: "Failed to fetch attendance history" });
     }
   }
+  // Get attendance by date
   export async function getAttendanceByDate(req, res) {
     try {
-      const { date, start_date, end_date } = req.query;
+        const {date} = req.params
+      const {start_date, end_date } = req.query;
   
       let attendance;
+      // If its just one date, then grab the date
       if (date) {
         attendance = await fetchAttendanceByDate({ date });
-      } else if (start_date && end_date) {
+      } 
+      // If user wants to look by a range of dates 
+      else if (start_date && end_date) {
         attendance = await fetchAttendanceByDate({ start_date, end_date });
       } else {
         return res.status(400).json({ error: "Please provide either date or start_date and end_date" });
