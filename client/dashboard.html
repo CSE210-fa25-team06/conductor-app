@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Conductor</title>
+    <link rel="stylesheet" href="styles/dashboard.css" />
+  </head>
+  <body>
+    <header>
+      <h1><a href="#" id="home-link">Conductor</a></h1>
+
+      <nav>
+        <ul>
+          <li>
+            <a href="#" onclick="loadSection('directory', event)">Directory</a>
+          </li>
+          <li>
+            <a href="#" onclick="loadSection('attendance', event)"
+              >Attendance</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="loadSection('journal', event)">Journal</a>
+          </li>
+          <li>
+            <a href="#" onclick="loadSection('evaluation', event)"
+              >Evaluation</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <section class="profile-menu">
+        <button id="profile-btn" title="Profile">👤</button>
+        <ul id="dropdown" class="hidden">
+          <li><a href="#">Profile</a></li>
+          <li><a href="#">Settings</a></li>
+          <li id="logout-option"><a href="#">Log out</a></li>
+        </ul>
+      </section>
+    </header>
+
+    <main>
+      <section class="welcome" id="welcome-section">
+        <h2>Welcome, <span id="user-name">&lt;Name&gt;</span></h2>
+      </section>
+
+      <section class="content" id="content-section">
+        <p>Dashboard content will appear here...</p>
+      </section>
+    </main>
+
+    <footer>
+      <small>© 2025 Conductor Portal</small>
+    </footer>
+
+    <script src="scripts/dashboard.js"></script>
+  </body>
+</html>

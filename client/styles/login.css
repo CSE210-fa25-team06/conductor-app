@@ -1,0 +1,70 @@
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #f0f4ff, #e1ecff);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: #333;
+}
+
+header {
+  background-color: #003366;
+  color: white;
+  padding: 1.35em 1em;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2em;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.login-section {
+  padding: 1em 2em;
+}
+
+.login-section h2 {
+  margin: 0 0 0.5em;
+  font-weight: 600;
+  color: #003366;
+}
+
+.login-section p {
+  margin: 0 0 1em;
+}
+
+#google-login {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  padding: 0.7em 1.5em;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#google-login:hover {
+  background-color: #3367d6;
+}
+
+#status {
+  margin-top: 1em;
+  color: #666;
+}
+
+footer {
+  text-align: center;
+  padding: 1em 0;
+  font-size: 0.9em;
+  color: #666;
+}
