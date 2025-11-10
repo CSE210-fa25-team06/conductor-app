@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (section === "log out") {
         if (confirm("Do you want to log out?")) {
-          window.location.href = "login.html";
+          window.location.href = '/';
         }
         return;
       }
