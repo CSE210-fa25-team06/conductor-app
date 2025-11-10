@@ -3,8 +3,6 @@
   It exports a connection pool used by other model files for database operations.
 */
 import pkg from "pg";
-import dotenv from "dotenv";
-dotenv.config()
 const { Pool } = pkg;
 
 export const pool = new Pool({
