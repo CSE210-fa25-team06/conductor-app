@@ -21,27 +21,3 @@ export async function searchDirectory(query) {
     const res = await pool.query(baseQuery, values);
     return res.rows;
 }
-
-async function testDirectory(){
-    const result = await searchDirectory('Alice', null);
-    console.log(result);
-
-    /*
-        SHOULD PRINT:
-        [
-            {
-                id: 101,
-                photo_url: 'url/alice.png',
-                name: 'Alice',
-                email: 'alice@example.com',
-                array_agg: [ 'Student' ],
-                group_name: 'Group Alpha',
-                contact_info: '555-1111',
-                availability: { Tue: '10-12' }
-            }
-        ]
-
-    */
-}
-
-testDirectory();
