@@ -1,23 +1,30 @@
-<!--
-  This file contains the main HTML entry point for the Conductor web app.
-  It links all required CSS and JavaScript files and defines the overall page structure.
--->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Index file for conductor app" />
-  <title>Conductor</title>
-  <link rel="stylesheet" href="styles/base.css" />
-</head>
-<body>
-  <header>
-    <h1>Welcome to Conductor</h1>
-  </header>
-  <main id="content">
-    <p>This is the base template for the Conductor app frontend.</p>
-  </main>
-  <script src="scripts/main.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Conductor - Course management platform">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Conductor</title>
+    <link rel="stylesheet" href="styles/login.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Conductor</h1>
+    </header>
+
+    <main>
+      <section class="login-section">
+        <h2>Welcome Back</h2>
+        <p>Sign in to continue</p>
+        <button id="google-login" type="button">🔒 Sign in with Google</button>
+        <p id="status"></p>
+      </section>
+    </main>
+
+    <footer>
+      <small>© 2025 Conductor Portal</small>
+    </footer>
+
+    <script src="scripts/login.js"></script>
+  </body>
 </html>
