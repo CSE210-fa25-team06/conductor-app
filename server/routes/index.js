@@ -8,6 +8,7 @@ import { router as groupsRouter } from "./groups.js";
 import { router as journalsRouter } from "./journals.js";
 
 export const router = express.Router();
+import {router as attendanceRouter} from "./attendance.js";
 
 router.get("/", (req, res) => {
   res.send("Welcome to the Conductor API");
@@ -17,3 +18,4 @@ router.get("/", (req, res) => {
 router.use("/users", usersRouter);
 router.use("/groups", groupsRouter);
 router.use("/journal", journalsRouter);
+router.use("/attendance", attendanceRouter);
