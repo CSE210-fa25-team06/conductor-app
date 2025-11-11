@@ -218,11 +218,8 @@
 .modal-overlay {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgb(0 0 0 / 50%);
   z-index: 1000;
   justify-content: center;
   align-items: center;
@@ -236,20 +233,21 @@
 .modal-content {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 30%);
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  animation: modalSlideIn 0.3s ease-out;
+  animation: modal-slide-in 0.3s ease-out;
 }
 
-@keyframes modalSlideIn {
+@keyframes modal-slide-in {
   from {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -311,14 +309,12 @@
 }
 
 /* Update button text in modal */
-.modal-body #backBtn::before {
+.modal-body #back-btn::before {
   content: 'Cancel';
+  font-size: 1rem;
 }
 
-.modal-body #backBtn {
+.modal-body #back-btn {
   font-size: 0;
 }
 
-.modal-body #backBtn::before {
-  font-size: 1rem;
-}
