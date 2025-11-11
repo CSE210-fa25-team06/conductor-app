@@ -6,8 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const profileBtn = document.getElementById('profile-btn')
 	const dropdown = document.getElementById('dropdown')
-	const welcomeSection = document.getElementById('welcome-section')
-	const content = document.getElementById('content-section')
 
 	// Profile dropdown toggle
 	profileBtn.addEventListener('click', (e) => {
@@ -27,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (section === 'log out') {
 				if (confirm('Do you want to log out?')) {
-					window.location.href = 'login.html'
+					window.location.href = '/'
 				}
 				return
 			}
