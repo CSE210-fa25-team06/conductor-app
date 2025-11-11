@@ -50,7 +50,7 @@
 .directory form input[type="text"]:focus {
   outline: none;
   border-color: #06c;
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  box-shadow: 0 0 0 3px rgb(0 102 204 / 10%);
 }
 
 .directory form input[type="text"]::placeholder {
@@ -133,7 +133,7 @@
 /* ===============================================================
    RESPONSIVE DESIGN
    =============================================================== */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .directory {
     padding: 1.5em 1em;
   }
@@ -164,7 +164,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .directory h1 {
     font-size: 1.4em;
   }
