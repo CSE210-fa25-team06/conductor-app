@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="../styles/components.css" />
   <link rel="stylesheet" href="../styles/layout.css" />
   <link rel="stylesheet" href="../styles/journal.css" />
+  <script type="module" src="../scripts/journal/journal_submission.js" defer></script>
 </head>
 <body>
   <main>
@@ -52,64 +53,12 @@
 
         <div class="form-actions">
           <button type="submit" class="submit-btn">Submit Journal</button>
-          <button type="button" class="back-btn" onclick="window.location.href='../journal.html'">
+          <button type="button" class="back-btn" id="backBtn">
             Back to Overview
           </button>
         </div>
       </form>
     </div>
   </main>
-
-  <script>
-    // Handle form submission
-    document.getElementById('journalForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Get form values
-      const whatIDid = document.getElementById('whatIDid').value.trim();
-      const whatIWillDo = document.getElementById('whatIWillDo').value.trim();
-      const blockers = document.getElementById('blockers').value.trim();
-      
-      // Validate required fields
-      if (!whatIDid || !whatIWillDo) {
-        alert('Please fill in all required fields.');
-        return;
-      }
-      
-      // Load existing journals from localStorage
-      const storedJournals = localStorage.getItem('journals');
-      const journals = storedJournals ? JSON.parse(storedJournals) : [];
-      
-      // Generate new ID (find max ID and add 1)
-      const maxId = journals.length > 0 ? Math.max(...journals.map(j => j.id)) : 0;
-      
-      // Create journal entry object
-      const journalEntry = {
-        id: maxId + 1,
-        whatIDid: whatIDid,
-        whatIWillDo: whatIWillDo,
-        blockers: blockers,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Add new entry to journals array
-      journals.push(journalEntry);
-      
-      // Save back to localStorage
-      localStorage.setItem('journals', JSON.stringify(journals));
-      
-      // Log to console
-      console.log('Journal Entry Saved:', journalEntry);
-      
-      // Show success message
-      alert('Journal submitted successfully!');
-      
-      // Redirect back to overview page
-      window.location.href = '../journal.html';
-      
-      // TODO: Later this will send data to server using API
-      // This would typically use fetch() to POST to your backend
-    });
-  </script>
 </body>
 </html>
