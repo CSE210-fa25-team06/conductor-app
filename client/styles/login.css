@@ -9,7 +9,7 @@ body {
 }
 
 header {
-  background-color: #003366;
+  background-color: #036;
   color: white;
   padding: 1.35em 1em;
   text-align: center;
@@ -35,7 +35,7 @@ main {
 .login-section h2 {
   margin: 0 0 0.5em;
   font-weight: 600;
-  color: #003366;
+  color: #036;
 }
 
 .login-section p {
@@ -43,7 +43,7 @@ main {
 }
 
 #google-login {
-  background-color: #4285f4;
+  background-color: #036;
   color: white;
   border: none;
   padding: 0.7em 1.5em;
@@ -54,7 +54,7 @@ main {
 }
 
 #google-login:hover {
-  background-color: #3367d6;
+  background-color: #2f72e1;
 }
 
 #status {

@@ -1,0 +1,64 @@
+<!--
+  This file contains the journal submission interface for the Conductor app.
+  Users can submit their stand-up updates including what they did, what they'll do next, and any blockers.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Journal submission page for conductor app" />
+  <title>Journal - Conductor</title>
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/journal.css" />
+  <script type="module" src="../scripts/journal/journal_submission.js" defer></script>
+</head>
+<body>
+  <main>
+    <div class="journal-container">
+      <h1 class="page-title">Submit Your Stand-up Update</h1>
+      <p class="page-description">Share your progress and any challenges you're facing with your team.</p>
+      
+      <form class="journal-form" id="journalForm">
+        <div class="form-group">
+          <label for="whatIDid">What I did since last meeting</label>
+          <textarea 
+            id="whatIDid" 
+            name="whatIDid" 
+            placeholder="Describe what you accomplished since the last meeting..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="whatIWillDo">What I will do next</label>
+          <textarea 
+            id="whatIWillDo" 
+            name="whatIWillDo" 
+            placeholder="Describe what you plan to work on next..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="blockers">Any blockers</label>
+          <textarea 
+            id="blockers" 
+            name="blockers" 
+            placeholder="Describe any obstacles or issues you're facing (leave blank if none)..."
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="submit-btn">Submit Journal</button>
+          <button type="button" class="back-btn" id="backBtn">
+            Back to Overview
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
