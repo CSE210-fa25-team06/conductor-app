@@ -53,14 +53,14 @@ function escapeHtml(text) {
 
 
 // Initialize localStorage with mock data if empty
-function initializeData() {
+export function initializeData() {
     if (!localStorage.getItem('journals')) {
     localStorage.setItem('journals', JSON.stringify(mockJournals));
     }
 }
 
 // Load and display journal entries
-function loadJournals() {
+export function loadJournals() {
     const journalList = document.getElementById('journalList');
     
     try {
@@ -97,6 +97,154 @@ function loadJournals() {
     }
 }
 
+// Show modal for creating new journal
+async function showJournalModal() {
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.id = 'journalModal';
+    
+    try {
+        // Fetch the journal submission form HTML
+        const response = await fetch('journal/journal_submission.html');
+        if (!response.ok) throw new Error('Failed to load form');
+        const html = await response.text();
+        
+        // Extract only the form content (not the title/description from the HTML)
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const formElement = doc.querySelector('#journalForm');
+        const formHTML = formElement ? formElement.outerHTML : html;
+        
+        // Create modal content
+        modalOverlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Submit Your Stand-up Update</h2>
+                    <button type="button" class="modal-close" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p class="page-description">Share your progress and any challenges you're facing with your team.</p>
+                    ${formHTML}
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.appendChild(modalOverlay);
+        
+        // Show modal with animation
+        setTimeout(() => modalOverlay.classList.add('active'), 10);
+        
+        // Initialize modal event handlers
+        initModalHandlers(modalOverlay);
+        
+    } catch (error) {
+        console.error('Error loading journal form:', error);
+        alert('Failed to load journal form. Please try again.');
+    }
+}
+
+// Initialize modal event handlers
+function initModalHandlers(modalOverlay) {
+    // Close modal button
+    const closeBtn = modalOverlay.querySelector('#closeModal');
+    const backBtn = modalOverlay.querySelector('#backBtn');
+    
+    const closeModal = () => {
+        modalOverlay.classList.remove('active');
+        setTimeout(() => modalOverlay.remove(), 300);
+    };
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+    
+    if (backBtn) {
+        backBtn.addEventListener('click', closeModal);
+    }
+    
+    // Close on overlay click
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+    
+    // Close on Escape key
+    const escapeHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', escapeHandler);
+        }
+    };
+    document.addEventListener('keydown', escapeHandler);
+    
+    // Handle form submission
+    const journalForm = modalOverlay.querySelector('#journalForm');
+    if (journalForm) {
+        journalForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const whatIDid = modalOverlay.querySelector('#whatIDid').value.trim();
+            const whatIWillDo = modalOverlay.querySelector('#whatIWillDo').value.trim();
+            const blockers = modalOverlay.querySelector('#blockers').value.trim();
+            
+            // Validate required fields
+            if (!whatIDid || !whatIWillDo) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Load existing journals from localStorage
+            const storedJournals = localStorage.getItem('journals');
+            const journals = storedJournals ? JSON.parse(storedJournals) : [];
+            
+            // Generate new ID
+            const maxId = journals.length > 0 ? Math.max(...journals.map(j => j.id)) : 0;
+            
+            // Create journal entry object
+            const journalEntry = {
+                id: maxId + 1,
+                whatIDid: whatIDid,
+                whatIWillDo: whatIWillDo,
+                blockers: blockers,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Add new entry to journals array
+            journals.push(journalEntry);
+            
+            // Save back to localStorage
+            localStorage.setItem('journals', JSON.stringify(journals));
+            
+            // Log to console
+            console.log('Journal Entry Saved:', journalEntry);
+            
+            // Close modal
+            closeModal();
+            
+            // Reload journals to show new entry
+            loadJournals();
+            
+            // Show success message
+            alert('Journal submitted successfully!');
+        });
+    }
+}
+
+export function initJournals(){
+    initializeData();
+    loadJournals();
+    
+    // Add event listener for create journal button (on journal.html)
+    const createJournalBtn = document.getElementById('createJournalBtn');
+    if (createJournalBtn) {
+        createJournalBtn.addEventListener('click', showJournalModal);
+    }
+}
+
 // Load journals when page loads
 document.addEventListener('DOMContentLoaded', () => {
     initializeData();
@@ -105,8 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listener for create journal button (on journal.html)
     const createJournalBtn = document.getElementById('createJournalBtn');
     if (createJournalBtn) {
-        createJournalBtn.addEventListener('click', () => {
-            window.location.href = 'journal/journal_submission.html';
-        });
+        createJournalBtn.addEventListener('click', showJournalModal);
     }
 });
