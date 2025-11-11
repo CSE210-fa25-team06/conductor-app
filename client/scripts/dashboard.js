@@ -61,7 +61,12 @@ function loadSection(section, event) {
     if (section === "dashboard") {
       text = "Dashboard content will appear here...";
       welcomeSection.style.display = "block";
-    } else {
+      content.classList.remove("centered");
+    } 
+    else if (section === "journal") {
+      renderJournal();
+    }
+    else {
       welcomeSection.style.display = "none";
       switch (section) {
         case "directory":
@@ -91,6 +96,7 @@ function loadDropdownSection(section) {
   welcomeSection.style.display = "none";
 
   content.style.opacity = 0;
+  content.classList.add("centered");
 
   setTimeout(() => {
     let text = "";
@@ -105,4 +111,34 @@ function loadDropdownSection(section) {
     content.innerHTML = `<p>${text}</p>`;
     content.style.opacity = 1;
   }, 250);
+}
+
+function renderJournal(){
+  const content = document.getElementById("content-section");
+  const welcomeSection = document.getElementById("welcome-section");
+  content.classList.remove("centered");
+  fetch("../journal.html")
+    .then((resp) => {
+      if (!resp.ok) throw new Error(resp.statusText || "Network error");
+      return resp.text();
+    })
+    .then(async (html) => {
+      content.innerHTML = html;
+      
+      // Import and call initJournals after HTML is loaded
+      try {
+        const { initJournals } = await import('./journal/journal.js');
+        initJournals();
+      } catch (err) {
+        console.error('Error loading journal module:', err);
+      }
+      
+      content.style.opacity = 1;
+    })
+    .catch((err) => {
+      content.innerHTML = `<p>Failed to load journal: ${err.message}</p>`;
+      content.style.opacity = 1;
+    });
+  welcomeSection.style.display = "none";
+  return;
 }
