@@ -1,0 +1,187 @@
+/*
+  This file contains styles for the Class Directory page.
+  It matches the theme used across the Conductor app.
+*/
+
+.directory {
+  padding: 2em 1.5em;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.directory h1 {
+  color: #036;
+  font-size: 2em;
+  margin: 0 0 1.5em;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ===============================================================
+   SEARCH FORM
+   =============================================================== */
+.directory form {
+  margin-bottom: 2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.directory form label {
+  font-weight: 500;
+  color: #036;
+  font-size: 0.95em;
+}
+
+.directory form input[type="text"] {
+  padding: 0.7em 1em;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  font-family: Arial, sans-serif;
+}
+
+.directory form input[type="text"]:focus {
+  outline: none;
+  border-color: #06c;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.directory form input[type="text"]::placeholder {
+  color: #999;
+}
+
+/* ===============================================================
+   TABLE STYLING
+   =============================================================== */
+.directory table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.directory thead {
+  background-color: #036;
+  color: white;
+}
+
+.directory thead th {
+  padding: 1em 0.8em;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95em;
+  letter-spacing: 0.5px;
+}
+
+.directory tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.directory tbody tr:hover {
+  background-color: #f5f7ff;
+}
+
+.directory tbody tr:last-child {
+  border-bottom: none;
+}
+
+.directory tbody td {
+  padding: 1em 0.8em;
+  vertical-align: middle;
+}
+
+/* Photo column */
+.directory tbody td:first-child {
+  text-align: center;
+  width: 80px;
+}
+
+.directory tbody td img {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+  transition: border-color 0.2s;
+}
+
+.directory tbody tr:hover td img {
+  border-color: #06c;
+}
+
+/* Contact links */
+.directory tbody td a {
+  color: #06c;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.directory tbody td a:hover {
+  color: #036;
+  text-decoration: underline;
+}
+
+/* ===============================================================
+   RESPONSIVE DESIGN
+   =============================================================== */
+@media (max-width: 768px) {
+  .directory {
+    padding: 1.5em 1em;
+  }
+
+  .directory h1 {
+    font-size: 1.6em;
+    margin-bottom: 1em;
+  }
+
+  .directory form {
+    max-width: 100%;
+  }
+
+  .directory table {
+    font-size: 0.9em;
+  }
+
+  .directory thead th,
+  .directory tbody td {
+    padding: 0.7em 0.5em;
+  }
+
+  .directory thead th:nth-child(5),
+  .directory thead th:nth-child(6),
+  .directory tbody td:nth-child(5),
+  .directory tbody td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .directory h1 {
+    font-size: 1.4em;
+  }
+
+  .directory thead th,
+  .directory tbody td {
+    padding: 0.6em 0.4em;
+    font-size: 0.85em;
+  }
+
+  .directory tbody td:first-child {
+    width: 60px;
+  }
+
+  .directory tbody td img {
+    width: 35px;
+    height: 35px;
+  }
+}
+

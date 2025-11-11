@@ -1,3 +1,5 @@
+import { renderClassDirectory } from './class-directory.js';
+
 document.addEventListener("DOMContentLoaded", () => {
   const userName = "<Name>";
   document.getElementById("user-name").textContent = userName;
@@ -65,7 +67,7 @@ function loadSection(section, event) {
       welcomeSection.style.display = "none";
       switch (section) {
         case "directory":
-          text = "Directory content will be here...";
+          renderClassDirectory(content);
           break;
         case "attendance":
           text = "Attendance content will be here...";
@@ -79,7 +81,9 @@ function loadSection(section, event) {
       }
     }
 
-    content.innerHTML = `<p>${text}</p>`;
+    if (text) {
+      content.innerHTML = `<p>${text}</p>`;
+    }
     content.style.opacity = 1;
   }, 250);
 }
@@ -106,3 +110,5 @@ function loadDropdownSection(section) {
     content.style.opacity = 1;
   }, 250);
 }
+
+window.loadSection = loadSection;
