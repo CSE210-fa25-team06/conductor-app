@@ -103,7 +103,6 @@ const testUsersMatchQuery = async () => {
 //test - not including query parameter throws a 400 error
 const testFailsWhenNoQueryParam = async () => {
     try {
-        const query = 'al';
         const response = await fetch(`${API_BASE_URL}/users`);
 
         if (response.ok) {
