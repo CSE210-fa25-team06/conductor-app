@@ -75,6 +75,28 @@ const testUserCategories = async () => {
     }
 }
 
+//test - returned users properly match with the query from the start of the name
+const testUsersMatchQuery = async () => {
+    try {
+        const query = 'al';
+        const response = await fetch(`${API_BASE_URL}/users?query=${query}`);
+        const data = await response.json();
+
+        for (const user of data.users) {
+            if (!user.name.toLowerCase().startsWith(query)) {
+                console.error(`found a user with name ${user.name} who didn't match query '${query}'`);
+                return false;
+            }
+        }
+
+        return true;
+    } catch {
+        console.error('test failed to run');
+        return false;
+    }
+}
+
+
 const runAllTests = async () => {
     const isArray = await testArray();
     console.log(`RETURNS ARRAY TEST: ${isArray ? 'passed' : 'failed'}`);
@@ -84,5 +106,9 @@ const runAllTests = async () => {
 
     const containsAllFields = await testUserCategories();
     console.log(`CONTAINS ALL CATEGORIES TEST: ${containsAllFields ? 'passed' : 'failed'}`);
+
+    const usersMatchQuery = await testUsersMatchQuery();
+    console.log(`USERS MATCH QUERY TEST: ${usersMatchQuery ? 'passed' : 'failed'}`);
+
 }
 runAllTests();
