@@ -17,6 +17,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Start a simple static server to serve HTML files
+      - name: Start static server
+        run: |
+          npx http-server ./client -p 3000 &
+          sleep 5
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000 --timeout 90000
+
       - name: Run HTML Linter
         run: npx htmlhint "client/**/*.html"
 
