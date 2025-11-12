@@ -4,6 +4,10 @@ const API_BASE_URL = 'http://localhost:3000';
 
 /*
 This file contains unit tests for the class directory feature.
+
+TO RUN:
+1) NAVIGATE TO PROJECT ROOT
+2) RUN node tests/backend/test-class-directory and view output in console
 */
 
 
