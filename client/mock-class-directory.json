@@ -1,0 +1,42 @@
+[
+  {
+    "user_name": "Instructor Ian",
+    "role_name": "Instructor",
+    "group_name": "Group Alpha",
+    "contact": "ian@example.com",
+    "photo_url": "url/ian.png",
+    "availability": {"Mon": "9-5"}
+  },
+  {
+    "user_name": "Alice",
+    "role_name": "Student",
+    "group_name": "Group Alpha",
+    "contact": "alice@example.com",
+    "photo_url": "url/alice.png",
+    "availability": {"Tue": "10-12"}
+  },
+  {
+    "user_name": "Bob",
+    "role_name": "Student, Team Lead",
+    "group_name": "Group Alpha",
+    "contact": "bob@example.com",
+    "photo_url": "url/bob.png",
+    "availability": {"Wed": "1-3"}
+  },
+  {
+    "user_name": "Charlie",
+    "role_name": "Student",
+    "group_name": "Group Beta",
+    "contact": "charlie@example.com",
+    "photo_url": "url/charlie.png",
+    "availability": {"Thu": "2-4"}
+  },
+  {
+    "user_name": "David",
+    "role_name": "Tutor, TA",
+    "group_name": "—",
+    "contact": "david@example.com",
+    "photo_url": "url/david.png",
+    "availability": {"Fri": "11-1"}
+  }
+]

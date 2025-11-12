@@ -1,10 +1,32 @@
 {
+  "type": "module",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js",
+    "client": "npx http-server ./client -p 3000",
+    "test-db": "node tests/backend/test-db.js",
+    "test-simple_attendance": "node tests/backend/test-simple_attendance.js",
+    "test-attendance": "node tests/backend/test-attendance.js",
+    "test": "node test-api-simple.js",
+    "test:journal": "node test-journal-api.js",
+    "test:direct": "node test-direct.js"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
+    "globals": "^16.5.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.16.3",
     "globals": "^16.5.0",
     "htmlhint": "^1.7.1",
     "http-server": "^14.1.1",
+    "jest": "^30.2.0",
+    "nodemon": "^3.0.2",
     "pa11y-ci": "^4.0.1",
     "stylelint": "^16.25.0",
     "stylelint-config-standard": "^39.0.1"
