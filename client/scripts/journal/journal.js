@@ -183,7 +183,7 @@ function initModalHandlers(modalOverlay) {
     // Handle form submission
     const journalForm = modalOverlay.querySelector('#journalForm');
     if (journalForm) {
-        journalForm.addEventListener('submit', function(e) {
+        journalForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form values
@@ -197,39 +197,76 @@ function initModalHandlers(modalOverlay) {
                 return;
             }
             
-            // Load existing journals from localStorage
-            const storedJournals = localStorage.getItem('journals');
-            const journals = storedJournals ? JSON.parse(storedJournals) : [];
+            // TODO: Replace with actual user_id and group_id from authentication
+            // For now, using test values matching test-journal-api.js
+            const user_id = 101;
+            const group_id = 1;
             
-            // Generate new ID
-            const maxId = journals.length > 0 ? Math.max(...journals.map(j => j.id)) : 0;
+            // Get today's date in YYYY-MM-DD format
+            const today = new Date();
+            const entry_date = today.toISOString().split('T')[0];
             
-            // Create journal entry object
-            const journalEntry = {
-                id: maxId + 1,
-                whatIDid: whatIDid,
-                whatIWillDo: whatIWillDo,
-                blockers: blockers,
-                timestamp: new Date().toISOString()
+            // Create journal entry object matching API format
+            const journalData = {
+                user_id: user_id,
+                group_id: group_id,
+                entry_date: entry_date,
+                did: whatIDid,
+                doing_next: whatIWillDo,
+                blockers: blockers || null
             };
             
-            // Add new entry to journals array
-            journals.push(journalEntry);
-            
-            // Save back to localStorage
-            localStorage.setItem('journals', JSON.stringify(journals));
-            
-            // Log to console
-            console.log('Journal Entry Saved:', journalEntry);
-            
-            // Close modal
-            closeModal();
-            
-            // Reload journals to show new entry
-            loadJournals();
-            
-            // Show success message
-            alert('Journal submitted successfully!');
+            try {
+                // Send POST request to API endpoint
+                const response = await fetch("http://localhost:3000/journal/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(journalData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    console.log('Journal Entry Saved:', result);
+                    
+                    // Also save to localStorage for offline viewing
+                    const storedJournals = localStorage.getItem('journals');
+                    const journals = storedJournals ? JSON.parse(storedJournals) : [];
+                    
+                    // Create journal entry object for localStorage (using original field names)
+                    const journalEntry = {
+                        id: result.journal?.id || Date.now(), // Use API returned ID or timestamp
+                        whatIDid: whatIDid,
+                        whatIWillDo: whatIWillDo,
+                        blockers: blockers,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Add new entry to journals array
+                    journals.push(journalEntry);
+                    
+                    // Save back to localStorage
+                    localStorage.setItem('journals', JSON.stringify(journals));
+                    
+                    // Close modal
+                    closeModal();
+                    
+                    // Reload journals to show new entry
+                    loadJournals();
+                    
+                    // Show success message
+                    alert('Journal submitted successfully!');
+                } else {
+                    // Handle API error
+                    console.error('API Error:', result);
+                    alert(`Failed to submit journal: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Network Error:', error);
+                alert('Failed to submit journal. Please check if the server is running.');
+            }
         });
     }
 }
