@@ -4,8 +4,6 @@ import { pool } from "../models/db.js";
     Returns names and emails of members where the name-start matches the passed in query
 */
 
-// run test by doing node server/service/search.js from root directory
-
 export async function searchDirectory(query) {
     let baseQuery = `
         SELECT u.id, u.photo_url, u.name, u.email, array_agg(r.name) as roles, g.name as group_name, contact_info, availability
