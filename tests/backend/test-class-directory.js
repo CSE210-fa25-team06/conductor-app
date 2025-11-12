@@ -96,6 +96,29 @@ const testUsersMatchQuery = async () => {
     }
 }
 
+//test - not including query parameter throws a 400 error
+const testFailsWhenNoQueryParam = async () => {
+    try {
+        const query = 'al';
+        const response = await fetch(`${API_BASE_URL}/users`);
+
+        if (response.ok) {
+            console.error('expected a failing response but got a ok response');
+            return false
+        }
+
+        if (response.status != 400) {
+            console.error(`got a ${response.status} status code but expected a 400 status code`);
+            return false
+        }
+
+        return true;
+    } catch {
+        console.error('test failed to run');
+        return false;
+    }
+}
+
 
 const runAllTests = async () => {
     const isArray = await testArray();
@@ -109,6 +132,9 @@ const runAllTests = async () => {
 
     const usersMatchQuery = await testUsersMatchQuery();
     console.log(`USERS MATCH QUERY TEST: ${usersMatchQuery ? 'passed' : 'failed'}`);
+
+    const failsWhenNoQueryParam = await testFailsWhenNoQueryParam();
+    console.log(`FAILS WHEN NO QUERY TEST: ${failsWhenNoQueryParam ? 'passed' : 'failed'}`)
 
 }
 runAllTests();
