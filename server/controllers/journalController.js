@@ -2,7 +2,7 @@
  * Journal Controller - Handles HTTP requests for journal entries
  */
 
-import { createJournalEntry } from "../models/journalModel-mock.js";
+import { createJournalEntry } from "../models/journalModel.js";
 
 /**
  * Create a new journal entry

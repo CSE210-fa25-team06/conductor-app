@@ -9,7 +9,7 @@
     "test-simple_attendance": "node tests/backend/test-simple_attendance.js",
     "test-attendance": "node tests/backend/test-attendance.js",
     "test": "node test-api-simple.js",
-    "test:journal": "node test-journal-api.js",
+    "test:journal": "node tests/backend/test-journal-api.js",
     "test:direct": "node test-direct.js"
   },
   "devDependencies": {

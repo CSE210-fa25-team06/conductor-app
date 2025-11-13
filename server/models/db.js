@@ -5,13 +5,29 @@
 
 import pkg from "pg";
 import dotenv from "dotenv";
-dotenv.config()
+dotenv.config();
 const { Pool } = pkg;
 
-export const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'conductor_app_db',
-  password: 'password',
-  port: 5432,
-});
+const {
+  PGUSER = "postgres",
+  PGHOST = "localhost",
+  PGDATABASE = "conductor_app_db",
+  PGPASSWORD = "password",
+  PGPORT = "5432",
+  DATABASE_URL,
+} = process.env;
+
+export const pool = new Pool(
+  DATABASE_URL
+    ? {
+        connectionString: DATABASE_URL,
+        ssl: DATABASE_URL.includes("sslmode=require") ? { rejectUnauthorized: false } : undefined,
+      }
+    : {
+        user: PGUSER,
+        host: PGHOST,
+        database: PGDATABASE,
+        password: PGPASSWORD,
+        port: Number(PGPORT),
+      }
+);
