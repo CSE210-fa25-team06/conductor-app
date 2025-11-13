@@ -43,7 +43,7 @@ passport.deserializeUser(async (userId, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL
+    callbackURL: process.env.OAUTH_REDIRECT_URL
 }, 
     /**
      * The verify callback function executed after Google sends back the user data.
@@ -117,7 +117,7 @@ router.get('/google',
  * GET /api/auth/google/callback
  * Route that Google redirects back to after the user signs in.
  */
-router.get('/google/callback', 
+router.get('/callback/google',
     passport.authenticate('google', { 
         failureRedirect: '/api/auth/login-fail?error=google_failed', 
     }),
