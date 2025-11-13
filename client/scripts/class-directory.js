@@ -2,9 +2,9 @@ export function renderClassDirectory(containerEl) {
   containerEl.innerHTML = `
     <main class="directory">
       <h1>Class Directory</h1>
-      <form aria-label="Search class directory">
-        <label for="search">Search by Name or Role:</label>
-        <input type="text" id="search" name="search" placeholder="Search by Name or Role">
+      <form aria-label="Search class directory" id="search-form">
+        <label for="search">Search by Name:</label>
+        <input type="text" id="search" name="search" placeholder="Search by first name">
       </form>
       <table border="1" cellpadding="8" cellspacing="0">
         <thead>
@@ -22,35 +22,55 @@ export function renderClassDirectory(containerEl) {
     </main>
   `;
 
-  loadDirectory();
+  const searchInput = document.getElementById('search');
+  searchInput.addEventListener('input', async (e) => {
+    const query = e.target.value.trim();
+    await loadDirectory(query);
+  });
+
+  // load all students by default (empty query)
+  loadDirectory('');
 }
 
-async function loadDirectory() {
-    try {
-        const response = await fetch('mock-class-directory.json');
-        if (!response.ok) {
-            return; // If mock not found, do nothing
-        }
+async function loadDirectory(query) {
+  try {
+    const url = query
+      ? `/users?query=${encodeURIComponent(query)}`
+      : `/users?query=`; // backend expects 'query' param, even if empty
 
-        const data = await response.json();
-        const tbody = document.getElementById('directory-table-body');
-        tbody.innerHTML = '';
-
-        data.forEach(person => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-            <td><img src="${person.photo_url || 'https://via.placeholder.com/40'}" alt="Photo of ${person.user_name}" width="40" height="40"></td>
-            <td>${person.user_name}</td>
-            <td>${person.role_name || '—'}</td>
-            <td>${person.group_name || '—'}</td>
-            <td><a href="mailto:${person.contact}">${person.contact}</a></td>
-            <td>${formatAvailability(person.availability)}</td>
-        `;
-            tbody.appendChild(row);
-        });
-    } catch (error) {
-        console.error('Error:', error);
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error('Failed to fetch users');
+      return;
     }
+
+    const data = await response.json();
+    const tbody = document.getElementById('directory-table-body');
+    tbody.innerHTML = '';
+
+    // Defensive: handle missing data.users
+    const users = data.users || [];
+
+    if (users.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6">No results found</td></tr>`;
+      return;
+    }
+
+    users.forEach((user) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><img src="${user.photo_url || 'https://via.placeholder.com/40'}" alt="Photo of ${user.name}" width="40" height="40"></td>
+        <td>${user.name}</td>
+        <td>${Array.isArray(user.roles) ? user.roles.join(', ') : '—'}</td>
+        <td>${user.group_name || '—'}</td>
+        <td><a href="mailto:${user.email}">${user.contact_info || user.email}</a></td>
+        <td>${formatAvailability(user.availability)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
 }
 
 // Helper: Convert JSON availability to readable string
@@ -65,4 +85,3 @@ function formatAvailability(availability) {
         return availability;
     }
 }
-

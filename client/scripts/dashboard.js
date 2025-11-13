@@ -142,7 +142,8 @@ function loadDropdownSection(section) {
 	const welcomeSection = document.getElementById('welcome-section')
 	welcomeSection.style.display = 'none'
 
-	content.style.opacity = 0
+  content.style.opacity = 0;
+  content.classList.add("centered");
 
 	setTimeout(() => {
 		let text = ''
@@ -173,7 +174,7 @@ function renderJournal(){
       
       // Import and call initJournals after HTML is loaded
       try {
-        const { initJournals } = await import('./journal/journal.js');
+        const { initJournals } = await import('./journal.js');
         initJournals();
       } catch (err) {
         console.error('Error loading journal module:', err);

@@ -218,7 +218,7 @@ function initModalHandlers(modalOverlay) {
             
             try {
                 // Send POST request to API endpoint
-                const response = await fetch("http://localhost:3000/journal/create", {
+                const response = await fetch("/journals/create", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -283,13 +283,13 @@ export function initJournals(){
 }
 
 // Load journals when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    initializeData();
-    loadJournals();
+// document.addEventListener('DOMContentLoaded', () => {
+//     initializeData();
+//     loadJournals();
     
-    // Add event listener for create journal button (on journal.html)
-    const createJournalBtn = document.getElementById('createJournalBtn');
-    if (createJournalBtn) {
-        createJournalBtn.addEventListener('click', showJournalModal);
-    }
-});
+//     // Add event listener for create journal button (on journal.html)
+//     const createJournalBtn = document.getElementById('createJournalBtn');
+//     if (createJournalBtn) {
+//         createJournalBtn.addEventListener('click', showJournalModal);
+//     }
+// });

@@ -12,22 +12,33 @@ const passport = require('passport');
 const path = require('path');
 
 // Routers
-const authRouter = require('./routes/api/auth/auth-router');
-
-// Journal
+const usersRouter = require('./routes/users');
 const journalRouter = require('./routes/journals');
+const groupsRouter = require('./routes/groups');
+const attendanceRouter = require('./routes/attendance');
+const authRouter = require('./routes/api/auth/auth-router');
 
 // Configuration
 // Load environment variables from the project root .env file.
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+// Melvyn Testing HTML Linter KEEP FOR NOW
+// require('dotenv').config({
+//   path: path.resolve(__dirname, '../../../', '.env'),
+//   override: false  // prevents overwriting existing env vars (important!)
+// });
+// --- End of tests ----
 
 // Load the Google Authenticator module to initialize the Passport Strategy
 // This ensures passport.use(new GoogleStrategy(...)) runs.
-require('./services/auth/google/google-authenticator');
+// Only load Google OAuth strategy when actually needed
+if (process.env.AUTH_STRATEGY === 'GOOGLE') {
+  require('./services/auth/google/google-authenticator');
+} else {
+  console.log("[AUTH] Google strategy disabled for this environment");
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
-
 // =========================================================================
 // MIDDLEWARE CONFIGURATION
 // =========================================================================
@@ -66,7 +77,10 @@ app.use(passport.session());
 // =========================================================================
 // ROUTE REGISTRATION
 // =========================================================================
-
+app.use('/users', usersRouter);            // enables class directory
+app.use('/journals', journalRouter);      // enables journal posting
+app.use('/groups', groupsRouter);          // enables group fetching
+app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
 app.use('/journal', journalRouter);
