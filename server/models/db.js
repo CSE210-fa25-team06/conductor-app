@@ -12,6 +12,6 @@ export const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'conductor_app_db',
-  password: 'password',
+  password: process.env.DATABASE_PASSWORD,
   port: 5432,
 });
