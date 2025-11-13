@@ -127,7 +127,7 @@ router.get('/callback/google',
     (req, res) => {
         // req.user is populated by Passport's deserializeUser
         // Final redirect to the client's home page
-        res.redirect('/'); 
+        res.redirect('/dashboard.html');
     }
 );
 
