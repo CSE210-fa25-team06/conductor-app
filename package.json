@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "main": "server/app.js",
   "scripts": {
     "start": "node server/app.js",
@@ -30,9 +29,6 @@
     "pa11y-ci": "^4.0.1",
     "stylelint": "^16.25.0",
     "stylelint-config-standard": "^39.0.1"
-  },
-  "scripts": {
-    "start": "npx http-server ./client -p 3000"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

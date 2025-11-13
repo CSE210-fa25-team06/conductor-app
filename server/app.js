@@ -25,7 +25,6 @@ require('./services/auth/google/google-authenticator');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const host = `${process.env.SERVER_HOST}:${port}`
 
 // =========================================================================
 // MIDDLEWARE CONFIGURATION
@@ -84,5 +83,6 @@ app.get('/', (req, res) => {
  * Starts the Express server and listens on the configured port.
  */
 app.listen(port, () => {
-  console.log(`Conductor API Server listening at http://${host}`);
+  const host = process.env.SERVER_HOST || '127.0.0.1'; // Define host here, with a safe fallback
+  console.log(`Conductor API Server listening at http://${host}:${port}`);
 });
