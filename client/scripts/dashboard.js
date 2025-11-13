@@ -1,3 +1,6 @@
+import { renderAttendance } from './attendance.js'
+import { renderClassDirectory } from './class-directory.js';
+
 // This block runs when the page loads to check if the user is logged in.
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -107,10 +110,10 @@ function loadSection(section, event) {
       welcomeSection.style.display = "none";
       switch (section) {
         case "directory":
-          text = "Directory content will be here...";
+          renderClassDirectory(content);
           break;
         case "attendance":
-          text = "Attendance content will be here...";
+          renderAttendance(content);
           break;
         case "journal":
           text = "Journal content will be here...";
@@ -121,30 +124,34 @@ function loadSection(section, event) {
       }
     }
 
-    content.innerHTML = `<p>${text}</p>`;
+    if (text) {
+      content.innerHTML = `<p>${text}</p>`;
+    }
     content.style.opacity = 1;
   }, 250);
 }
 
 // Dropdown content
 function loadDropdownSection(section) {
-  const content = document.getElementById("content-section");
-  const welcomeSection = document.getElementById("welcome-section");
-  welcomeSection.style.display = "none";
+	const content = document.getElementById('content-section')
+	const welcomeSection = document.getElementById('welcome-section')
+	welcomeSection.style.display = 'none'
 
-  content.style.opacity = 0;
+	content.style.opacity = 0
 
-  setTimeout(() => {
-    let text = "";
-    switch (section) {
-      case "profile":
-        text = "Profile content will appear here...";
-        break;
-      case "settings":
-        text = "Settings content will appear here...";
-        break;
-    }
-    content.innerHTML = `<p>${text}</p>`;
-    content.style.opacity = 1;
-  }, 250);
+	setTimeout(() => {
+		let text = ''
+		switch (section) {
+			case 'profile':
+				text = 'Profile content will appear here...'
+				break
+			case 'settings':
+				text = 'Settings content will appear here...'
+				break
+		}
+		content.innerHTML = `<p>${text}</p>`
+		content.style.opacity = 1
+	}, 250)
 }
+
+window.loadSection = loadSection;
