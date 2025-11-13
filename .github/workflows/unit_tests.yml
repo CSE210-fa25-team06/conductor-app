@@ -1,0 +1,61 @@
+name: Unit tests
+
+on: push
+
+jobs:
+    run-all-unit-tests: #this setup was taken from https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers
+        runs-on: ubuntu-latest
+        #use node container
+        container: node:20-bookworm-slim
+
+        services:
+            postgres:
+                image: postgres
+                # Provide the password for postgres
+                env:
+                    POSTGRES_PASSWORD: postgres
+                # Set health checks to wait until postgres has started
+                options:
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+        
+        env:
+            PGHOST: postgres
+            PGPASSWORD: postgres
+            PGUSER: postgres
+            PGDATABASE: conductor_app_db
+            DATABASE_URL: postgresql://postgres:postgres@postgres:5432/conductor_app_db
+
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            
+            - name: Install PostgreSQL client
+              run: |
+                apt-get update
+                apt-get install -y postgresql-client
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Create database #-h postgres because database is running in a separate container
+              run: psql -h postgres -U postgres -d postgres -c 'CREATE DATABASE conductor_app_db;'
+
+            - name: Create db schema
+              run: psql -h postgres -U postgres -d conductor_app_db -f db/schema.sql
+
+            - name: Seed db
+              run: psql -h postgres -U postgres -d conductor_app_db -f db/seed.sql
+
+            - name: Start app
+              run: npm start &
+            
+            - name: Wait on app
+              run: npx wait-on http://localhost:3000 --timeout 30000
+
+            - name: Run DB tests
+              run: node tests/backend/test-db.js
+
