@@ -23,22 +23,28 @@ Contains all frontend code written in standard **HTML, CSS, and JavaScript**.
 ### **server/**
 Holds the backend logic built with **Node.js and Express**.
 
-- **app.js** – main Express server file that runs the backend  
-- **routes/** – defines API endpoints (`index.js`, `users.js`, `groups.js`)  
-- **controllers/** – handles request logic and connects routes to models (`userController.js`, `groupController.js`)  
-- **models/** – manages PostgreSQL queries and data operations (`db.js`, `userModel.js`, `groupModel.js`)  
-- **middleware/** – includes authentication and validation layers (`auth.js`)  
-- **utils/** – helper functions and shared utilities (`helpers.js`)  
+- **app.js** – Main Express server file. Now initializes **Passport** and **express-session** middleware for authentication.
+- **routes/** – Defines API endpoints.
+  - `routes/api/auth/auth-router.js`: Defines **universal authentication API endpoints** (`/session`, `/logout`, `/login-fail`) that are strategy-independent.
+- **services/auth/** – Dedicated directory for all plug-and-play authentication strategies.
+  - `google/`: Contains `google-authenticator.js` for **Passport Google OAuth 2.0** and its specific routes.
+  - `mock/`: Contains `mock-authenticator.js` for a **simple development/testing login**.
+  - `sso/`: Contains the **SSO Factory** (`sso-authenticator.js`) and mode-specific handlers (e.g., `mock-sso-handler.js`).
+- **config/auth/** – Centralized configuration for the dynamic authentication system (`auth-strategies.js`, `sso-modes.js`).
+- **controllers/** – Handles request logic and connects routes to models.
+- **models/** – Manages PostgreSQL queries and data operations. `db.js` now contains **transactional functions for user provisioning and account linking**.
+- **middleware/** – Includes authentication and validation layers. Contains `auth-mounter.js`, which **dynamically loads the active strategy's router** at runtime.
+- **utils/** – Helper functions and shared utilities.
 
 ---
 
 ### **db/**
 Contains all database setup and migration scripts for **PostgreSQL**.
 
-- **schema.sql** – defines database tables and relationships  
+- **schema.sql** – defines database tables and relationships
 - **seed.sql** – inserts sample data for local testing
 - **verify_data.sql** - verifies that the database schema and seed data work properly
-- **migrations/** – includes SQL files for versioned schema updates  
+- **migrations/** – includes SQL files for versioned schema updates
 
 ---
 

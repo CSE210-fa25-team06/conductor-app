@@ -53,7 +53,7 @@ CREATE TABLE roles (
 CREATE TABLE users (
     id            SERIAL PRIMARY KEY,
     group_id      INT REFERENCES groups(id) ON DELETE SET NULL, -- If a group is deleted, set user's group_id to NULL.
-    name          VARCHAR(100) UNIQUE NOT NULL,
+    name          VARCHAR(100) NOT NULL,
     email         VARCHAR(255) UNIQUE NOT NULL,
     photo_url     TEXT,
     contact_info  TEXT,
