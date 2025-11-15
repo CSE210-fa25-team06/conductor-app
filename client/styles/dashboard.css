@@ -119,6 +119,9 @@ main {
   flex: 1;
   position: relative;
   text-align: center;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .welcome {
@@ -126,6 +129,7 @@ main {
   margin: 1.5em 2em;
   opacity: 1;
   transition: opacity 0.3s ease;
+  flex-shrink: 0;
 }
 
 .welcome h2 {
@@ -135,13 +139,22 @@ main {
 }
 
 .content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   font-size: 1.2em;
   color: #036;
   transition: opacity 0.3s ease;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Center content only when it's a simple message */
+.content.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
 }
 
 footer {
