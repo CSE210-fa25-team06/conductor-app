@@ -17,15 +17,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint with htmlhint
-        run: npx htmlhint "**/*.html"
-      
+      # Start the Express app in background
       - name: Start app
         run: npm start &
-      
+        env:
+          SESSION_SECRET: testsecret
+          SERVER_HOST: 0.0.0.0
+          PORT: 3000
+
+      # Wait until the app is ready
       - name: Wait for app
         run: npx wait-on http://localhost:3000 --timeout 60000
-        #if we run on a different port we will need to change this
 
+      # Now lint the static HTML files
+      - name: Lint with HTMLHint
+        run: npx htmlhint "client/**/*.html"
+
+      # Run accessibility tests once server is live
       - name: Run accessibility tests
         run: npx pa11y-ci
