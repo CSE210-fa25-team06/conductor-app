@@ -9,10 +9,13 @@
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport'); 
-
 const path = require('path');
 
 // Routers
+const usersRouter = require('./routes/users');
+const journalsRouter = require('./routes/journals');
+const groupsRouter = require('./routes/groups');
+const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
 
 // Configuration
@@ -65,7 +68,10 @@ app.use(passport.session());
 // =========================================================================
 // ROUTE REGISTRATION
 // =========================================================================
-
+app.use('/users', usersRouter);            // enables class directory
+app.use('/journals', journalsRouter);      // enables journal posting
+app.use('/groups', groupsRouter);          // enables group fetching
+app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
 

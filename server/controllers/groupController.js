@@ -3,6 +3,8 @@
   It processes input from the routes and retrieves data using the groupModel.
 */
 
-export const getGroups = (req, res) => {
+function getGroups(req, res) {
   res.json({ message: "List of groups" });
-};
+}
+
+module.exports = { getGroups };
