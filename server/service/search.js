@@ -1,11 +1,11 @@
-import { pool } from "../models/db.js";
+const { pool } = require("../models/db");
 
 /*
     Returns names and emails of members where the name-start matches the passed in query
 */
 
-export async function searchDirectory(query) {
-    let baseQuery = `
+async function searchDirectory(query) {
+    const  baseQuery = `
         SELECT u.id, u.photo_url, u.name, u.email, array_agg(r.name) as roles, g.name as group_name, contact_info, availability
         FROM users u
         LEFT JOIN user_roles ur ON u.id = ur.user_id
@@ -19,3 +19,5 @@ export async function searchDirectory(query) {
     const res = await pool.query(baseQuery, values);
     return res.rows;
 }
+
+module.exports = { searchDirectory };

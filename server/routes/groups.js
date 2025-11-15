@@ -2,8 +2,11 @@
   This file defines all API endpoints related to group data.
   It connects incoming requests to the groupController for processing.
 */
-import express from "express";
-import { getGroups } from "../controllers/groupController.js";
+const express = require("express");
+const { getGroups } = require("../controllers/groupController");
 
-export const router = express.Router();
+const router = express.Router();
+
 router.get("/", getGroups);
+
+module.exports = router;

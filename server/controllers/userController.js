@@ -2,18 +2,20 @@
   This file contains controller functions for handling user-related requests.
   It communicates with the service for searching the directory and returns users that match the query.
 */
-import { searchDirectory } from "../service/search.js";
 
-// ACCEPTS GET REQUESTS
+const { searchDirectory } = require("../service/search");
 
-/*
-  EXAMPLE: GET http://localhost:3000/users?query=alice
-*/
+async function getUsers(req, res) {
+  try {
+    const raw = req.query.query ?? "";
+    const query = String(raw).trim();
 
-export const getUsers = async (req, res) => {
-  const raw = req.query.query ?? "";
-  const query = String(raw).trim(); // safe default
+    const users = await searchDirectory(query);
+    return res.status(200).json({ users });
+  } catch (err) {
+    console.error("Error in getUsers:", err);
+    return res.status(500).json({ error: "Failed to fetch users" });
+  }
+}
 
-  const users = await searchDirectory(query);
-  return res.status(200).json({ users });
-};
+module.exports = { getUsers };

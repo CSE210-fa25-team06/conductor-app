@@ -1,9 +1,13 @@
 /*
-  This file defines all API endpoints related to user data.
-  It connects incoming requests to the userController for processing.
+  This file defines all API endpoints related to group data.
+  It connects incoming requests to the groupController for processing.
 */
-import express from "express";
-import { getUsers } from "../controllers/userController.js";
 
-export const router = express.Router();
+const express = require("express");
+const { getUsers } = require("../controllers/userController");
+
+const router = express.Router();
+
 router.get("/", getUsers);
+
+module.exports = router;
