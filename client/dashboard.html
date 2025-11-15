@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="description" content="Conductor - Course management dashboard">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,55 +10,52 @@
     <link rel="stylesheet" href="styles/journal.css" />
     <link rel="stylesheet" href="styles/components.css" />
     <link rel="stylesheet" href="styles/class-directory.css" />
+    <link rel="stylesheet" href="styles/attendance.css" />
+</head>
 
-  </head>
-  <body>
+<body>
     <header>
-      <h1><a href="#" id="home-link">Conductor</a></h1>
+        <h1><a href="#" id="home-link">Conductor</a></h1>
 
-      <nav>
-        <ul>
-          <li>
-            <a href="#" onclick="loadSection('directory', event)">Directory</a>
-          </li>
-          <li>
-            <a href="#" onclick="loadSection('attendance', event)"
-              >Attendance</a
-            >
-          </li>
-          <li>
-            <a href="#" onclick="loadSection('journal', event)">Journal</a>
-          </li>
-          <li>
-            <a href="#" onclick="loadSection('evaluation', event)"
-              >Evaluation</a
-            >
-          </li>
-        </ul>
-      </nav>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#" onclick="loadSection('directory', event)">Directory</a>
+                </li>
+                <li>
+                    <a href="#" onclick="loadSection('attendance', event)">Attendance</a>
+                </li>
+                <li>
+                    <a href="#" onclick="loadSection('journal', event)">Journal</a>
+                </li>
+                <li>
+                    <a href="#" onclick="loadSection('evaluation', event)">Evaluation</a>
+                </li>
+            </ul>
+        </nav>
 
-      <section class="profile-menu">
-        <button id="profile-btn" type="button" title="Profile">👤</button>
-        <ul id="dropdown" class="hidden">
-          <li><a href="#">Profile</a></li>
-          <li><a href="#">Settings</a></li>
-          <li id="logout-option"><a href="#">Log out</a></li>
-        </ul>
-      </section>
+        <section class="profile-menu">
+            <button id="profile-btn" type="button" title="Profile">👤</button>
+            <ul id="dropdown" class="hidden">
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Settings</a></li>
+                <li id="logout-option"><a href="#">Log out</a></li>
+            </ul>
+        </section>
     </header>
 
     <main>
-      <section class="welcome" id="welcome-section">
-        <h2>Welcome, <span id="user-name">&lt;Name&gt;</span></h2>
-      </section>
+        <section class="welcome" id="welcome-section">
+            <h2>Welcome, <span id="user-name">&lt;Name&gt;</span></h2>
+        </section>
 
-      <section class="content" id="content-section">
-        <p>Dashboard content will appear here...</p>
-      </section>
+        <section class="content" id="content-section">
+            <p>Dashboard content will appear here...</p>
+        </section>
     </main>
 
     <footer>
-      <small>© 2025 Conductor Portal</small>
+        <small>© 2025 Conductor Portal</small>
     </footer>
 
     <script type="module" src="scripts/dashboard.js"></script>

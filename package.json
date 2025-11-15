@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "main": "server/app.js",
   "scripts": {
     "start": "node server/app.js",
@@ -18,10 +17,7 @@
     "globals": "^16.5.0"
   },
   "dependencies": {
-    "dotenv": "^16.6.1",
-    "express": "^5.1.0",
     "node-fetch": "^3.3.2",
-    "pg": "^8.16.3",
     "globals": "^16.5.0",
     "htmlhint": "^1.7.1",
     "http-server": "^14.1.1",
@@ -30,6 +26,11 @@
     "pa11y-ci": "^4.0.1",
     "stylelint": "^16.25.0",
     "stylelint-config-standard": "^39.0.1",
-    "supertest": "^7.1.4"
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pg": "^8.16.3"
   }
 }
