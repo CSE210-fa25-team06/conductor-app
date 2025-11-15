@@ -9,11 +9,13 @@
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport'); 
-
 const path = require('path');
 
 // Routers
 const authRouter = require('./routes/api/auth/auth-router');
+
+// Journal
+const journalRouter = require('./routes/journals');
 
 // Configuration
 // Load environment variables from the project root .env file.
@@ -67,6 +69,7 @@ app.use(passport.session());
 
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
+app.use('/journal', journalRouter);
 
 /**
  * GET /

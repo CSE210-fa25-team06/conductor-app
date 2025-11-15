@@ -2,17 +2,12 @@
  * Journal Controller - Handles HTTP requests for journal entries
  */
 
-import { createJournalEntry } from "../models/journalModel.js";
+const { createJournalEntry } = require("../models/journalModel");
 
-/**
- * Create a new journal entry
- * POST /journal/create
- */
-export const createJournal = async (req, res) => {
+const createJournal = async (req, res) => {
   try {
     const { user_id, group_id, entry_date, did, doing_next, blockers } = req.body;
 
-    // Validate required fields
     if (!user_id || !group_id || !entry_date || !did || !doing_next) {
       return res.status(400).json({
         success: false,
@@ -20,7 +15,6 @@ export const createJournal = async (req, res) => {
       });
     }
 
-    // Create journal entry
     const journalEntry = await createJournalEntry({
       user_id,
       group_id,
@@ -30,7 +24,6 @@ export const createJournal = async (req, res) => {
       blockers: blockers || null
     });
 
-    // Return success response
     res.status(201).json({
       success: true,
       message: "Journal entry created successfully",
@@ -45,7 +38,6 @@ export const createJournal = async (req, res) => {
         created_at: journalEntry.created_at
       }
     });
-
   } catch (error) {
     console.error("Error creating journal entry:", error);
     res.status(500).json({
@@ -55,3 +47,5 @@ export const createJournal = async (req, res) => {
     });
   }
 };
+
+module.exports = { createJournal };

@@ -175,6 +175,7 @@ async function linkGoogleAccount(userId, email, accessToken, refreshToken) {
 
 
 module.exports = {
+  pool,
   findUserIdByEmail,
   findUserIdInUsers,
   getFullUserData,
