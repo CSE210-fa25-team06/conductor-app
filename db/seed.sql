@@ -177,3 +177,59 @@ SELECT SETVAL('activity_id_seq', (SELECT MAX(id) FROM activity));
 SELECT SETVAL('user_auth_id_seq', (SELECT MAX(id) FROM user_auth));
 SELECT SETVAL('journals_id_seq', (SELECT MAX(id) FROM journals));
 SELECT SETVAL('message_threads_id_seq', (SELECT MAX(id) FROM message_threads));
+
+-- ===============================================================
+-- CLASS DIRECTORY SAMPLE USERS
+-- ===============================================================
+
+-- Ensure Team 6 exists
+INSERT INTO groups (name)
+VALUES ('Team 6')
+ON CONFLICT (name) DO NOTHING;
+
+-- Ensure Student role exists
+INSERT INTO roles (name)
+VALUES ('Student')
+ON CONFLICT (name) DO NOTHING;
+
+-- Adam
+INSERT INTO users (name, email, contact_info, photo_url, availability, group_id)
+VALUES (
+  'Adam',
+  'adam@example.com',
+  'adam@example.com',
+  'url/adam.png',
+  '{"Mon": "9-5"}',
+  (SELECT id FROM groups WHERE name='Team 6')
+)
+ON CONFLICT (email) DO NOTHING;
+
+-- Alex
+INSERT INTO users (name, email, contact_info, photo_url, availability, group_id)
+VALUES (
+  'Alex',
+  'alex@example.com',
+  'alex@example.com',
+  'url/alex.png',
+  '{"Mon": "9-5"}',
+  (SELECT id FROM groups WHERE name='Team 6')
+)
+ON CONFLICT (email) DO NOTHING;
+
+-- Akshay
+INSERT INTO users (name, email, contact_info, photo_url, availability, group_id)
+VALUES (
+  'Akshay',
+  'akshay.com',
+  'akshay.com',
+  'url/akshay.png',
+  '{"Mon": "9-5"}',
+  (SELECT id FROM groups WHERE name='Team 6')
+)
+ON CONFLICT (email) DO NOTHING;
+
+-- Link them to the Student role
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u, roles r
+WHERE u.name IN ('Adam', 'Alex', 'Akshay') AND r.name = 'Student';

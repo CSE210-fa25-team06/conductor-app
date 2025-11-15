@@ -11,17 +11,9 @@ import { searchDirectory } from "../service/search.js";
 */
 
 export const getUsers = async (req, res) => {
-  const { query } = req.query
+  const raw = req.query.query ?? "";
+  const query = String(raw).trim(); // safe default
 
-  if (!query) {
-    return res.status(400).json({
-      success: false,
-      message: "Missing required fields: query"
-    });
-  }
-  
   const users = await searchDirectory(query);
-  return res.status(200).json({
-    users: users
-  })
+  return res.status(200).json({ users });
 };
