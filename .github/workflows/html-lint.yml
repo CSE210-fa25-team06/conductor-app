@@ -5,6 +5,40 @@ on: [push, pull_request]
 jobs:
   html-lint:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: conductor_app_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d conductor_app_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      # env variables from server/models/db.js
+      CI: true
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: conductor_app_db
+      DB_PORT: 5432
+      SERVER_HOST: localhost
+      PGPASSWORD: postgres
+
+      # Auth in MOCK mode for CI
+      AUTH_STRATEGY: MOCK
+      MOCK_EMAIL: pa11y-ci@example.com
+
+      # Dummy secrets for CI
+      AUTH_SECRET: test_auth_secret
+      SESSION_SECRET: test_session_secret
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,15 +51,51 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Wait for Postgres
+        run: npx wait-on tcp:5432 --timeout 60000
+
+      - name: Install Postgres client (act fix)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Initialise database
+        run: |
+          psql -h localhost -U postgres -d conductor_app_db -f db/schema.sql
+          psql -h localhost -U postgres -d conductor_app_db -f db/seed.sql
+
       - name: Lint with htmlhint
         run: npx htmlhint "**/*.html"
-      
-      - name: Start app
-        run: npm start &
-      
-      - name: Wait for app
-        run: npx wait-on http://localhost:3000 --timeout 60000
-        #if we run on a different port we will need to change this
 
-      - name: Run accessibility tests
-        run: npx pa11y-ci
+      - name: Install Chrome dependencies for pa11y
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libnspr4 \
+            libatk1.0-0 \
+            libatk-bridge2.0-0 \
+            libcups2 \
+            libxkbcommon0 \
+            libxdamage1 \
+            libxrandr2 \
+            libgbm1 \
+            libasound2t64 \
+            libpango-1.0-0 \
+            libpangocairo-1.0-0 \
+            libgtk-3-0 \
+            fonts-liberation
+
+      - name: Start app and run accessibility tests
+        run: |
+          nohup node server/app.js > server.log 2>&1 &
+          echo "Waiting for app on port 3000..."
+          npx wait-on tcp:3000 --timeout 60000 || (
+            echo "wait-on failed, dumping server.log"
+            cat server.log
+            exit 1
+          )
+          echo "Running pa11y..."
+          npx pa11y-ci
+          echo "----- FINAL SERVER LOGS -----"
+          cat server.log || true

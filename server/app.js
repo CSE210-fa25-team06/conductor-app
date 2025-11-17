@@ -21,6 +21,12 @@ const authRouter = require('./routes/api/auth/auth-router');
 // Configuration
 // Load environment variables from the project root .env file.
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+// Melvyn Testing HTML Linter KEEP FOR NOW
+// require('dotenv').config({
+//   path: path.resolve(__dirname, '../../../', '.env'),
+//   override: false  // prevents overwriting existing env vars (important!)
+// });
+// --- End of tests ----
 
 // Load the Google Authenticator module to initialize the Passport Strategy
 // This ensures passport.use(new GoogleStrategy(...)) runs.
