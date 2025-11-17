@@ -2,7 +2,7 @@
  * Journal Model - Handles all database operations related to journal entries
  */
 
-import { pool } from "./db.js";
+const { pool } = require("./db");
 
 /**
  * Create a new journal entry
@@ -15,7 +15,7 @@ import { pool } from "./db.js";
  * @param {string} journalData.blockers - Any blockers the user is facing (optional)
  * @returns {Promise<Object>} The created journal entry with its ID
  */
-export async function createJournalEntry({ user_id, group_id, entry_date, did, doing_next, blockers = null }) {
+async function createJournalEntry({ user_id, group_id, entry_date, did, doing_next, blockers = null }) {
   const query = `
     INSERT INTO journals (user_id, group_id, entry_date, did, doing_next, blockers)
     VALUES ($1, $2, $3, $4, $5, $6)
@@ -26,3 +26,5 @@ export async function createJournalEntry({ user_id, group_id, entry_date, did, d
   const result = await pool.query(query, values);
   return result.rows[0];
 }
+
+module.exports = { createJournalEntry };

@@ -12,8 +12,26 @@ const { SSO_MODE_MAP } = require('../../config/auth/sso-modes');
 
 // Load environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../../../', '.env') }); 
-
+// Melvyn Testing HTML Linter KEEP FOR NOW
+// require('dotenv').config({
+//   path: path.resolve(__dirname, '../../../', '.env'),
+//   override: false
+// });
 const ACTIVE_STRATEGY = process.env.AUTH_STRATEGY;
+// // Detect CI
+// const IS_CI = process.env.CI === 'true';
+
+// // In CI we **always** force MOCK to avoid Google OAuth and secrets
+// let ACTIVE_STRATEGY;
+// if (IS_CI) {
+//   ACTIVE_STRATEGY = 'MOCK';
+// } else {
+//   ACTIVE_STRATEGY = process.env.AUTH_STRATEGY || 'GOOGLE';
+// }
+
+// console.log('[AUTH-MOUNTER] process.env.CI =', process.env.CI);
+// console.log('[AUTH-MOUNTER] process.env.AUTH_STRATEGY =', process.env.AUTH_STRATEGY);
+// --- End of tests ----
 console.log(`[AUTH-MOUNTER] Configured Strategy: ${ACTIVE_STRATEGY}`);
 
 /**

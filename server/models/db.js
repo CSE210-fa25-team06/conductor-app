@@ -11,7 +11,12 @@
 const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../', '.env') });
-
+// Melvyn Testing HTML Linter KEEP FOR NOW
+// require('dotenv').config({
+//   path: path.resolve(__dirname, '../../../', '.env'),
+//   override: false  // prevents overwriting existing env vars (important!)
+// });
+// --- End of tests ----
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.SERVER_HOST,
@@ -175,6 +180,7 @@ async function linkGoogleAccount(userId, email, accessToken, refreshToken) {
 
 
 module.exports = {
+  pool,
   findUserIdByEmail,
   findUserIdInUsers,
   getFullUserData,

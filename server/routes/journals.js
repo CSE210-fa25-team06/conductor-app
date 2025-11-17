@@ -2,12 +2,12 @@
  * Journal Routes - Defines API endpoints for journal entries
  */
 
-import express from "express";
-import { createJournal } from "../controllers/journalController.js";
+const express = require("express");
+const { createJournal } = require("../controllers/journalController");
 
-export const router = express.Router();
+const router = express.Router();
 
 // POST /journal/create - Create a new journal entry
 router.post("/create", createJournal);
 
-export default router;
+module.exports = router;
