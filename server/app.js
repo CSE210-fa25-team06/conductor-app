@@ -30,7 +30,12 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 // Load the Google Authenticator module to initialize the Passport Strategy
 // This ensures passport.use(new GoogleStrategy(...)) runs.
-require('./services/auth/google/google-authenticator');
+// Only load Google OAuth strategy when actually needed
+if (process.env.AUTH_STRATEGY === 'GOOGLE') {
+  require('./services/auth/google/google-authenticator');
+} else {
+  console.log("[AUTH] Google strategy disabled for this environment");
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
