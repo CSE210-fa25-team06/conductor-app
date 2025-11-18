@@ -18,9 +18,6 @@ const groupsRouter = require('./routes/groups');
 const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
 
-// Journal
-const journalRouter = require('./routes/journals');
-
 // Configuration
 // Load environment variables from the project root .env file.
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
