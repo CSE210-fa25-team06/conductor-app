@@ -175,7 +175,7 @@ function renderJournal(){
       
       // Import and call initJournals after HTML is loaded
       try {
-        const { initJournals } = await import('./journal/journal.js');
+        const { initJournals } = await import('./journal.js');
         initJournals();
       } catch (err) {
         console.error('Error loading journal module:', err);
