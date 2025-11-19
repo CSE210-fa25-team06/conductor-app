@@ -8,14 +8,17 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const express = require('express');
 const router = express.Router(); 
 
-// NOTE: This file currently calls DB functions directly. It is a candidate for Service Layer abstraction.
 const { 
     findUserIdByEmail, 
-    findUserIdInUsers, // Not used in this version but imported
+    findUserIdInUsers,
     logSuccessfulLogin, 
-    createGoogleUser, 
-    linkGoogleAccount
 } = require('../../../models/db'); 
+
+// NEW: Import provisioning logic from the new dedicated file
+const {
+    createGoogleUser,
+    linkGoogleAccount
+} = require('../../../services/user-provisioning'); // <-- NEW IMPORT LOCATION
 
 // --- Passport Initialization ---
 // NOTE: app.use(passport.initialize()) and app.use(passport.session()) must be called in app.js.
