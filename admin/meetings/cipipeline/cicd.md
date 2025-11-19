@@ -24,4 +24,4 @@ Human review happens through pull requests and is a required part of our workflo
 During review, we check for more than correctness. We look at whether the code is written in a clear way and whether the file structure and file names follow the project guidelines. We also check that any new feature is documented in the correct place so future developers understand what it does. Reviewers also point out design concerns and catch small details that automated tools cannot see.
 
 ## Diagram
-![CI/CD Diagram](cicd.JPG "CI/CD Diagram")
+![CI/CD Diagram](cicd.png "CI/CD Diagram")
