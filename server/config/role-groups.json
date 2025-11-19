@@ -1,0 +1,116 @@
+{
+  "documentation": "NOTE: All future-proofing permissions are included in the default_permissions arrays to show the full scope of access for each role, should those features be implemented. The permission lists have been reduced to only include unique grants, as permissions stack across all roles with the same or lower privilege level.",
+  "groups": [
+    {
+      "name": "Unassigned",
+      "isDefault": true,
+      "description": "Default group for all new users upon initial signup."
+    },
+    {
+      "name": "Team Alpha",
+      "isDefault": false
+    },
+    {
+      "name": "Team Beta",
+      "isDefault": false
+    }
+  ],
+  "roles": [
+    {
+      "name": "Guest",
+      "isDefault": false,
+      "privilege_level": 0,
+      "description": "Unauthenticated or unassigned user. Has no system permissions.",
+      "default_permissions": [
+        "VIEW_FAQ_SYSTEM",
+        "VIEW_DOCS_MANAGER"
+      ]
+    },
+    {
+      "name": "Student",
+      "isDefault": true,
+      "privilege_level": 1,
+      "description": "Base role for all students.",
+      "default_permissions": [
+        "EDIT_OWN_PROFILE_DATA",
+        "USER_SUBMIT_JOURNAL",
+        "USER_SUBMIT_PRIVATE_THOUGHTS",
+        "VIEW_OWN_JOURNAL_SENTIMENT",
+        "ACCESS_LAB_QUEUE",
+        "CREATE_USER_STORIES"
+      ]
+    },
+    {
+      "name": "Group Leader",
+      "isDefault": false,
+      "privilege_level": 1,
+      "description": "Can manage their group's metadata, attendance, and team dynamics.",
+      "default_permissions": [
+        "VIEW_OWN_GROUP_JOURNALS",
+        "VIEW_GROUP_DIRECTORY",
+        "GROUP_MANAGE_METADATA",
+        "GROUP_MANAGE_ATTENDANCE",
+        "SCHEDULE_OWN_GROUP_MEETINGS",
+        "CAPTURE_MEETING_NOTES",
+        "CREATE_EVALUATION_JOURNAL_ENTRY",
+        "VIEW_OWN_GROUP_SCORECARDS",
+        "RUN_RETROSPECTIVE_TOOL"
+      ]
+    },
+    {
+      "name": "Tutor",
+      "isDefault": false,
+      "privilege_level": 10,
+      "description": "Can view specific student journals and manage the lab assistance queue.",
+      "default_permissions": [
+        "VIEW_OWN_GROUP_JOURNALS",
+        "VIEW_CLASS_DIRECTORY",
+        "MANAGE_LAB_QUEUE",
+        "PROMOTE_TO_FAQ",
+        "SUBMIT_NEGATIVE_INTERACTION",
+        "SUBMIT_LAB_OBSERVATIONS"
+      ]
+    },
+    {
+      "name": "TA",
+      "isDefault": false,
+      "privilege_level": 50,
+      "description": "Can manage and grade all student groups and submissions.",
+      "default_permissions": [
+        "ASSIGN_GROUPS",
+        "MANAGE_ALL_ATTENDANCE",
+        "VIEW_ALL_ATTENDANCE_REPORTS",
+        "MANAGE_MEETING_MANAGER",
+        "VIEW_ALL_JOURNALS",
+        "EDIT_ALL_JOURNALS",
+        "VIEW_ALL_EVALUATION_JOURNALS",
+        "VIEW_EVALUATION_SCORECARDS",
+        "APPLY_RUBRIC_EVALUATION",
+        "CAPTURE_INCIDENT_DATA",
+        "MANAGE_FAQ_CONTENT",
+        "MANAGE_DOCS_MANAGER",
+        "MANAGE_DEFINITION_OF_DONE"
+      ]
+    },
+    {
+      "name": "Professor",
+      "isDefault": false,
+      "privilege_level": 100,
+      "description": "Full administrative access and system configuration.",
+      "default_permissions": [
+        "MANAGE_PERMISSIONS",
+        "ASSIGN_ROLES",
+        "EDIT_ALL_PROFILE_DATA",
+        "PROVISION_USERS",
+        "VIEW_LOGS",
+        "VIEW_ALERTS",
+        "MANAGE_GROUP_FORMATION_TOOL",
+        "CREATE_SURVEY_FORM",
+        "VIEW_ALL_SURVEY_RESPONSES",
+        "MANAGE_EVALUATION_RUBRICS",
+        "VIEW_REPORTING_ENGINE",
+        "MANAGE_EXTERNAL_SERVICES"
+      ]
+    }
+  ]
+}
