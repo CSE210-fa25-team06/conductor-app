@@ -37,34 +37,48 @@ router.get('/session', async (req, res) => {
   if (req.isAuthenticated()) {
     const userId = req.user || req.session.userId; 
 
-    const userData = await handleUserLogin(userId, req.ip);
+    try {
+      const userData = await handleUserLogin(userId, req.ip);
 
-    if (userData) {
-      return res.status(200).json({ 
-        success: true, 
-        user: userData, 
-        message: 'Session valid.' 
+      if (userData) {
+        return res.status(200).json({ 
+          success: true, 
+          user: userData, 
+          message: 'Session valid.' 
+        });
+      } else {
+        // User ID exists in session, but user data not found (Stale session)
+        console.warn(`[AUTH] Stale session detected for user ID ${userId}. Forcing logout.`);
+        
+        req.logout(err => {
+          if (err) console.error('Auto-Logout failed:', err);
+          return res.status(401).json({ success: false, message: 'Invalid session. User data not found. Forced logout.' });
+        });
+        return; 
+      }
+    } catch (error) {
+      console.error('[AUTH] Error validating session:', error);
+      
+      // Destroy the session to prevent loops if the session data is corrupt
+      // or causing backend errors.
+      req.session.destroy((err) => {
+        if (err) console.error('Session destruction failed during error handling:', err);
+        
+        res.clearCookie('connect.sid');
+        return res.status(500).json({ 
+          success: false, 
+          error: 'Internal Server Error during session validation.' 
+        });
       });
-    } else {
-      // User ID exists in session, but we could not fetch user data (user deleted, etc.)
-      console.warn(`[AUTH] Stale session detected for user ID ${userId}. Forcing logout.`);
-      // Passport's req.logout() clears the session and the session cookie.
-      req.logout(err => {
-        if (err) console.error('Auto-Logout failed:', err);
-        // Respond with 401 Unauthorized after attempting to clear the session
-        return res.status(401).json({ success: false, message: 'Invalid session. User data not found. Forced logout.' });
-      });
-      return; // Stop execution after sending the 401 response
+      return;
     }
   } 
 
-  // --- Add the response for the unauthenticated case ---
   return res.status(401).json({ 
     success: false, 
     message: 'User is not authenticated.' 
   });
 });
-
 
 /**
  * GET /api/auth/logout
@@ -101,7 +115,6 @@ router.get('/logout', (req, res) => {
     return res.status(200).json({ success: true, message: 'No active session found, cookie cleared.' });
   }
 });
-
 
 /**
  * GET /api/auth/login-fail
