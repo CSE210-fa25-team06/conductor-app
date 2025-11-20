@@ -16,9 +16,6 @@ const roleGroupConfig = require('../config/role-groups.json');
 
 let provisioningDetails = null;
 
-/**
- * NEW: Helper function for testing to clear the internal cache.
- */
 function resetProvisioningCache() {
     provisioningDetails = null;
 }
@@ -75,36 +72,34 @@ async function getProvisioningDetails() {
 /**
  * Provisions a brand new user into the system (users, user_auth, and user_roles).
  * Automatically assigns the user to the configured default role and group.
+ * @param {string} provider The name of the authentication provider (e.g., 'google', 'linkedin').
  */
-async function createGoogleUser(email, name, accessToken, refreshToken) {
+async function createUserAccount(provider, email, name, accessToken, refreshToken) {
     const client = await pool.connect();
     
     try {
         await client.query('BEGIN');
         
         // Ensure provisioning details are loaded (including default role/group IDs)
-        const { defaultGroupId, defaultRoleId } = await getProvisioningDetails(); 
+        const { defaultGroupId, defaultRoleId } = await getProvisioningDetails();
 
         // 1. Insert into users table (using the default group)
-        // FIX: Pass the 'client' to ensure this insert runs in the transaction.
         const userId = await insertUser(client, email, name, defaultGroupId); 
         
         // 2. Insert into user_roles table (using the default role)
-        // FIX: Pass the 'client' to ensure this insert runs in the transaction.
         await insertUserRole(client, userId, defaultRoleId);
         
-        // 3. Insert into user_auth table for Google strategy linkage
+        // 3. Insert into user_auth table for strategy linkage
         const nonNullRefreshToken = refreshToken || ''; 
-        // FIX: Pass the 'client' to ensure this insert runs in the transaction.
-        await insertUserAuth(client, userId, email, accessToken, nonNullRefreshToken);
+        await insertUserAuth(client, userId, provider, email, accessToken, nonNullRefreshToken);
         
         await client.query('COMMIT');
         
-        console.log(`[PROVISIONING] New user provisioned: ${email} (ID: ${userId}) to Group ${defaultGroupId} and Role ${defaultRoleId}`);
+        console.log(`[PROVISIONING] New user provisioned: ${email} (ID: ${userId}) for provider ${provider} to Group ${defaultGroupId} and Role ${defaultRoleId}`);
         return userId;
     } catch (e) {
         await client.query('ROLLBACK');
-        console.error('Transaction Error in createGoogleUser:', e);
+        console.error('Transaction Error in createUserAccount:', e); // RENAMED FUNCTION
         throw e;
     } finally {
         client.release();
@@ -113,27 +108,28 @@ async function createGoogleUser(email, name, accessToken, refreshToken) {
 
 /**
  * Links a missing provider record for an EXISTING user.
+ * @param {string} provider The name of the authentication provider (e.g., 'google', 'linkedin').
  */
-async function linkGoogleAccount(userId, email, accessToken, refreshToken) {
+async function linkProviderAccount(userId, provider, email, accessToken, refreshToken) { // ADDED PROVIDER
     try {
         const nonNullRefreshToken = refreshToken || ''; 
         const authInsertQuery = `
             INSERT INTO user_auth (user_id, provider, email, access_token, refresh_token)
             VALUES ($1, $2, $3, $4, $5);
         `;
-        await pool.query(authInsertQuery, [userId, 'google', email, accessToken, nonNullRefreshToken]);
+        await pool.query(authInsertQuery, [userId, provider, email, accessToken, nonNullRefreshToken]);
         
-        console.log(`[PROVISIONING] Existing user linked to Google provider: ${email} (ID: ${userId})`);
+        console.log(`[PROVISIONING] Existing user linked to ${provider} provider: ${email} (ID: ${userId})`); // USE PROVIDER
         return userId;
     } catch (error) {
-        console.error('Database Error in linkGoogleAccount:', error);
+        console.error('Database Error in linkProviderAccount:', error);
         throw error;
     }
 }
 
 module.exports = {
     getProvisioningDetails,
-    createGoogleUser,
-    linkGoogleAccount,
-    resetProvisioningCache // EXPORTED FOR TESTING
+    createUserAccount,
+    linkProviderAccount,
+    resetProvisioningCache
 };
