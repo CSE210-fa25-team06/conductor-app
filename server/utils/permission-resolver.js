@@ -1,10 +1,16 @@
 /**
  * @file utils/permission-resolver.js
  * @description Implements the custom logic for calculating a user's effective permissions.
- * UPDATED: Implements strict Least-Privileged Precedence: the lowest privilege level
+ * 
+ * Implements strict Least-Privileged Precedence: the lowest privilege level
  * assigned to a user overrides all others. Permissions only stack if roles are at
  * the same (lowest) privilege level.
  */
+
+
+// Define the threshold where a role is considered "Unprivileged" (e.g., Student).
+// Any level <= this number is considered "Privileged" (e.g., Admin, Professor).
+const UNPRIVILEGED_THRESHOLD = 1; 
 
 /**
  * Resolves the user's effective permissions based on their roles.
@@ -50,4 +56,5 @@ function resolveUserPermissions(roles) {
 
 module.exports = {
     resolveUserPermissions,
+    UNPRIVILEGED_THRESHOLD
 };

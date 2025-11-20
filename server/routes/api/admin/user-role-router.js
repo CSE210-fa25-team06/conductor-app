@@ -33,13 +33,12 @@ router.put('/users/:userId/roles', requirePermission('ASSIGN_ROLES'), async (req
         // --- 1. PROACTIVE SECURITY CHECK: Enforce single privileged role rule ---
         
         // Check the privilege level of every role ID in the requested list
-        const privilegeLevelChecks = await Promise.all(
+       const privilegeLevelChecks = await Promise.all(
             roleIds.map(roleId => getRolePrivilegeLevel(roleId))
         );
         
         const newPrivilegedRoleCount = privilegeLevelChecks.filter(
-            // Re-use the constant from permission-resolver for consistency
-            level => level > UNPRIVILEGED_THRESHOLD
+            level => level <= UNPRIVILEGED_THRESHOLD
         ).length;
 
         if (newPrivilegedRoleCount > 1) {
