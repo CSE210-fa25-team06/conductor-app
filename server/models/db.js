@@ -77,47 +77,67 @@ async function findUserIdInUsers(email) {
  * @param {string} ipAddress - The IP address used during the login attempt.
  * @returns {object|null} The user object with roles and permissions, or null.
  */
+/**
+ * Retrieves a full data set for a user, including their roles and aggregated permissions.
+ * @param {number} userId - The internal database ID of the user.
+ * @param {string} ipAddress - The IP address used during the login attempt.
+ * @returns {object|null} The user object with roles and permissions, or null.
+ */
 async function getFullUserData(userId, _ipAddress) {
-    const query = `
+    // 1. Get Base User Data (ID, Email, Name, GroupName)
+    const baseQuery = `
         SELECT
             u.id,
             u.email,
             u.name,                      
-            g.name AS groupName,         
+            -- Final Fix: Use COALESCE to guarantee a string, and quotes for alias stability
+            COALESCE(g.name, 'Group Lookup Failed') AS "groupName"         
+        FROM users u
+        LEFT JOIN groups g ON u.group_id = g.id 
+        WHERE u.id = $1;
+    `;
+    
+    // 2. Get Roles and Permissions Data
+    const rolesPermissionsQuery = `
+        SELECT
             r.id AS role_id,
             r.name AS role_name,
             r.privilege_level,           
             p.id AS permission_id,
             p.name AS permission_name
-        FROM users u
-        LEFT JOIN groups g ON u.group_id = g.id 
-        LEFT JOIN user_roles ur ON u.id = ur.user_id
+        FROM user_roles ur
         LEFT JOIN roles r ON ur.role_id = r.id
         LEFT JOIN role_permissions rp ON r.id = rp.role_id
         LEFT JOIN permissions p ON rp.permission_id = p.id
-        WHERE u.id = $1;
+        WHERE ur.user_id = $1;
     `;
 
     try {
-        const result = await pool.query(query, [userId]);
+        const baseResult = await pool.query(baseQuery, [userId]);
         
-        if (result.rows.length === 0) {
+        if (baseResult.rows.length === 0) {
             return null;
         }
 
-        const rawUserResult = result.rows.reduce((acc, row) => {
-            if (!acc.id) {
-                acc.id = row.id;
-                acc.email = row.email;
-                acc.name = row.name;
-                acc.groupName = row.groupName; 
-                acc.roles = []; 
-            }
-
-            const existingRole = acc.roles.find(r => r.role_id === row.role_id);
+        const firstRow = baseResult.rows[0];
+        const rawUserResult = {
+            id: firstRow.id,
+            email: firstRow.email,
+            name: firstRow.name,
+            groupName: firstRow.groupName, 
+            roles: []
+        }; 
+        
+        // Execute the second query to get roles/permissions
+        const rpResult = await pool.query(rolesPermissionsQuery, [userId]);
+        
+        // This loop handles users who have roles (rpResult.rows.length > 0)
+        // AND users who have NO roles (rpResult.rows.length === 0)
+        rpResult.rows.forEach(row => {
+            const existingRole = rawUserResult.roles.find(r => r.role_id === row.role_id);
             
             if (row.role_id != null && !existingRole) { 
-                acc.roles.push({
+                rawUserResult.roles.push({
                     role_id: row.role_id,
                     name: row.role_name,
                     privilege_level: row.privilege_level, 
@@ -126,9 +146,9 @@ async function getFullUserData(userId, _ipAddress) {
             } else if (row.permission_id != null && existingRole) {
                 existingRole.permissions.push({ id: row.permission_id, name: row.permission_name });
             }
-            return acc;
-        }, {});
-
+        });
+        
+        // If the user is new, userRoles will be an empty array, which is correct.
         const userRoles = rawUserResult.roles.filter(r => r.role_id !== null);
 
         // Resolve effective permissions
@@ -138,13 +158,13 @@ async function getFullUserData(userId, _ipAddress) {
             id: rawUserResult.id,
             email: rawUserResult.email,
             name: rawUserResult.name,
-            groupName: rawUserResult.groupName,
-            // START CRITICAL FIX: Flatten permission details
+            groupName: rawUserResult.groupName, // Now guaranteed to be a string
             permissions: Array.from(permissionDetails.permissions), 
             effectiveRoleName: permissionDetails.effectiveRoleName, 
-            // END CRITICAL FIX
             roles: userRoles 
         };
+
+        console.log(userData)
 
         return userData;
 
@@ -171,7 +191,6 @@ async function getActivityIdByName(name) {
 }
 
 
-// Function to be added to module.exports in db.js
 async function logSuccessfulLogin(userId, ipAddress) {
     // 1. Get the required activity_id from the 'activity' table
     const activityName = 'USER_LOGIN_SUCCESS';
@@ -204,9 +223,7 @@ async function logSuccessfulLogin(userId, ipAddress) {
 // PROVISIONING/ADMIN FUNCTIONS
 // =========================================================================
 
-
 /**
- * NEW FUNCTION: Creates a new group.
  * @param {string} name 
  * @param {string} logoUrl 
  * @param {string} slackLink 
@@ -230,7 +247,6 @@ async function createGroup(name, logoUrl, slackLink, repoLink) {
 
 
 /**
- * NEW FUNCTION: Configures the full list of permissions for a role in a transaction.
  * This is the implementation for the PUT /roles/:roleId/permissions route.
  * @param {number} roleId - The ID of the role to update.
  * @param {Array<string>} permissionNames - The list of permission names to assign.
@@ -282,7 +298,6 @@ async function setRolePermissions(roleId, permissionNames) {
     }
 }
 
-// NEW FUNCTION: Insert a new permission
 async function createPermission(name, description) {
     const query = `
         INSERT INTO permissions (name, description)
@@ -296,6 +311,39 @@ async function createPermission(name, description) {
         return result.rows[0]?.id; 
     } catch (error) {
         console.error('Database Error in createPermission:', error);
+        throw error;
+    }
+}
+
+
+/**
+ * Creates or updates an activity record for idempotent database seeding.
+ * @param {number} id - The manual ID of the activity.
+ * @param {string} name - The unique name of the activity (e.g., 'USER_LOGIN_SUCCESS').
+ * @param {string} activity_type - The category of the activity (e.g., 'AUTH', 'DATA').
+ * @param {string} description - The description, stored in the JSONB 'content' column.
+ * @returns {number} The ID of the created or updated activity.
+ */
+async function createActivity(id, name, activity_type, description) {
+    // The description is stored in the content JSONB column.
+    const contentPayload = { description: description }; 
+
+    const query = `
+        INSERT INTO activity (id, name, activity_type, content)
+        VALUES ($1, $2, $3, $4::jsonb)
+        ON CONFLICT (id) DO UPDATE 
+        SET 
+            name = EXCLUDED.name, 
+            activity_type = EXCLUDED.activity_type,
+            content = EXCLUDED.content
+        RETURNING id;
+    `;
+    try {
+        // $1 = id, $2 = name, $3 = activity_type, $4 = JSON string of contentPayload
+        const result = await pool.query(query, [id, name, activity_type, JSON.stringify(contentPayload)]);
+        return result.rows[0].id;
+    } catch (error) {
+        console.error('Database Error in createActivity:', error);
         throw error;
     }
 }
@@ -324,7 +372,6 @@ async function createRole(name, privilege_level, is_default) {
     }
 }
 
-// NEW FUNCTION: Helper to get a role's privilege level for PROACTIVE VALIDATION
 async function getRolePrivilegeLevel(roleId) {
     const query = 'SELECT privilege_level FROM roles WHERE id = $1;';
     const result = await pool.query(query, [roleId]);
@@ -334,7 +381,6 @@ async function getRolePrivilegeLevel(roleId) {
     return result.rows[0].privilege_level;
 }
 
-// NEW FUNCTION: Set the roles for a user (Transaction)
 async function assignRolesToUser(userId, roleIds) {
     const client = await pool.connect();
     try {
@@ -405,7 +451,6 @@ async function linkRoleToPermission(roleId, permissionId) {
 // LOOKUP & FIND FUNCTIONS
 // =========================================================================
 
-// NEW: Lookup function for default group
 async function findGroupIdByName(name) {
     const query = 'SELECT id FROM groups WHERE name = $1;';
     const result = await pool.query(query, [name]);
@@ -462,8 +507,6 @@ async function findRoleByName(name) {
 // INSERT FUNCTIONS (Called by the Service Layer)
 // =========================================================================
 
-// NEW: Requires groupId now
-// FIX: Added 'client' parameter to support transactions and fixed parameter shift.
 async function insertUser(client, email, name, groupId) {
     const userInsertQuery = `
         INSERT INTO users (email, name, group_id, photo_url)
@@ -480,13 +523,11 @@ async function insertUser(client, email, name, groupId) {
     }
 }
 
-// FIX: Added 'client' and 'provider' parameters to support transactions and generic providers.
 async function insertUserAuth(client, userId, provider, email, accessToken, refreshToken) {
     const authInsertQuery = `
         INSERT INTO user_auth (user_id, provider, email, access_token, refresh_token)
         VALUES ($1, $2, $3, $4, $5);
     `;
-    // Note: The service layer ensures refreshToken is not null and tokens are encrypted.
     try {
         // $1=userId, $2=provider, $3=email, $4=accessToken, $5=refreshToken
         await client.query(authInsertQuery, [userId, provider, email, accessToken, refreshToken]); 
@@ -496,7 +537,6 @@ async function insertUserAuth(client, userId, provider, email, accessToken, refr
     }
 }
 
-// FIX: Added 'client' parameter to support transactions.
 async function insertUserRole(client, userId, roleId) {
     const query = `
         INSERT INTO user_roles (user_id, role_id)
@@ -511,7 +551,7 @@ async function insertUserRole(client, userId, roleId) {
 }
 
 module.exports = {
-  pool, // <-- NEW: Export the pool for use in user-provisioning.js
+  pool,
   findUserIdByEmail,
   findUserIdInUsers,
   getFullUserData,
@@ -523,6 +563,7 @@ module.exports = {
   createRole,
   getPermissionIdByName,
   linkRoleToPermission,
+  createActivity,
   
   // Provisioning/Admin Functions
   getRolePrivilegeLevel,
