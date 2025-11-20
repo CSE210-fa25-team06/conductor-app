@@ -61,6 +61,18 @@
       "description": "Allows linking and unlinking permissions to roles (via API, not creation)."
     },
     {
+      "name": "CREATE_GROUPS",
+      "description": "Allows manual creation of new groups in the system."
+    },
+    {
+      "name": "CREATE_ROLES",
+      "description": "Allows creation of new system roles and privilege levels."
+    },
+        {
+      "name": "CREATE_PERMISSIONS",
+      "description": "Allows definition of new system permissions."
+    },
+    {
       "name": "ASSIGN_ROLES",
       "description": "Allows assigning or modifying user roles (e.g., Student, TA, Professor)."
     },

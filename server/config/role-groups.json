@@ -101,6 +101,9 @@
       "description": "Full administrative access and system configuration.",
       "default_permissions": [
         "MANAGE_PERMISSIONS",
+        "CREATE_GROUPS",
+        "CREATE_PERMISSIONS",
+        "CREATE_ROLES",
         "ASSIGN_ROLES",
         "EDIT_ALL_PROFILE_DATA",
         "PROVISION_USERS",
