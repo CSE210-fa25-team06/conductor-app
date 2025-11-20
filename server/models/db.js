@@ -89,9 +89,8 @@ async function getFullUserData(userId, _ipAddress) {
         SELECT
             u.id,
             u.email,
-            u.name,                      
-            -- Final Fix: Use COALESCE to guarantee a string, and quotes for alias stability
-            COALESCE(g.name, 'Group Lookup Failed') AS "groupName"         
+            u.name,              
+            COALESCE(g.name, 'Group Lookup Failed') AS "groupName"
         FROM users u
         LEFT JOIN groups g ON u.group_id = g.id 
         WHERE u.id = $1;
@@ -163,8 +162,6 @@ async function getFullUserData(userId, _ipAddress) {
             effectiveRoleName: permissionDetails.effectiveRoleName, 
             roles: userRoles 
         };
-
-        console.log(userData)
 
         return userData;
 
