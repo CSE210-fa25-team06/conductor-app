@@ -77,13 +77,7 @@ async function findUserIdInUsers(email) {
  * @param {string} ipAddress - The IP address used during the login attempt.
  * @returns {object|null} The user object with roles and permissions, or null.
  */
-/**
- * Retrieves a full data set for a user, including their roles and aggregated permissions.
- * @param {number} userId - The internal database ID of the user.
- * @param {string} ipAddress - The IP address used during the login attempt.
- * @returns {object|null} The user object with roles and permissions, or null.
- */
-async function getFullUserData(userId, _ipAddress) {
+async function getFullUserData(userId, ipAddress) {
     // 1. Get Base User Data (ID, Email, Name, GroupName)
     const baseQuery = `
         SELECT
@@ -160,13 +154,13 @@ async function getFullUserData(userId, _ipAddress) {
             groupName: rawUserResult.groupName, // Now guaranteed to be a string
             permissions: Array.from(permissionDetails.permissions), 
             effectiveRoleName: permissionDetails.effectiveRoleName, 
-            roles: userRoles 
+            roles: userRoles
         };
 
         return userData;
 
     } catch (error) {
-        console.error('Database Error in getFullUserData:', error);
+        console.error(`Database Error in getFullUserData (IP: ${ipAddress}):`, error);
         throw error;
     }
 }

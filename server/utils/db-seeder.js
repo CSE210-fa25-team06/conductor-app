@@ -5,8 +5,6 @@
  * * To run: node db/db-seeder.js
  */
 
-const path = require('path');
-
 const { 
     createRole, 
     createPermission, 
@@ -23,10 +21,10 @@ const {
     roles: rolesConfig,
     groups: groupsConfig
 } = require('../config/role-groups.json');
-const { activities: activitiesConfig } = require('../config/activity-config.json'); // <--- NEW: Import Activity Config
+const { activities: activitiesConfig } = require('../config/activity-config.json'); 
 
 async function seedRolesAndPermissions() {
-    console.log('--- STARTING DATABASE SEEDER: ROLES, PERMISSIONS, GROUPS, AND ACTIVITIES ---'); // Updated title
+    console.log('--- STARTING DATABASE SEEDER: ROLES, PERMISSIONS, GROUPS, AND ACTIVITIES ---');
     let client;
     
     try {

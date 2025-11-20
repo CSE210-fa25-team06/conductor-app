@@ -5,7 +5,6 @@
 
 const express = require('express');
 const router = express.Router();
-// IMPORTANT: createRole must be updated to accept privilege_level in db.js
 const { createGroup, createRole, createPermission, setRolePermissions } = require('../../../models/db');
 const { requirePermission } = require('../../../middleware/role-checker');
 
@@ -55,7 +54,6 @@ router.post('/roles', async (req, res) => {
     }
 
     try {
-        // NOTE: createRole in db.js must be updated to handle the privilege_level
         const newRoleId = await createRole(name, privilege_level); 
         
         return res.status(201).json({ 
@@ -65,7 +63,7 @@ router.post('/roles', async (req, res) => {
         });
 
     } catch (error) {
-        // ... (error handling) ...
+        console.error('API Error creating role:', error);
         return res.status(500).json({ error: 'Failed to create role due to a server error.' });
     }
 });
@@ -112,9 +110,6 @@ router.put('/roles/:roleId/permissions', async (req, res) => {
         return res.status(400).json({ error: 'Invalid roleId or missing/invalid permissionNames array.' });
     }
     
-    // NOTE: For now, we assume the Professor knows which permissions to assign.
-    // We rely on the setRolePermissions transaction to fail if any permissionName is invalid.
-
     try {
         await setRolePermissions(roleId, permissionNames);
         
