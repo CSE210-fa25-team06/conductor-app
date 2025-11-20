@@ -9,7 +9,7 @@ const router = express.Router();
 
 const loadAuthStrategyRoutes = require('../../../middleware/auth/auth-mounter'); 
 
-const { handleUserLogin } = require('../../../services/auth/auth-service'); // Needed for /session
+const { handleUserLogin } = require('../../../services/auth/auth-service');
 
 // =========================================================================
 // 1. STRATEGY-SPECIFIC ROUTES (Mounted by the Mounter)
@@ -37,7 +37,6 @@ router.get('/session', async (req, res) => {
   if (req.isAuthenticated()) {
     const userId = req.user || req.session.userId; 
 
-    // --- CRITICAL FIX 3: Robust check and auto-logout ---
     const userData = await handleUserLogin(userId, req.ip);
 
     if (userData) {
@@ -57,7 +56,13 @@ router.get('/session', async (req, res) => {
       });
       return; // Stop execution after sending the 401 response
     }
-  }
+  } 
+
+  // --- Add the response for the unauthenticated case ---
+  return res.status(401).json({ 
+    success: false, 
+    message: 'User is not authenticated.' 
+  });
 });
 
 
