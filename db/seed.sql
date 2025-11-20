@@ -9,10 +9,6 @@
 -- =========================================================================
 -- 1. GROUPS (Teams/Cohorts)
 -- =========================================================================
-INSERT INTO groups (id, name, logo_url, slack_link, repo_link)
-VALUES
-(0, 'Unassigned', '', '', '')
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 INSERT INTO groups (id, name, logo_url, slack_link, repo_link)
 VALUES
@@ -28,10 +24,6 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 -- 2. ROLES (Least to Most Privileged)
 -- =========================================================================
 -- Permissions are placeholder JSONB objects, independent of the role name.
-INSERT INTO roles (id, name, description, privilege_level, is_default)
-VALUES
-(0, 'Guest', 'Guest', 0, FALSE)
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 INSERT INTO roles (id, name, description, privilege_level, is_default)
 VALUES
