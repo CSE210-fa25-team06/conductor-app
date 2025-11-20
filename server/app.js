@@ -13,7 +13,7 @@ const path = require('path');
 
 // Routers
 const usersRouter = require('./routes/users');
-const journalsRouter = require('./routes/journals');
+const journalRouter = require('./routes/journals');
 const groupsRouter = require('./routes/groups');
 const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
@@ -39,13 +39,11 @@ if (process.env.AUTH_STRATEGY === 'GOOGLE') {
 
 const app = express();
 const port = process.env.PORT || 3000;
-
 // =========================================================================
 // MIDDLEWARE CONFIGURATION
 // =========================================================================
 
 app.use(express.json());
-
 app.use(express.static(path.join(__dirname, '..', 'client')));
 
 /**
@@ -80,11 +78,12 @@ app.use(passport.session());
 // ROUTE REGISTRATION
 // =========================================================================
 app.use('/users', usersRouter);            // enables class directory
-app.use('/journals', journalsRouter);      // enables journal posting
+app.use('/journals', journalRouter);      // enables journal posting
 app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
+app.use('/journal', journalRouter);
 
 /**
  * GET /
