@@ -10,6 +10,13 @@ To run the full stack (App + Database) without manual setup:
 2. Run `docker compose up --build`.
 3. The app will be available at `http://localhost:3000`. The database is automatically seeded on the first run.
 
+**To stop the server:**
+Press `Ctrl+C` in the terminal.
+
+**To delete deployment**
+Run `docker compose down -v`.
+*Note: This removes the containers and destroys the database volume. The next time you start the app, the database will be reset to the initial seed data.*
+
 ---
 
 ### **client/**
