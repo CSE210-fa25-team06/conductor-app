@@ -32,6 +32,8 @@
       "privilege_level": 1,
       "description": "Base role for all students.",
       "default_permissions": [
+        "VIEW_FAQ_SYSTEM",
+        "VIEW_DOCS_MANAGER",
         "EDIT_OWN_PROFILE_DATA",
         "USER_SUBMIT_JOURNAL",
         "USER_SUBMIT_PRIVATE_THOUGHTS",
