@@ -10,19 +10,18 @@ const {
     assignRolesToUser,          
     getRolePrivilegeLevel       
 } = require('../../../models/db');
+
 // 1. Import the generic permission checker
 const { requirePermission } = require('../../../middleware/role-checker'); 
 const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver'); 
 
-// 2. Use the generic permission check middleware
-router.use(requirePermission('PROVISION_USERS')); 
-
 /**
  * PUT /api/admin/users/:userId/roles
  * Professor assigns a list of role IDs to a user.
+ * Requires Permission: 'ASSIGN_ROLES'
  * Request Body: { roleIds: Array<number> }
  */
-router.put('/users/:userId/roles', async (req, res) => {
+router.put('/users/:userId/roles', requirePermission('ASSIGN_ROLES'), async (req, res) => {
     const userId = parseInt(req.params.userId, 10);
     const { roleIds } = req.body; 
 

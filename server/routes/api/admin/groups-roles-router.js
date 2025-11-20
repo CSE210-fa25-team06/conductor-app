@@ -8,14 +8,13 @@ const router = express.Router();
 const { createGroup, createRole, createPermission, setRolePermissions } = require('../../../models/db');
 const { requirePermission } = require('../../../middleware/role-checker');
 
-router.use(requirePermission('PROVISION_USERS'))
-
 /**
  * POST /api/admin/groups
  * Creates a new Group.
+ * Requires Permission: 'CREATE_GROUPS'
  * Request Body: { name: string, ...optional fields }
  */
-router.post('/groups', async (req, res) => {
+router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
     const { name, logoUrl, slackLink, repoLink } = req.body;
 
     if (!name) {
@@ -43,10 +42,11 @@ router.post('/groups', async (req, res) => {
 
 /**
  * POST /api/admin/roles
- * Creates a new Role. Now requires 'privilege_level'.
+ * Creates a new Role.
+ * Requires Permission: 'CREATE_ROLES'
  * Request Body: { name: string, privilege_level: number }
  */
-router.post('/roles', async (req, res) => {
+router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
     const { name, privilege_level } = req.body;
 
     if (!name || typeof privilege_level !== 'number') {
@@ -70,9 +70,10 @@ router.post('/roles', async (req, res) => {
 
 /**
  * POST /api/admin/permissions
+ * Requires Permission: 'CREATE_PERMISSIONS'
  * Professor creates a new permission (optional for front-end configuration).
  */
-router.post('/permissions', async (req, res) => {
+router.post('/permissions', requirePermission('CREATE_PERMISSIONS'), async (req, res) => {
     const { name, description } = req.body;
 
     if (!name || !description) {
@@ -100,9 +101,10 @@ router.post('/permissions', async (req, res) => {
 
 /**
  * PUT /api/admin/roles/:roleId/permissions
+ * Requires Permission: 'MANAGE_PERMISSIONS'
  * Professor configures the full list of permissions for a single role.
  */
-router.put('/roles/:roleId/permissions', async (req, res) => {
+router.put('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
     const roleId = parseInt(req.params.roleId, 10);
     const { permissionNames } = req.body; 
 
