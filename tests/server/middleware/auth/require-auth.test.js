@@ -1,4 +1,4 @@
-const requireAuth = require('../../server/middleware/auth/require-auth'); // Adjust path as necessary
+const requireAuth = require('../../../../server/middleware/auth/require-auth'); // Adjust path as necessary
 
 describe('requireAuth Middleware', () => {
     // Standard mock objects for Express middleware testing

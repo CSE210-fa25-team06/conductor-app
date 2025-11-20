@@ -4,7 +4,7 @@
  */
 
 // 1. Mock the DB module at the top level
-jest.mock('../../server/models/db', () => ({
+jest.mock('../../../server/models/db', () => ({
     pool: { connect: jest.fn(), query: jest.fn() },
     findGroupByName: jest.fn(),
     findRoleByName: jest.fn(),
@@ -29,8 +29,8 @@ describe('User Provisioning Layer', () => {
 
         // 2. Re-require the mocked DB and the Module under test
         // We use the path 'models/user-provisioning' based on your file header
-        db = require('../../server/models/db');
-        userProvisioningModel = require('../../server/services/user-provisioning');
+        db = require('../../../server/models/db');
+        userProvisioningModel = require('../../../server/services/user-provisioning');
 
         // 3. Setup the mock client for transactions
         mockClient = {
@@ -90,7 +90,7 @@ describe('User Provisioning Layer', () => {
             jest.resetModules(); 
 
             // 2. Define the failure mock
-            jest.doMock('../../server/models/db', () => ({
+            jest.doMock('../../../server/models/db', () => ({
                 pool: { connect: jest.fn(), query: jest.fn() },
                 findGroupByName: jest.fn().mockResolvedValue(null), // FAILURE CONDITION
                 findRoleByName: jest.fn().mockResolvedValue({ id: MOCKED_DEFAULT_ROLE_ID, privilege_level: 1 }),
@@ -98,7 +98,7 @@ describe('User Provisioning Layer', () => {
             }));
 
             // 3. Require the module again so it picks up the failed mock
-            const freshModel = require('../../server/services/user-provisioning');
+            const freshModel = require('../../../server/services/user-provisioning');
 
             await expect(freshModel.getProvisioningDetails()).rejects.toThrow(/Default group.*not found/);
         });

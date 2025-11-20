@@ -6,14 +6,14 @@ var mockGetFullUserData = jest.fn();
 var mockLogSuccessfulLogin = jest.fn();
 
 // Mock the entire db.js module
-jest.mock('../../server/models/db', () => ({
+jest.mock('../../../../server/models/db', () => ({
     getFullUserData: mockGetFullUserData,
     logSuccessfulLogin: mockLogSuccessfulLogin,
 }));
 
 describe('Auth Service Layer (handleUserLogin)', () => {
     
-    const { handleUserLogin } = require('../../server/services/auth/auth-service'); 
+    const { handleUserLogin } = require('../../../../server/services/auth/auth-service'); 
     
     beforeEach(() => {
         jest.clearAllMocks();

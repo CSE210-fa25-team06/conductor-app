@@ -2,20 +2,20 @@ const request = require('supertest');
 const express = require('express');
 
 // Mock Dependencies
-jest.mock('../../server/models/db');
+jest.mock('../../../../../server/models/db');
 
 // We must mock the utils file because the router imports a constant from it.
-jest.mock('../../server/utils/permission-resolver', () => ({
+jest.mock('../../../../../server/utils/permission-resolver', () => ({
   UNPRIVILEGED_THRESHOLD: 1
 }));
 
-jest.mock('../../server/middleware/role-checker', () => ({
+jest.mock('../../../../../server/middleware/role-checker', () => ({
   requirePermission: jest.fn(() => (req, res, next) => next())
 }));
 
-const userRoleRouter = require('../../server/routes/api/admin/user-role-router');
-const db = require('../../server/models/db');
-const roleChecker = require('../../server/middleware/role-checker');
+const userRoleRouter = require('../../../../../server/routes/api/admin/user-role-router');
+const db = require('../../../../../server/models/db');
+const roleChecker = require('../../../../../server/middleware/role-checker');
 
 const app = express();
 app.use(express.json());

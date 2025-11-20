@@ -18,13 +18,13 @@ jest.mock('pg', () => ({
 
 const mockResolveUserPermissions = jest.fn();
 
-jest.mock('../../server/utils/permission-resolver', () => ({
+jest.mock('../../../server/utils/permission-resolver', () => ({
     resolveUserPermissions: mockResolveUserPermissions,
     UNPRIVILEGED_THRESHOLD: 1
 }));
 
 // Import the module under test
-const db = require('../../server/models/db');
+const db = require('../../../server/models/db');
 
 describe('DB Data Access Layer (DAL)', () => {
     

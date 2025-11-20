@@ -1,6 +1,6 @@
 // server/tests/unit/permission-resolver.test.js
 
-const { resolveUserPermissions } = require('../../server/utils/permission-resolver');
+const { resolveUserPermissions } = require('../../../server/utils/permission-resolver');
 
 // Helper function to map permission objects to an array of strings
 const getPermissionNames = (role) => role.permissions.map(p => p.name);

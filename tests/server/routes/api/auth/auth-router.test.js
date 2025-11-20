@@ -1,14 +1,14 @@
 const request = require('supertest');
 const express = require('express');
-const { handleUserLogin } = require('../../server/services/auth/auth-service');
-const authRouter = require('../../server/routes/api/auth/auth-router');
+const { handleUserLogin } = require('../../../../../server/services/auth/auth-service');
+const authRouter = require('../../../../../server/routes/api/auth/auth-router');
 
 // 1. Setup Mock Dependencies
-jest.mock('../../server/services/auth/auth-service', () => ({
+jest.mock('../../../../../server/services/auth/auth-service', () => ({
     handleUserLogin: jest.fn(),
 }));
 
-jest.mock('../../server/middleware/auth/auth-mounter', () => {
+jest.mock('../../../../../server/middleware/auth/auth-mounter', () => {
     const express = require('express');
     
     // Mock the mounter to return a simple empty router for strategy-specific routes

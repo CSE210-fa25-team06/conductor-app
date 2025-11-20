@@ -3,16 +3,16 @@
  * @description Jest tests for the models/user-provisioning.js module.
  */
 
-const db = require('../../server/models/db'); 
+const db = require('../../../server/models/db'); 
 const { 
     getProvisioningDetails,
     createUserAccount,
     linkProviderAccount,
     resetProvisioningCache 
-} = require('../../server/services/user-provisioning');
+} = require('../../../server/services/user-provisioning');
 
 // Mock the entire db.js module
-jest.mock('../../server/models/db', () => ({
+jest.mock('../../../server/models/db', () => ({
     // Mock the connection pool and transaction logic
     pool: {
         connect: jest.fn().mockResolvedValue({

@@ -1,15 +1,15 @@
 const request = require('supertest');
 const express = require('express');
 
-jest.mock('../../server/models/db');
+jest.mock('../../../../../server/models/db');
 
-jest.mock('../../server/middleware/role-checker', () => ({
+jest.mock('../../../../../server/middleware/role-checker', () => ({
   requirePermission: jest.fn(() => (req, res, next) => next())
 }));
 
-const groupsRolesRouter = require('../../server/routes/api/admin/groups-roles-router'); 
-const db = require('../../server/models/db');
-const roleChecker = require('../../server/middleware/role-checker');
+const groupsRolesRouter = require('../../../../../server/routes/api/admin/groups-roles-router'); 
+const db = require('../../../../../server/models/db');
+const roleChecker = require('../../../../../server/middleware/role-checker');
 
 const app = express();
 app.use(express.json());

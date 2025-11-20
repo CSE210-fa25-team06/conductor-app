@@ -10,7 +10,7 @@ describe('Authorization Middleware (role-checker)', () => {
     // 3. Define the setup hook
     beforeAll(() => {
         // A. Use jest.doMock for dynamic mocking
-        jest.doMock('../../server/models/db', () => {
+        jest.doMock('../../../server/models/db', () => {
             mockGetFullUserData = jest.fn();
             return {
                 getFullUserData: mockGetFullUserData
@@ -18,7 +18,7 @@ describe('Authorization Middleware (role-checker)', () => {
         });
         
         // B. Manually require the module *after* the mock is set up
-        const checker = require('../../server/middleware/role-checker');
+        const checker = require('../../../server/middleware/role-checker');
         requirePermission = checker.requirePermission;
     });
 

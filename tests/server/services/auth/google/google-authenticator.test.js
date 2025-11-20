@@ -11,14 +11,14 @@ const mockDb = {
     findUserIdInUsers: jest.fn(),
     logSuccessfulLogin: jest.fn(),
 };
-jest.mock('../../server/models/db', () => mockDb);
+jest.mock('../../../../../server/models/db', () => mockDb);
 
 // 2. Mock User Provisioning Functions
 const mockProvisioning = {
     createUserAccount: jest.fn(),
     linkProviderAccount: jest.fn(),
 };
-jest.mock('../../server/services/user-provisioning', () => mockProvisioning);
+jest.mock('../../../../../server/services/user-provisioning', () => mockProvisioning);
 
 
 // 3. Mock Passport and capture the Strategy's verify function
@@ -43,7 +43,7 @@ jest.mock('passport', () => mockPassport);
 jest.mock('passport-google-oauth20', () => ({ Strategy: MockGoogleStrategy }));
 
 // 4. Import the module under test *after* all mocks are set up
-const { router } = require('../../server/services/auth/google/google-authenticator');
+const { router } = require('../../../../../server/services/auth/google/google-authenticator');
 
 // Extract Passport global callbacks immediately after require.
 const serializeCallback = mockPassport.serializeUser.mock.calls[0] ? mockPassport.serializeUser.mock.calls[0][0] : null;
