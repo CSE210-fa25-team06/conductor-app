@@ -2,12 +2,18 @@
  * Attendance Controller - Handles HTTP requests for attendance entries and retrieval
  */
 
+import crypto from "crypto"
+import { create } from "domain";
 const { 
   fetchDirectory,
   recordStudentAttendance,
   fetchStudentAttendanceHistory,
-  fetchAttendanceByDate
+  fetchAttendanceByDate,
+  createSession,
+  endSession
 } = require("../models/attendanceModel");
+
+const QRCode = require("qrcode")
 
 // Get all attendance entries for a student
 async function getDirectory(req, res) {
@@ -68,10 +74,91 @@ async function getAttendanceByDate(req, res) {
     res.status(500).json({ error: "Failed to fetch attendance records" });
   }
 }
+// Create QR Code:
+async function createQRCode(sessionId){
+    const qrPayload = `${BASE_URL}/attend?session=${sessionId}`;
+
+    const qrImageDataUrl = await QRCode.toDataURL(qrPayload);
+
+    return { qrPayload, qrImageDataUrl };
+}
+// Creates a unique sessionID
+async function createSessionID(){
+    return crypto.randomBytes(16).toString("hex");
+
+}
+// Start an attendance session
+async function startAttendance(req,res){
+    try{
+        // Store the creator of the attendance tracker
+        const user_id = req.user_id
+        const sessionID = createSessionID();
+
+        const session = await createSession({user_id, sessionID});
+
+        const {qrPayload, qrImageDataUrl} = await createQRCode(sessionID);
+
+        return res.json({
+            success: true,
+            sessionID,
+            qrPayload,
+            qrImageDataUrl,
+            session
+
+        });
+
+    }
+    catch (err){
+        console.error("Error starting session:", err);
+    return res.status(500).json({ error: "Server error starting attendance session" });
+
+    }
+    
+}
+// End attendance session
+async function endAttendance(req,res){
+    try{
+        const {sessionID} = req.body;
+        const ended = await endSession(sessionID);
+        return res.json({
+            success: true,
+            ended
+          });
+        } catch (err) {
+          console.error("Error ending attendance session:", err);
+          return res.status(500).json({ error: "Server error ending session" });
+        }
+
+}
+// Update attendance session
+async function scanAttendance(req, res){
+    try{
+        const{user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason} = req.body
+
+        // Grab the session
+        const {session} = getSession(session_id)
+        // If session is not active throw an error
+        if(!session || !session.active){
+            return res.status(400).json({ error: "Invalid or inactive session" });
+        }
+
+        // Update the student attendance
+        await updateStudent({user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason})
+        res.json({message : "Student attendance recorded sucessfully!"})
+    } catch(err){
+        console.error("Error recording attendance:", err);
+        res.status(500).json({ error: "Failed to record attendance" });
+    }
+}
+
+
 
 module.exports = {
   getDirectory,
   markAttendance,
   getStudentAttendanceHistory,
-  getAttendanceByDate
+  getAttendanceByDate,
+  startAttendance,
+  endAttendance,
+  scanAttendance
 };

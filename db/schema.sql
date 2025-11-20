@@ -130,10 +130,21 @@ CREATE TABLE user_auth (
 
 -- Table: attendance
 -- Tracks student attendance for meetings and lectures.
+
+CREATE TABLE attendance_sessions(
+    id SERIAL PRIMARY KEY,
+    created_by INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_code VARCHAR(255) UNIQUE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP WITH TIME ZONE
+);
+
 CREATE TABLE attendance (
     id             SERIAL PRIMARY KEY,
     user_id        INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     group_id       INT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    session_id     VARCHAR(255) NOT NULL attendance_sessions(session_code),
     date           DATE NOT NULL,
     status         VARCHAR(50) NOT NULL, -- e.g., 'Present', 'Absent', 'Late'
     recorded_by    INT REFERENCES users(id), -- Self-referencing FK to record which user took attendance

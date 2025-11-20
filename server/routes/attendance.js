@@ -10,7 +10,13 @@ const {
   getDirectory,
   markAttendance,
   getStudentAttendanceHistory,
-  getAttendanceByDate
+  getAttendanceByDate,
+  startAttendance,
+  endAttendance,
+  scanAttendance,
+  professorView,
+  submitAttendance,
+  viewMyAttendance
 } = require("../controllers/attendanceController");
 
 const router = express.Router();
@@ -29,5 +35,23 @@ router.get("/by-date/:date", getAttendanceByDate);
 
 // Get full history for a date range
 router.get("/by-date", getAttendanceByDate);
+
+// Start attendance
+router.post("/start/:user_id", startAttendance)
+
+// End attendance
+router.post("/end/:session_id", endAttendance)
+
+//Scan students for who attended
+router.post("/scan", scanAttendance)
+
+// Show which students attended class (Professor view)
+router.get("/session/:session_id/students", professorView)
+
+// Allows students to submit attendance
+router.post("/submit", submitAttendance)
+
+// Student view for attendance
+router.get("/mine/:class_id", viewMyAttendance)
 
 module.exports = router;
