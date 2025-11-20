@@ -8,7 +8,7 @@
 // Core Libraries
 const express = require('express');
 const session = require('express-session');
-const passport = require('passport'); 
+const passport = require('passport');
 const path = require('path');
 
 // Routers
@@ -17,6 +17,8 @@ const journalRouter = require('./routes/journals');
 const groupsRouter = require('./routes/groups');
 const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
+const groupsRolesRouter = require('./routes/api/admin/groups-roles-router');
+const userRoleRouter = require('./routes/api/admin/user-role-router');
 
 // Configuration
 // Load environment variables from the project root .env file.
@@ -83,7 +85,8 @@ app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
-app.use('/journal', journalRouter);
+app.use('/api/admin', groupsRolesRouter); 
+app.use('/api/admin', userRoleRouter); // <-- NEW MOUNT
 
 /**
  * GET /
@@ -100,6 +103,7 @@ app.get('/', (req, res) => {
 /**
  * Starts the Express server and listens on the configured port.
  */
+
 app.listen(port, () => {
   const host = process.env.SERVER_HOST || '127.0.0.1'; // Define host here, with a safe fallback
   console.log(`Conductor API Server listening at http://${host}:${port}`);
