@@ -27,4 +27,24 @@ async function createJournalEntry({ user_id, group_id, entry_date, did, doing_ne
   return result.rows[0];
 }
 
-module.exports = { createJournalEntry };
+/**
+ * Update an existing journal entry
+ * Only did, doing_next, blockers are editable
+ */
+async function updateJournalEntry({ id, did, doing_next, blockers = null }) {
+  const query = `
+    UPDATE journals
+    SET did = $2,
+        doing_next = $3,
+        blockers = $4,
+        edited_at = NOW()
+    WHERE id = $1
+    RETURNING id, user_id, group_id, entry_date, did, doing_next, blockers, created_at, edited_at
+  `;
+
+  const values = [id, did, doing_next, blockers];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+}
+
+module.exports = { createJournalEntry, updateJournalEntry };

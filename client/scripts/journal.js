@@ -24,25 +24,30 @@ function createJournalEntryHTML(entry) {
             <div class="journal-text no-blockers">No blockers reported</div>
         </div>`;
 
+    const timestamp = entry.timestamp || entry.created_at || new Date().toISOString();
+
     return `
-    <div class="journal-entry">
+        <div class="journal-entry" data-journal-id="${entry.id}">
         <div class="journal-header">
-        <div class="journal-timestamp">${formatTimestamp(entry.timestamp)}</div>
+            <div class="journal-timestamp">${formatTimestamp(timestamp)}</div>
+            <button type="button" class="journal-edit-btn" data-journal-id="${entry.id}" aria-label="Edit journal entry">
+            ✏️
+            </button>
         </div>
         <div class="journal-content">
-        <div class="journal-section">
+            <div class="journal-section">
             <div class="journal-label">What I Did Since Last Meeting</div>
-            <div class="journal-text">${escapeHtml(entry.whatIDid)}</div>
-        </div>
-        <div class="journal-section">
+            <div class="journal-text">${escapeHtml(entry.whatIDid || entry.did || "")}</div>
+            </div>
+            <div class="journal-section">
             <div class="journal-label">What I Will Do Next</div>
-            <div class="journal-text">${escapeHtml(entry.whatIWillDo)}</div>
+            <div class="journal-text">${escapeHtml(entry.whatIWillDo || entry.doing_next || "")}</div>
+            </div>
+            ${blockersHTML}
         </div>
-        ${blockersHTML}
         </div>
-    </div>
     `;
-}
+    }
 
 // Escape HTML to prevent XSS
 function escapeHtml(text) {
@@ -85,7 +90,7 @@ export function loadJournals() {
     // Generate HTML for all journal entries
     const journalsHTML = journals.map(entry => createJournalEntryHTML(entry)).join('');
     journalList.innerHTML = journalsHTML;
-    
+    attachEditHandlers(journals);
     } catch (error) {
     console.error('Error loading journals:', error);
     journalList.innerHTML = `
@@ -98,7 +103,7 @@ export function loadJournals() {
 }
 
 // Show modal for creating new journal
-async function showJournalModal() {
+async function showJournalModal(entryToEdit = null) {
     // Create modal overlay
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
@@ -115,12 +120,20 @@ async function showJournalModal() {
         const doc = parser.parseFromString(html, 'text/html');
         const formElement = doc.querySelector('#journalForm');
         const formHTML = formElement ? formElement.outerHTML : html;
-        
+
+
+        // Edit stand up content
+        const titleText = entryToEdit
+        ? "Edit your stand up update"
+        : "Submit your stand up update";
+
+        const modalButtonText = entryToEdit ? "Save changes" : "Submit journal";
+
         // Create modal content
         modalOverlay.innerHTML = `
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title">Submit Your Stand-up Update</h2>
+                    <h2 class="modal-title">{titleText}</h2>
                     <button type="button" class="modal-close" id="closeModal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -132,12 +145,27 @@ async function showJournalModal() {
         
         // Add modal to page
         document.body.appendChild(modalOverlay);
-        
+
+        // Update submit button label
+        const submitBtn = modalOverlay.querySelector("#journalForm button[type='submit']");
+        if (submitBtn) submitBtn.textContent = modalButtonText;
+
+        // Prefill form when editing
+        if (entryToEdit) {
+            const didField = modalOverlay.querySelector("#whatIDid");
+            const doingField = modalOverlay.querySelector("#whatIWillDo");
+            const blockersField = modalOverlay.querySelector("#blockers");
+
+            if (didField) didField.value = entryToEdit.whatIDid || entryToEdit.did || "";
+            if (doingField) doingField.value = entryToEdit.whatIWillDo || entryToEdit.doing_next || "";
+            if (blockersField) blockersField.value = entryToEdit.blockers || "";
+        }
+ 
         // Show modal with animation
         setTimeout(() => modalOverlay.classList.add('active'), 10);
         
         // Initialize modal event handlers
-        initModalHandlers(modalOverlay);
+        initModalHandlers(modalOverlay, entryToEdit);
         
     } catch (error) {
         console.error('Error loading journal form:', error);
@@ -146,7 +174,7 @@ async function showJournalModal() {
 }
 
 // Initialize modal event handlers
-function initModalHandlers(modalOverlay) {
+function initModalHandlers(modalOverlay, entryToEdit = null) {
     // Close modal button
     const closeBtn = modalOverlay.querySelector('#closeModal');
     const backBtn = modalOverlay.querySelector('#backBtn');
@@ -205,7 +233,33 @@ function initModalHandlers(modalOverlay) {
             // Get today's date in YYYY-MM-DD format
             const today = new Date();
             const entry_date = today.toISOString().split('T')[0];
-            
+            const isEdit = Boolean(entryToEdit);
+
+            let url;
+            let method;
+            let body;
+
+            if (isEdit) {
+                url = `/journals/${entryToEdit.id}`;
+                method = "PUT";
+                body = JSON.stringify({
+                did: whatIDid,
+                doing_next: whatIWillDo,
+                blockers: blockers || null,
+                });
+            } else {
+                url = "/journals/create";
+                method = "POST";
+                body = JSON.stringify({
+                user_id,
+                group_id,
+                entry_date,
+                did: whatIDid,
+                doing_next: whatIWillDo,
+                blockers: blockers || null,
+                });
+            }
+
             // Create journal entry object matching API format
             const journalData = {
                 user_id: user_id,
@@ -217,27 +271,40 @@ function initModalHandlers(modalOverlay) {
             };
             
             try {
-                // Send POST request to API endpoint
-                const response = await fetch("/journals/create", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(journalData)
+                const response = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body,
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (response.ok) {
-                    console.log('Journal Entry Saved:', result);
-                    
-                    // Also save to localStorage for offline viewing
-                    const storedJournals = localStorage.getItem('journals');
-                    const journals = storedJournals ? JSON.parse(storedJournals) : [];
-                    
-                    // Create journal entry object for localStorage (using original field names)
+                const apiJournal = result.data;
+
+                // Keep localStorage in sync
+                const stored = JSON.parse(localStorage.getItem("journals") || "[]");
+
+                if (isEdit) {
+                    const idx = stored.findIndex((j) => String(j.id) === String(entryToEdit.id));
+                    if (idx !== -1) {
+                    stored[idx] = {
+                        ...stored[idx],
+                        whatIDid,
+                        whatIWillDo,
+                        blockers,
+                    };
+                    }
+                    localStorage.setItem("journals", JSON.stringify(stored));
+                    closeModal();
+                    loadJournals();
+                    alert("Journal updated successfully");
+                }   
+                else {
                     const journalEntry = {
-                        id: result.journal?.id || Date.now(), // Use API returned ID or timestamp
+                        id: result.data.id,
                         whatIDid: whatIDid,
                         whatIWillDo: whatIWillDo,
                         blockers: blockers,
@@ -258,6 +325,7 @@ function initModalHandlers(modalOverlay) {
                     
                     // Show success message
                     alert('Journal submitted successfully!');
+                    }
                 } else {
                     // Handle API error
                     console.error('API Error:', result);
@@ -281,6 +349,21 @@ export function initJournals(){
         createJournalBtn.addEventListener('click', showJournalModal);
     }
 }
+
+// Edit Functionality
+function attachEditHandlers(journals) {
+  const buttons = document.querySelectorAll(".journal-edit-btn");
+  buttons.forEach((btn) => {
+    const id = btn.dataset.journalId;
+    const entry = journals.find((j) => String(j.id) === String(id));
+    if (!entry) return;
+
+    btn.addEventListener("click", () => {
+      showJournalModal(entry);
+    });
+  });
+}
+
 
 // Load journals when page loads
 // document.addEventListener('DOMContentLoaded', () => {
