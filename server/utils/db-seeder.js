@@ -6,23 +6,27 @@
  */
 
 const path = require('path');
-// Import DB Model functions (Now includes the newly defined functions)
+
 const { 
     createRole, 
     createPermission, 
+    createGroup,
+    createActivity,
     getPermissionIdByName, 
     linkRoleToPermission,
-    pool // Need the pool to handle connections/cleanup
+    pool
 } = require('../../server/models/db'); 
 
-// --- Load Configuration Files ---
-// Paths are relative to the project root (where the seeder is run from)
-const { permissions: permissionsConfig } = require('../config/permissions.json'); 
-const { roles: rolesConfig } = require('../config/role-groups.json');
 
-// --- Main Seeding Logic ---
+const { permissions: permissionsConfig } = require('../config/permissions.json'); 
+const { 
+    roles: rolesConfig,
+    groups: groupsConfig
+} = require('../config/role-groups.json');
+const { activities: activitiesConfig } = require('../config/activity-config.json'); // <--- NEW: Import Activity Config
+
 async function seedRolesAndPermissions() {
-    console.log('--- STARTING DATABASE SEEDER: ROLES AND PERMISSIONS ---');
+    console.log('--- STARTING DATABASE SEEDER: ROLES, PERMISSIONS, GROUPS, AND ACTIVITIES ---'); // Updated title
     let client;
     
     try {
@@ -60,19 +64,37 @@ async function seedRolesAndPermissions() {
         // =====================================================================
         console.log('\n1. Inserting/Updating master list of permissions...');
         for (const perm of permissionsConfig) {
-            // createPermission should handle ON CONFLICT DO NOTHING/UPDATE for idempotency
             await createPermission(perm.name, perm.description);
             console.log(`   - Created permission: ${perm.name}`);
         }
         
         // =====================================================================
-        // 2. Seed Roles Table and Store IDs
+        // 2. Seed Activities Table (New Step)
         // =====================================================================
-        console.log('\n2. Inserting/Updating roles and resolving IDs...');
+        console.log('\n2. Inserting/Updating master list of activities...');
+        for (const act of activitiesConfig) {
+            // createActivity must accept (id, name, type, description)
+            // Note: The description is being used to populate the 'content' JSONB column in the schema.sql table.
+            await createActivity(act.id, act.name, act.activity_type, act.description); 
+            console.log(`   - Created activity: ${act.id}: ${act.name}`);
+        }
+
+        // =====================================================================
+        // 3. Seed Groups Table (Updated Step Number)
+        // =====================================================================
+        console.log('\n3. Inserting/Updating groups...');
+        for (const group of groupsConfig) {
+            await createGroup(group.name, group.isDefault, group.description);
+            console.log(`   - Created group: ${group.name} (Default: ${!!group.isDefault})`);
+        }
+
+        // =====================================================================
+        // 4. Seed Roles Table and Store IDs (Updated Step Number)
+        // =====================================================================
+        console.log('\n4. Inserting/Updating roles and resolving IDs...');
         const roleIdMap = {};
 
         for (const role of rolesConfig) {
-            // createRole must accept (name, privilege_level, is_default)
             const roleId = await createRole(
                 role.name, 
                 role.privilege_level, 
@@ -83,9 +105,9 @@ async function seedRolesAndPermissions() {
         }
 
         // =====================================================================
-        // 3. Seed Role-Permissions Junction Table (Associations)
+        // 5. Seed Role-Permissions Junction Table (Associations) (Updated Step Number)
         // =====================================================================
-        console.log('\n3. Linking default permissions to roles...');
+        console.log('\n5. Linking default permissions to roles...');
         let linkCount = 0;
 
         for (const role of rolesConfig) {
@@ -95,12 +117,9 @@ async function seedRolesAndPermissions() {
                 console.log(`   -> Configuring ${role.name}:`);
 
                 for (const permName of role.default_permissions) {
-                    // Look up the DB ID for the permission name
                     const permissionId = await getPermissionIdByName(permName);
 
-                    // Since validation passed in Step 0, this should always succeed
                     if (permissionId) {
-                        // linkRoleToPermission should handle ON CONFLICT DO NOTHING
                         await linkRoleToPermission(roleId, permissionId);
                         console.log(`      - Linked: ${permName}`);
                         linkCount++;
@@ -109,16 +128,13 @@ async function seedRolesAndPermissions() {
             }
         }
         
-        console.log(`\n--- SEEDING COMPLETE: ${rolesConfig.length} Roles and ${linkCount} Permissions linked. ---`);
+        console.log(`\n--- SEEDING COMPLETE: ${rolesConfig.length} Roles, ${groupsConfig.length} Groups, ${activitiesConfig.length} Activities, and ${linkCount} Permissions linked. ---`); // Updated summary
 
     } catch (error) {
-        // Catch any unexpected database or system errors
         console.error('\n*** FATAL DATABASE SEEDING FAILED ***', error.message);
         process.exit(1); 
     } finally {
-        // Ensure the pool connection is released
         if (client) client.release();
-        // Force process exit to stop Node from waiting for PG pool timeout
         process.exit(0); 
     }
 }
