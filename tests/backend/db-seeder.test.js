@@ -3,7 +3,6 @@
  * @description Jest tests for the models/user-provisioning.js module.
  */
 
-l = require('../../server/services/user-provisioning')
 // 1. Mock the DB module at the top level
 jest.mock('../../server/models/db', () => ({
     pool: { connect: jest.fn(), query: jest.fn() },
@@ -56,15 +55,16 @@ describe('User Provisioning Layer', () => {
         });
         
         // Configure inserts to verify they receive the correct 'client'
-        db.insertUser.mockImplementation(async (client, email, name, groupId) => {
+        // FIX: Removed unused parameters (email, name, etc.) to satisfy linter
+        db.insertUser.mockImplementation(async (client) => {
             expect(client).toBe(mockClient); 
             return MOCKED_USER_ID; 
         });
-        db.insertUserRole.mockImplementation(async (client, userId, roleId) => {
+        db.insertUserRole.mockImplementation(async (client) => {
             expect(client).toBe(mockClient);
             return true;
         });
-        db.insertUserAuth.mockImplementation(async (client, userId, provider, email, accessToken, refreshToken) => {
+        db.insertUserAuth.mockImplementation(async (client) => {
             expect(client).toBe(mockClient);
             return true;
         });

@@ -180,7 +180,7 @@ describe('Google Authenticator (Passport Strategy)', () => {
         it('GET /callback/google should redirect to /api/auth/login-fail on failure', async () => {
             const failureRedirect = '/api/auth/login-fail?error=google_failed';
 
-            mockAuthMiddleware.mockImplementation((req, res, next) => {
+            mockAuthMiddleware.mockImplementation((req, res) => {
                 // Simulate Passport failing by redirecting immediately
                 // and NOT calling next()
                 res.redirect(failureRedirect);

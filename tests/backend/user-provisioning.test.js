@@ -3,7 +3,6 @@
  * @description Jest tests for the models/user-provisioning.js module.
  */
 
-const { pool } = require('../../server/models/db');
 const db = require('../../server/models/db'); 
 const { 
     getProvisioningDetails,

@@ -50,7 +50,7 @@ describe('User Role Router', () => {
     it('should return 403 (Security Violation) if assigning > 1 privileged role', async () => {
       // Setup: 1 is privileged (level 1 <= threshold 1)
       // We try to assign two roles that both have level 1
-      db.getRolePrivilegeLevel.mockImplementation(async (id) => {
+      db.getRolePrivilegeLevel.mockImplementation(async () => {
         return 1; // Always return level 1 (privileged)
       });
 
