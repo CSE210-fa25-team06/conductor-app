@@ -3,9 +3,12 @@
  */
 
 const express = require("express");
-const { createJournal, updateJournal } = require("../controllers/journalController");
+const { createJournal, updateJournal, deleteJournal, getJournals } = require("../controllers/journalController");
 
 const router = express.Router();
+
+// GET / - Grabs all the journals to load
+router.get("/", getJournals);
 
 // POST /journal/create - Create a new journal entry
 router.post("/create", createJournal);
@@ -13,4 +16,6 @@ router.post("/create", createJournal);
 // PUT /journals/:id - Update an existing journal entry
 router.put("/:id", updateJournal);
 
+// DELETE /journals/:id - Delete an existing journal entry
+router.delete("/:id", deleteJournal);
 module.exports = router;

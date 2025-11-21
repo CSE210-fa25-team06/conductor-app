@@ -1,5 +1,3 @@
-import { mockJournals } from "./mock_journal.js";
-
 function formatTimestamp(isoString) {
     const date = new Date(isoString);
     const options = {
@@ -30,9 +28,10 @@ function createJournalEntryHTML(entry) {
         <div class="journal-entry" data-journal-id="${entry.id}">
         <div class="journal-header">
             <div class="journal-timestamp">${formatTimestamp(timestamp)}</div>
-            <button type="button" class="journal-edit-btn" data-journal-id="${entry.id}" aria-label="Edit journal entry">
-            ✏️
-            </button>
+            <div class="journal-actions">
+                <button type="button" class="journal-edit-btn" data-journal-id="${entry.id}" aria-label="Edit journal entry">Edit</button>
+                <button type="button" class="journal-delete-btn" data-journal-id="${entry.id}" aria-label="Delete journal entry">Delete</button>
+            </div>
         </div>
         <div class="journal-content">
             <div class="journal-section">
@@ -56,41 +55,40 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-
-// Initialize localStorage with mock data if empty
-export function initializeData() {
-    if (!localStorage.getItem('journals')) {
-    localStorage.setItem('journals', JSON.stringify(mockJournals));
-    }
-}
-
 // Load and display journal entries
-export function loadJournals() {
+async function loadJournals() {
     const journalList = document.getElementById('journalList');
     
     try {
-    // Load from localStorage (or use mock data as fallback)
-    const storedJournals = localStorage.getItem('journals');
-    const journals = storedJournals ? JSON.parse(storedJournals) : [...mockJournals];
+        const res = await fetch("/journals");
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.message || "Failed to fetch journals");
+        }
+
+        const journals = data.data || [];
+
+        if (journals.length === 0) {
+            journalList.innerHTML = `
+                <div class="empty-state">
+                    <h3>No Journal Entries Yet</h3>
+                    <p>Be the first to submit a stand-up update!</p>
+                </div>
+            `;
+            return;
+        }
     
-    // Sort by timestamp (newest first)
-    journals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Check if there are any journals
-    if (journals.length === 0) {
-        journalList.innerHTML = `
-        <div class="empty-state">
-            <h3>No Journal Entries Yet</h3>
-            <p>Be the first to submit a stand-up update!</p>
-        </div>
-        `;
-        return;
-    }
-    
-    // Generate HTML for all journal entries
-    const journalsHTML = journals.map(entry => createJournalEntryHTML(entry)).join('');
-    journalList.innerHTML = journalsHTML;
+    // Sort newest first
+    journals.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
+    journalList.innerHTML = journals
+        .map(entry => createJournalEntryHTML(entry))
+        .join("");
     attachEditHandlers(journals);
+    attachDeleteHandlers(journals); 
     } catch (error) {
     console.error('Error loading journals:', error);
     journalList.innerHTML = `
@@ -111,7 +109,7 @@ async function showJournalModal(entryToEdit = null) {
     
     try {
         // Fetch the journal submission form HTML
-        const response = await fetch('journal/journal_submission.html');
+        const response = await fetch('journal_submission.html');
         if (!response.ok) throw new Error('Failed to load form');
         const html = await response.text();
         
@@ -133,7 +131,7 @@ async function showJournalModal(entryToEdit = null) {
         modalOverlay.innerHTML = `
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title">{titleText}</h2>
+                    <h2 class="modal-title">${titleText}</h2>
                     <button type="button" class="modal-close" id="closeModal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -213,7 +211,7 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
     if (journalForm) {
         journalForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             // Get form values
             const whatIDid = modalOverlay.querySelector('#whatIDid').value.trim();
             const whatIWillDo = modalOverlay.querySelector('#whatIWillDo').value.trim();
@@ -229,15 +227,20 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
             // For now, using test values matching test-journal-api.js
             const user_id = 101;
             const group_id = 1;
-            
-            // Get today's date in YYYY-MM-DD format
             const today = new Date();
             const entry_date = today.toISOString().split('T')[0];
             const isEdit = Boolean(entryToEdit);
 
-            let url;
-            let method;
-            let body;
+            let url = "/journals/create";
+            let method = "POST";
+            let body = JSON.stringify({
+                user_id,
+                group_id,
+                entry_date,
+                did: whatIDid,
+                doing_next: whatIWillDo,
+                blockers: blockers || null
+            });
 
             if (isEdit) {
                 url = `/journals/${entryToEdit.id}`;
@@ -247,90 +250,29 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
                 doing_next: whatIWillDo,
                 blockers: blockers || null,
                 });
-            } else {
-                url = "/journals/create";
-                method = "POST";
-                body = JSON.stringify({
-                user_id,
-                group_id,
-                entry_date,
-                did: whatIDid,
-                doing_next: whatIWillDo,
-                blockers: blockers || null,
-                });
-            }
+            } 
 
-            // Create journal entry object matching API format
-            const journalData = {
-                user_id: user_id,
-                group_id: group_id,
-                entry_date: entry_date,
-                did: whatIDid,
-                doing_next: whatIWillDo,
-                blockers: blockers || null
-            };
-            
             try {
                 const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body,
+                    method,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body,
                 });
 
                 const result = await response.json();
 
-                if (response.ok) {
-                const apiJournal = result.data;
-
-                // Keep localStorage in sync
-                const stored = JSON.parse(localStorage.getItem("journals") || "[]");
-
-                if (isEdit) {
-                    const idx = stored.findIndex((j) => String(j.id) === String(entryToEdit.id));
-                    if (idx !== -1) {
-                    stored[idx] = {
-                        ...stored[idx],
-                        whatIDid,
-                        whatIWillDo,
-                        blockers,
-                    };
-                    }
-                    localStorage.setItem("journals", JSON.stringify(stored));
-                    closeModal();
-                    loadJournals();
-                    alert("Journal updated successfully");
-                }   
-                else {
-                    const journalEntry = {
-                        id: result.data.id,
-                        whatIDid: whatIDid,
-                        whatIWillDo: whatIWillDo,
-                        blockers: blockers,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    // Add new entry to journals array
-                    journals.push(journalEntry);
-                    
-                    // Save back to localStorage
-                    localStorage.setItem('journals', JSON.stringify(journals));
-                    
+                if (!response.ok) {
+                    alert(result.message || "Error saving journal");
+                    return;
+                }
                     // Close modal
                     closeModal();
-                    
                     // Reload journals to show new entry
                     loadJournals();
-                    
                     // Show success message
-                    alert('Journal submitted successfully!');
-                    }
-                } else {
-                    // Handle API error
-                    console.error('API Error:', result);
-                    alert(`Failed to submit journal: ${result.error || 'Unknown error'}`);
-                }
+                    alert(isEdit ? "Journal updated successfully!" : "Journal submitted successfully!");
             } catch (error) {
                 console.error('Network Error:', error);
                 alert('Failed to submit journal. Please check if the server is running.');
@@ -340,39 +282,86 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
 }
 
 export function initJournals(){
-    initializeData();
     loadJournals();
-    
+
     // Add event listener for create journal button (on journal.html)
     const createJournalBtn = document.getElementById('createJournalBtn');
-    if (createJournalBtn) {
-        createJournalBtn.addEventListener('click', showJournalModal);
-    }
+    createJournalBtn.addEventListener('click', () => showJournalModal(null));
 }
 
 // Edit Functionality
 function attachEditHandlers(journals) {
+  // Select all edit buttons rendered in the journal list
   const buttons = document.querySelectorAll(".journal-edit-btn");
   buttons.forEach((btn) => {
+    // Each button stores the journal ID in its data attribute
     const id = btn.dataset.journalId;
+    // Find the corresponding journal entry object from the journals array
     const entry = journals.find((j) => String(j.id) === String(id));
     if (!entry) return;
-
+    // When the user clicks edit, open the modal pre-filled with this journal's data
     btn.addEventListener("click", () => {
       showJournalModal(entry);
     });
   });
 }
 
+// Delete Functionality
+function attachDeleteHandlers(journals) {
+    // Select all delete (trash can) buttons in the rendered list
+    const deleteButtons = document.querySelectorAll(".journal-delete-btn");
 
-// Load journals when page loads
-// document.addEventListener('DOMContentLoaded', () => {
-//     initializeData();
-//     loadJournals();
-    
-//     // Add event listener for create journal button (on journal.html)
-//     const createJournalBtn = document.getElementById('createJournalBtn');
-//     if (createJournalBtn) {
-//         createJournalBtn.addEventListener('click', showJournalModal);
-//     }
-// });
+    deleteButtons.forEach(btn => {
+        // Retrieve the journal ID
+        const id = btn.dataset.journalId;
+
+        // Clicking the delete button opens a confirmation modal first
+        btn.addEventListener("click", () => {
+        showDeleteConfirmation(id);
+        });
+    });
+    }
+
+// Show the delete confirmation message before allowing for deletion
+function showDeleteConfirmation(id) {
+    const modal = document.createElement("div");
+    modal.className = "modal-overlay";
+
+    modal.innerHTML = `
+        <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Delete Journal Entry</h2>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this journal entry?</p>
+            <div class="modal-buttons">
+                <button id="confirmDelete" class="danger">Yes, delete</button>
+                <button id="cancelDelete">No</button>
+            </div>
+        </div>
+        </div>
+    `;
+    // Add modal to the page and show it
+    document.body.appendChild(modal);
+    modal.classList.add("active");
+
+    // Closes and removes the modal with a small fade animation
+    const closeModal = () => {
+        modal.classList.remove("active");
+        setTimeout(() => modal.remove(), 300);
+    };
+
+    document.getElementById("cancelDelete").onclick = closeModal;
+    document.getElementById("confirmDelete").onclick = async () => {
+        const res = await fetch(`/journals/${id}`, { method: "DELETE" });
+        const result = await res.json();
+
+        if (!res.ok) {
+            alert(result.message || "Delete failed");
+            return;
+        }
+
+        closeModal();
+        loadJournals(); // refresh from DB
+    };
+}

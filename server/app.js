@@ -83,7 +83,6 @@ app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
-app.use('/journal', journalRouter);
 
 /**
  * GET /

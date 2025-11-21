@@ -47,4 +47,18 @@ async function updateJournalEntry({ id, did, doing_next, blockers = null }) {
   return result.rows[0];
 }
 
-module.exports = { createJournalEntry, updateJournalEntry };
+async function deleteJournalEntry(id) {
+  return await pool.query("DELETE FROM journals WHERE id = $1", [id]);
+}
+
+async function getAllJournals() {
+  const query = `
+    SELECT id, user_id, group_id, entry_date, did, doing_next, blockers, created_at, edited_at
+    FROM journals
+    ORDER BY created_at DESC;
+  `;
+  const result = await pool.query(query);
+  return result.rows;
+}
+
+module.exports = { createJournalEntry, updateJournalEntry, deleteJournalEntry, getAllJournals };
