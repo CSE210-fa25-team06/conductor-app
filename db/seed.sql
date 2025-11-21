@@ -42,12 +42,12 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 INSERT INTO roles (id, name, description, privilege_level, is_default)
 VALUES
-(4, 'Teaching Assistant', 'Provides tutoring and support', 10, FALSE)
+(4, 'Teaching Assistant', 'Provides tutoring and support', 50, FALSE)
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 INSERT INTO roles (id, name, description, privilege_level, is_default)
 VALUES
-(5, 'Instructor', 'Teaches class', 50, FALSE)
+(5, 'Instructor', 'Teaches class', 100, FALSE)
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 -- =========================================================================
@@ -127,7 +127,7 @@ VALUES
 (102, 1), -- Bob -> Student
 (102, 2), -- Bob -> Team Lead (M:N relationship)
 (103, 1), -- Charlie -> Student (FIXED user_id 103 is now created)
-(104, 3), -- David -> Tutor
+(104, 3) -- David -> Tutor
 ON CONFLICT DO NOTHING;
 
 -- =========================================================================
