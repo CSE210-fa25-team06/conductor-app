@@ -3,6 +3,8 @@
 */
 
 const express = require("express");
+const { requirePermission } = require('../middleware/role-checker'); //
+
 const { 
   getDirectory,
   markAttendance,
@@ -13,7 +15,7 @@ const {
 const router = express.Router();
 
 // Get directory of students to display
-router.get("/directory", getDirectory);
+router.get("/directory", requirePermission('VIEW_DIRECTORY'), getDirectory);
 
 // Submit or update attendance for a student
 router.post("/", markAttendance);
