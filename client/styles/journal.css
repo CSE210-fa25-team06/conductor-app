@@ -143,19 +143,19 @@
   gap: 1.5rem;
 }
 
-.form-group {
+.journal-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.journal-form-group label {
   font-weight: bold;
   color: #333;
   font-size: 1rem;
 }
 
-.form-group textarea {
+.journal-form-group textarea {
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -166,7 +166,7 @@
   transition: border-color 0.2s;
 }
 
-.form-group textarea:focus {
+.journal-form-group textarea:focus {
   outline: none;
   border-color: #06c;
   box-shadow: 0 0 0 3px rgb(0 102 204 / 10%);
