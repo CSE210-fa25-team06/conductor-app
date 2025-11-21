@@ -307,7 +307,7 @@ function attachEditHandlers(journals) {
 }
 
 // Delete Functionality
-function attachDeleteHandlers(journals) {
+function attachDeleteHandlers() {
     // Select all delete (trash can) buttons in the rendered list
     const deleteButtons = document.querySelectorAll(".journal-delete-btn");
 
