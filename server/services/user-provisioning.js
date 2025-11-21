@@ -12,7 +12,7 @@ const {
     findGroupByName,
     findRoleByName
 } = require('../models/db'); 
-const roleGroupConfig = require('../config/role-groups.json'); 
+const roleGroupConfig = require('../config/data/role-groups.json'); 
 
 let provisioningDetails = null;
 
