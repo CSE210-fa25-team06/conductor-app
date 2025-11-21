@@ -2,7 +2,7 @@
  * Journal Controller - Handles HTTP requests for journal entries
  */
 
-const { createJournalEntry } = require("../models/journalModel");
+const { createJournalEntry, getJournalsByUserId } = require("../models/journalModel");
 
 const createJournal = async (req, res) => {
   try {
@@ -48,4 +48,46 @@ const createJournal = async (req, res) => {
   }
 };
 
-module.exports = { createJournal };
+/**
+ * Get all journal entries for a user
+ * Can use either user_id from query params or from session
+ */
+const getUserJournals = async (req, res) => {
+  try {
+    // Get user_id from query params, or fall back to session
+    let user_id = req.query.user_id || req.session.userId || req.user;
+    if (!user_id) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated"
+      });
+    }
+    
+    // Convert to number if it's a string
+    user_id = parseInt(user_id, 10);
+    
+    if (isNaN(user_id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user_id"
+      });
+    }
+    
+    const journals = await getJournalsByUserId(user_id);
+    
+    res.status(200).json({
+      success: true,
+      count: journals.length,
+      data: journals
+    });
+  } catch (error) {
+    console.error("Error fetching user journals:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch journal entries",
+      error: error.message
+    });
+  }
+};
+
+module.exports = { createJournal, getUserJournals };

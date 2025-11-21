@@ -3,11 +3,15 @@
  */
 
 const express = require("express");
-const { createJournal } = require("../controllers/journalController");
+const { createJournal, getUserJournals } = require("../controllers/journalController");
 
 const router = express.Router();
 
-// POST /journal/create - Create a new journal entry
+// POST /journals/create - Create a new journal entry
 router.post("/create", createJournal);
+
+// GET /journals/user - Get all journal entries for the current user
+// Optional query param: ?user_id=123 (otherwise uses session)
+router.get("/user", getUserJournals);
 
 module.exports = router;

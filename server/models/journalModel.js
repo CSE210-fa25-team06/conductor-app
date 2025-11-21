@@ -27,4 +27,21 @@ async function createJournalEntry({ user_id, group_id, entry_date, did, doing_ne
   return result.rows[0];
 }
 
-module.exports = { createJournalEntry };
+/**
+ * Get all journal entries for a specific user
+ * @param {number} user_id - The ID of the user
+ * @returns {Promise<Array>} Array of journal entries ordered by entry_date (newest first)
+ */
+async function getJournalsByUserId(user_id) {
+  const query = `
+    SELECT id, user_id, group_id, entry_date, did, doing_next, blockers, created_at
+    FROM journals
+    WHERE user_id = $1
+    ORDER BY entry_date DESC, created_at DESC
+  `;
+  
+  const result = await pool.query(query, [user_id]);
+  return result.rows;
+}
+
+module.exports = { createJournalEntry, getJournalsByUserId };
