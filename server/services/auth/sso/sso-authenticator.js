@@ -61,7 +61,7 @@ function createSsoRouter(handlers, mode) {
      * GET /api/auth/callback
      * The callback endpoint that the external provider redirects back to.
      */
-    router.get('/callback', async (req, res) => {
+    router.get('/callback', async (req, res, next) => {
         try {
             // STEP 1: Get the verified email from the mode-specific handler (Real or Mock)
             const email = await handlers.getVerifiedEmail(req);
