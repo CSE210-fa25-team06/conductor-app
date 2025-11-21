@@ -7,13 +7,49 @@
 const express = require('express');
 const router = express.Router();
 const { 
-    assignRolesToUser,          
-    getRolePrivilegeLevel       
+    assignRolesToUser,
+    assignUserToGroup,             
+    getRolePrivilegeLevel,  
 } = require('../../../models/db');
 
 // 1. Import the generic permission checker
 const { requirePermission } = require('../../../middleware/role-checker'); 
-const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver'); 
+const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver');
+
+/**
+ * PUT /api/admin/users/:userId/group
+ * Assigns a user to a group using the ASSIGN_GROUPS permission.
+ * Request Body: { groupId: number | null }
+ */
+router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+    const { groupId } = req.body; 
+
+    // Validation: Ensure userId is a number and groupId is either a number or null (to unassign)
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid userId.' });
+    }
+    if (groupId !== null && typeof groupId !== 'number') {
+        return res.status(400).json({ error: 'groupId must be a number or null.' });
+    }
+
+    try {
+        await assignUserToGroup(userId, groupId);
+
+        return res.status(200).json({ 
+            success: true, 
+            message: `User ${userId} assigned to Group ${groupId}.` 
+        });
+
+    } catch (error) {
+        // Handle Foreign Key violation (e.g., trying to assign a Group ID that doesn't exist)
+        if (error.code === '23503') {
+            return res.status(400).json({ error: 'The provided groupId does not exist.' });
+        }
+        console.error('API Error assigning group:', error);
+        return res.status(500).json({ error: 'Failed to assign user to group.' });
+    }
+});
 
 /**
  * PUT /api/admin/users/:userId/roles

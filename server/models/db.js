@@ -236,6 +236,25 @@ async function createGroup(name, logoUrl, slackLink, repoLink) {
     }
 }
 
+/**
+ * Assigns (or re-assigns) a user to a group.
+ * @param {number} userId - The ID of the user.
+ * @param {number|null} groupId - The ID of the group (or null to unassign).
+ */
+async function assignUserToGroup(userId, groupId) {
+    const query = `
+        UPDATE users
+        SET group_id = $1, updated_at = NOW()
+        WHERE id = $2;
+    `;
+    try {
+        await pool.query(query, [groupId, userId]);
+    } catch (error) {
+        console.error('Database Error in assignUserToGroup:', error);
+        throw error;
+    }
+}
+
 
 /**
  * This is the implementation for the PUT /roles/:roleId/permissions route.
@@ -552,6 +571,7 @@ module.exports = {
   // Role/Permission Seeding Functions
   createPermission,
   createRole,
+  assignUserToGroup,
   getPermissionIdByName,
   linkRoleToPermission,
   createActivity,
