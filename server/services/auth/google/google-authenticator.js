@@ -14,7 +14,6 @@ const {
     logSuccessfulLogin, 
 } = require('../../../models/db'); 
 
-
 const {
     createUserAccount,
     linkProviderAccount
@@ -22,7 +21,6 @@ const {
 
 // The provider name to be passed to the provisioning service
 const PROVIDER_NAME = 'google';
-
 
 /**
  * Serializer: Stores only the user's database ID in the session.
@@ -100,6 +98,11 @@ passport.use(new GoogleStrategy({
 // =========================================================================
 // PASSPORT ROUTER CONFIGURATION
 // =========================================================================
+
+router.get('/login', (req, res) => {
+    res.redirect('/api/auth/google');
+});
+
 
 /**
  * GET /api/auth/google
