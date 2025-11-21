@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS user_roles CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
+DROP TABLE IF EXISTS sentiments CASCADE;
 
 -- =========================================================================
 -- CORE ENTITIES (PARENTS)
@@ -159,4 +160,15 @@ CREATE TABLE messages (
     content      TEXT NOT NULL,
     sent_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     thread_id    INT NOT NULL REFERENCES message_threads(id) ON DELETE CASCADE -- Links message to its thread
+);
+
+-- sentiments table for emotional tracking
+CREATE TABLE sentiments (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    sentiment VARCHAR(20) NOT NULL CHECK (sentiment IN ('happy', 'neutral', 'sad')),
+    comment TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

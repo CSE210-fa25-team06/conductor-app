@@ -100,56 +100,95 @@ export function initializeData() {
 }
 
 // Load and display journal entries
-export function loadJournals() {
+export async function loadJournals() {
     const journalList = document.getElementById('journalList');
     
+    // Show loading state
+    journalList.innerHTML = '<div class="loading">Loading journal entries...</div>';
+    
     try {
-    // Load from localStorage (or use mock data as fallback)
-    const storedJournals = localStorage.getItem('journals');
-    const journals = storedJournals ? JSON.parse(storedJournals) : [...mockJournals];
-    
-    // Load sentiment entries
-    const storedSentiments = localStorage.getItem('sentiments');
-    const sentiments = storedSentiments ? JSON.parse(storedSentiments) : [];
-    
-    // Combine journals and sentiments with type tags
-    const allEntries = [
-        ...journals.map(j => ({ ...j, type: 'journal' })),
-        ...sentiments.map(s => ({ ...s, type: 'sentiment' }))
-    ];
-    
-    // Sort by timestamp (newest first)
-    allEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Check if there are any entries
-    if (allEntries.length === 0) {
-        journalList.innerHTML = `
-        <div class="empty-state">
-            <h3>No Journal Entries Yet</h3>
-            <p>Be the first to submit a stand-up update or emotional tracker!</p>
-        </div>
-        `;
-        return;
-    }
-    
-    // Generate HTML for all entries based on type
-    const entriesHTML = allEntries.map(entry => {
-        if (entry.type === 'sentiment') {
-            return createSentimentEntryHTML(entry);
-        } else {
-            return createJournalEntryHTML(entry);
+        // TODO: Get user_id from session/auth instead of hardcoding
+        const userId = 101;
+        
+        // Fetch journals from backend API
+        const response = await fetch(`/journals/user?user_id=${userId}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch journals: ${response.status} ${response.statusText}`);
         }
-    }).join('');
-    journalList.innerHTML = entriesHTML;
-    
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to load journals');
+        }
+        
+        // Transform backend data format to frontend format
+        const journals = result.data.map(j => ({
+            id: j.id,
+            whatIDid: j.did,
+            whatIWillDo: j.doing_next,
+            blockers: j.blockers,
+            timestamp: j.created_at,
+            type: 'journal'
+        }));
+        
+        // Fetch sentiment entries from backend API
+        const sentimentResponse = await fetch(`/sentiments/user?user_id=${userId}`);
+        let sentiments = [];
+        
+        if (sentimentResponse.ok) {
+            const sentimentResult = await sentimentResponse.json();
+            if (sentimentResult.success) {
+                // Transform backend sentiment data format
+                sentiments = sentimentResult.data.map(s => ({
+                    id: s.id,
+                    sentiment: s.sentiment,
+                    comment: s.comment,
+                    timestamp: s.created_at,
+                    type: 'sentiment'
+                }));
+            }
+        }
+        
+        // Combine journals and sentiments with type tags
+        const allEntries = [
+            ...journals,
+            ...sentiments.map(s => ({ ...s, type: 'sentiment' }))
+        ];
+        
+        // Sort by timestamp (newest first)
+        allEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Check if there are any entries
+        if (allEntries.length === 0) {
+            journalList.innerHTML = `
+            <div class="empty-state">
+                <h3>No Journal Entries Yet</h3>
+                <p>Be the first to submit a stand-up update or emotional tracker!</p>
+            </div>
+            `;
+            return;
+        }
+        
+        // Generate HTML for all entries based on type
+        const entriesHTML = allEntries.map(entry => {
+            if (entry.type === 'sentiment') {
+                return createSentimentEntryHTML(entry);
+            } else {
+                return createJournalEntryHTML(entry);
+            }
+        }).join('');
+        journalList.innerHTML = entriesHTML;
+        
     } catch (error) {
-    console.error('Error loading journals:', error);
-    journalList.innerHTML = `
-        <div class="error">
-        <strong>Error loading journal entries</strong><br>
-        ${error.message}
-        </div>
-    `;
+        console.error('Error loading journals:', error);
+        journalList.innerHTML = `
+            <div class="error">
+            <strong>Error loading journal entries</strong><br>
+            ${error.message}
+            </div>
+        `;
     }
 }
 
@@ -427,44 +466,56 @@ function initSentimentModalHandlers(modalOverlay) {
                 return;
             }
             
-            // Create sentiment entry object
+            // TODO: Get user_id and group_id from session/auth instead of hardcoding
+            const user_id = 101;
+            const group_id = 1;
+            
+            // Create sentiment entry object for API
             const sentimentData = {
+                user_id: user_id,
+                group_id: group_id,
                 sentiment: sentiment,
-                comment: comment || null,
-                timestamp: new Date().toISOString()
+                comment: comment || null
             };
             
             try {
-                // TODO: Send to API endpoint when available
-                // For now, just save to localStorage
-                const storedSentiments = localStorage.getItem('sentiments');
-                const sentiments = storedSentiments ? JSON.parse(storedSentiments) : [];
+                // Send POST request to API endpoint
+                const response = await fetch("/sentiments/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(sentimentData)
+                });
                 
-                sentimentData.id = Date.now();
-                sentiments.push(sentimentData);
-                localStorage.setItem('sentiments', JSON.stringify(sentiments));
+                const result = await response.json();
                 
-                console.log('Sentiment Entry Saved:', sentimentData);
-                
-                // Close modal
-                closeModal();
-                
-                // Reload journals to show new sentiment entry
-                loadJournals();
-                
-                // Show success message
-                alert('Emotional tracker submitted successfully!');
-                
+                if (response.ok && result.success) {
+                    console.log('Sentiment Entry Saved:', result);
+                    
+                    // Close modal
+                    closeModal();
+                    
+                    // Reload journals to show new sentiment entry
+                    loadJournals();
+                    
+                    // Show success message
+                    alert('Emotional tracker submitted successfully!');
+                } else {
+                    // Handle API error
+                    console.error('API Error:', result);
+                    alert(`Failed to submit emotional tracker: ${result.message || 'Unknown error'}`);
+                }
             } catch (error) {
-                console.error('Error saving sentiment:', error);
-                alert('Failed to submit emotional tracker. Please try again.');
+                console.error('Network Error:', error);
+                alert('Failed to submit emotional tracker. Please check if the server is running.');
             }
         });
     }
 }
 
 export function initJournals(){
-    initializeData();
+    // Load journals from backend API
     loadJournals();
     
     // Add event listener for create journal button (on journal.html)
