@@ -2,7 +2,11 @@
  * @file db/db-seeder.js
  * @description Programmatically seeds the database with initial roles, permissions, 
  * and their default associations based on configuration files.
- * * To run: node db/db-seeder.js
+ * To run: node db/db-seeder.js
+ * UPDATED FEATURES:
+ * - Skips creating Groups/Roles if they already exist (prevents duplicates).
+ * - Syncs Permissions: Wipes existing links and re-applies them from config (allows editing config).
+ * - Provisions Demo Users if they don't exist.
  */
 
 const { 
@@ -12,26 +16,28 @@ const {
     createActivity,
     getPermissionIdByName, 
     linkRoleToPermission,
+    insertUser,
+    insertUserRole,
+    insertUserAuth,
     pool
 } = require('../../server/models/db'); 
 
-
-const { permissions: permissionsConfig } = require('../config/permissions.json'); 
+const { permissions: permissionsConfig } = require('../config/data/permissions.json'); 
 const { 
     roles: rolesConfig,
     groups: groupsConfig
-} = require('../config/role-groups.json');
-const { activities: activitiesConfig } = require('../config/activity-config.json'); 
+} = require('../config/data/role-groups.json');
+const { activities: activitiesConfig } = require('../config/data/activity-config.json'); 
 
 async function seedRolesAndPermissions() {
-    console.log('--- STARTING DATABASE SEEDER: ROLES, PERMISSIONS, GROUPS, AND ACTIVITIES ---');
+    console.log('--- STARTING DATABASE SEEDER: SYNC MODE ---');
     let client;
     
     try {
         client = await pool.connect();
         
         // =====================================================================
-        // 0. CONFIGURATION VALIDATION (Enforces integrity across JSON files)
+        // 0. CONFIGURATION VALIDATION
         // =====================================================================
         console.log('0. Performing configuration validation...');
         const masterPermissionNames = new Set(permissionsConfig.map(p => p.name));
@@ -50,86 +56,148 @@ async function seedRolesAndPermissions() {
         }
 
         if (validationErrors.length > 0) {
-            console.error('\n*** CONFIGURATION SYNCHRONIZATION ERROR(S) DETECTED ***');
+            console.error('\n*** CONFIG VALIDATION FAILED ***');
             validationErrors.forEach(err => console.error(err));
-            console.error('*** SEEDING ABORTED. Fix config files and run again. ***');
-            return; // Exit without touching the database
+            return;
         }
-        console.log('   - Configuration validated successfully.');
+        console.log('   - Configuration validated.');
 
         // =====================================================================
-        // 1. Seed Permissions Table (Master List)
+        // 1. Seed Permissions (Master List)
         // =====================================================================
-        console.log('\n1. Inserting/Updating master list of permissions...');
+        console.log('\n1. Syncing master list of permissions...');
+        // We assume createPermission handles ON CONFLICT DO NOTHING internally.
+        // If not, this loop could be wrapped in a check similar to Groups below.
         for (const perm of permissionsConfig) {
-            await createPermission(perm.name, perm.description);
-            console.log(`   - Created permission: ${perm.name}`);
+            try {
+                await createPermission(perm.name, perm.description);
+            } catch (err) {
+                // Ignore unique constraint errors if they exist
+                if (err.code !== '23505') throw err; 
+            }
         }
+        console.log(`   - Processed ${permissionsConfig.length} permissions.`);
         
         // =====================================================================
-        // 2. Seed Activities Table (New Step)
+        // 2. Seed Activities
         // =====================================================================
-        console.log('\n2. Inserting/Updating master list of activities...');
+        console.log('\n2. Syncing master list of activities...');
         for (const act of activitiesConfig) {
-            // createActivity must accept (id, name, type, description)
-            // Note: The description is being used to populate the 'content' JSONB column in the schema.sql table.
-            await createActivity(act.id, act.name, act.activity_type, act.description); 
-            console.log(`   - Created activity: ${act.id}: ${act.name}`);
+            try {
+                await createActivity(act.id, act.name, act.activity_type, act.description); 
+            } catch (err) {
+                if (err.code !== '23505') throw err;
+            }
         }
+        console.log(`   - Processed ${activitiesConfig.length} activities.`);
 
         // =====================================================================
-        // 3. Seed Groups Table (Updated Step Number)
+        // 3. Seed Groups (Check Exists -> Get ID)
         // =====================================================================
-        console.log('\n3. Inserting/Updating groups...');
+        console.log('\n3. Syncing Groups...');
+        let defaultGroupId = null; 
+
         for (const group of groupsConfig) {
-            await createGroup(group.name, group.isDefault, group.description);
-            console.log(`   - Created group: ${group.name} (Default: ${!!group.isDefault})`);
+            // CHECK: Does group exist?
+            const checkRes = await client.query('SELECT id FROM groups WHERE name = $1', [group.name]);
+            
+            if (checkRes.rows.length > 0) {
+                console.log(`   - Skipped creation: '${group.name}' already exists.`);
+            } else {
+                // CREATE
+                await createGroup(group.name, group.isDefault, group.description);
+                console.log(`   - Created group: ${group.name}`);
+            }
+        }
+
+        // Retreive Default Group ID for User Seeding
+        const defaultGroupConfig = groupsConfig.find(g => g.isDefault);
+        if (defaultGroupConfig) {
+            const groupRes = await client.query('SELECT id FROM groups WHERE name = $1', [defaultGroupConfig.name]);
+            if (groupRes.rows.length > 0) defaultGroupId = groupRes.rows[0].id;
         }
 
         // =====================================================================
-        // 4. Seed Roles Table and Store IDs (Updated Step Number)
+        // 4. Seed Roles (Check Exists -> Get ID)
         // =====================================================================
-        console.log('\n4. Inserting/Updating roles and resolving IDs...');
+        console.log('\n4. Syncing Roles...');
         const roleIdMap = {};
 
         for (const role of rolesConfig) {
-            const roleId = await createRole(
-                role.name, 
-                role.privilege_level, 
-                role.isDefault
-            );
+            let roleId;
+            // CHECK: Does role exist?
+            const checkRes = await client.query('SELECT id FROM roles WHERE name = $1', [role.name]);
+
+            if (checkRes.rows.length > 0) {
+                roleId = checkRes.rows[0].id;
+                console.log(`   - Found existing role: '${role.name}' (ID: ${roleId})`);
+            } else {
+                // CREATE
+                roleId = await createRole(role.name, role.privilege_level, role.isDefault);
+                console.log(`   - Created role: ${role.name} (ID: ${roleId})`);
+            }
             roleIdMap[role.name] = roleId;
-            console.log(`   - Created role: ${role.name} (ID: ${roleId}, Level: ${role.privilege_level})`);
         }
 
         // =====================================================================
-        // 5. Seed Role-Permissions Junction Table (Associations) (Updated Step Number)
+        // 5. Sync Role Permissions (Delete Old -> Insert New)
         // =====================================================================
-        console.log('\n5. Linking default permissions to roles...');
+        console.log('\n5. Relinking permissions (Full Sync)...');
         let linkCount = 0;
 
         for (const role of rolesConfig) {
             const roleId = roleIdMap[role.name];
             
-            if (role.default_permissions && role.default_permissions.length > 0) {
-                console.log(`   -> Configuring ${role.name}:`);
+            if (roleId) {
+                // A. WIPE EXISTING PERMISSIONS FOR THIS ROLE
+                // This allows you to remove permissions in the JSON and have them removed in the DB.
+                await client.query('DELETE FROM role_permissions WHERE role_id = $1', [roleId]);
 
-                for (const permName of role.default_permissions) {
-                    const permissionId = await getPermissionIdByName(permName);
-
-                    if (permissionId) {
-                        await linkRoleToPermission(roleId, permissionId);
-                        console.log(`      - Linked: ${permName}`);
-                        linkCount++;
+                // B. ADD NEW PERMISSIONS
+                if (role.default_permissions && role.default_permissions.length > 0) {
+                    for (const permName of role.default_permissions) {
+                        const permissionId = await getPermissionIdByName(permName);
+                        if (permissionId) {
+                            await linkRoleToPermission(roleId, permissionId);
+                            linkCount++;
+                        }
                     }
+                    console.log(`   - Refreshed ${role.default_permissions.length} permissions for '${role.name}'`);
+                }
+            }
+        }
+
+        // =====================================================================
+        // 6. Seed Demo Users (Idempotent)
+        // =====================================================================
+        console.log('\n6. Verifying Demo Users...');
+        
+        if (!defaultGroupId) {
+            console.warn('   ! WARNING: No default group found. Skipping user generation.');
+        } else {
+            for (const role of rolesConfig) {
+                const email = `${role.name.replace(/\s+/g, '_').toLowerCase()}@test.com`;
+                const name = `${role.name} Demo User`;
+                const roleId = roleIdMap[role.name];
+
+                // CHECK: Does user exist?
+                const userCheck = await client.query('SELECT id FROM users WHERE email = $1', [email]);
+
+                if (userCheck.rows.length === 0) {
+                    const userId = await insertUser(client, email, name, defaultGroupId);
+                    await insertUserRole(client, userId, roleId);
+                    await insertUserAuth(client, userId, 'google', email, 'mock_access_token', 'mock_refresh_token');
+                    console.log(`   - Created User: ${email} -> Role: ${role.name}`);
+                } else {
+                    console.log(`   - User ${email} already exists.`);
                 }
             }
         }
         
-        console.log(`\n--- SEEDING COMPLETE: ${rolesConfig.length} Roles, ${groupsConfig.length} Groups, ${activitiesConfig.length} Activities, and ${linkCount} Permissions linked. ---`); // Updated summary
+        console.log(`\n--- DB SYNC COMPLETE: Permissions Relinked: ${linkCount} ---`);
 
     } catch (error) {
-        console.error('\n*** FATAL DATABASE SEEDING FAILED ***', error.message);
+        console.error('\n*** SEEDING FAILED ***', error);
         process.exit(1); 
     } finally {
         if (client) client.release();
@@ -137,5 +205,4 @@ async function seedRolesAndPermissions() {
     }
 }
 
-// Execute the seeder function
 seedRolesAndPermissions();
