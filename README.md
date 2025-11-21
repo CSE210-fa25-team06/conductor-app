@@ -13,6 +13,8 @@ Contains all frontend code written in standard **HTML, CSS, and JavaScript**.
 - **scripts/** – JavaScript files for frontend logic.
   - `main.js` - Handles UI behavior and event handling.  
   - `api.js` - Makes API calls to the backend.
+  - **utils/**
+    - ``auth-guard.js`` – A frontend utility that handles session validation and protects UI components (such as Attendance and Directory views) by enforcing the permissions defined in the SSOT.
 - **styles/** – CSS files for layout and design.  
   - `base.css` - Default styling and typography. 
   - `layout.css` - Page structure and spacing.
@@ -25,17 +27,18 @@ Holds the backend logic built with **Node.js and Express**.
 
 - **app.js** – Main Express server file. Initializes middleware, authentication, and routes.
 - **routes/** – Defines API endpoints.
-  - **api/** – General Application API routes.
     - `index.js` - **Main API Entry Point**. Aggregates and mounts all sub-routers (`users`, `groups`, `journal`, `attendance`) to handle requests to the root API path.
     - `attendance.js` - Defines endpoints for recording attendance, retrieving student history, and viewing the class directory.
     - `groups.js` - Handles requests for retrieving group data and lists.
     - `journals.js` - Manages journal entry operations, specifically creating new entries.
     - `users.js` - Handles user-related operations, such as searching the directory and retrieving user profiles.
-  - **api/auth/**
-    - `auth-router.js` - Handles generic session management (`/session`, `/logout`, `/login-fail`) and mounts strategy-specific routes.
-  - **api/admin/**
-    - `groups-roles-router.js` - Administrative routes for creating Groups, Roles, and Permissions.
-    - `user-role-router.js` - Handles assigning specific roles to users (e.g., promoting a Student to Group Leader).
+  - **api/** – General Application API routes.
+    - ``config-router.js`` – Dynamically serves flattened permissions.json data as a browser-compatible ES Module, establishing a Single Source of Truth (SSOT) for permission constants across the stack.
+    - **auth/**
+        - `auth-router.js` - Handles generic session management (`/session`, `/logout`, `/login-fail`) and mounts strategy-specific routes.
+    - **admin/**
+        - `groups-roles-router.js` - Administrative routes for creating Groups, Roles, and Permissions.
+        - `user-role-router.js` - Handles assigning specific roles to users (e.g., promoting a Student to Group Leader).
 - **controllers/** – Handles request logic and connects routes to models.
   - `attendanceController.js` - Manages recording attendance, fetching student history, and retrieving directory data.
   - `groupController.js` - Handles requests for retrieving group lists.
@@ -49,9 +52,9 @@ Holds the backend logic built with **Node.js and Express**.
     - **google/**
       - `google-authenticator.js` - **Passport Strategy**. Configures Google OAuth 2.0, handles user serialization, and manages the callback logic.
     - **mock/**
-      - `mock-authenticator.js` - **Universal Mock Strategy**. A simplified dev-only strategy that sets a mock user ID directly into the session, bypassing external providers.
+      - `mock-authenticator.js` - **Universal Mock Strategy**. A simplified dev-only strategy that sets a mock user ID directly into the session, bypassing external providers. Now supports auto-provisioning of accounts.
     - **sso/**
-      - `sso-authenticator.js` - **Strategy Factory**. Creates a configured Express Router for SSO flows. It contains the common logic (DB lookup, session creation) while delegating specific steps to injected handlers.
+      - `sso-authenticator.js` - **Strategy Factory**. Creates a configured Express Router for SSO flows. It contains the common logic (DB lookup, session creation) while delegating specific steps to injected handlers. Now supports auto-provisioning of accounts.
       - **handlers/**
         - `mock-sso-handler.js` - **Concrete Handler**. Implements the mock-specific logic for the SSO factory, simulating redirects to and from an external provider.
 - **models/** – Data Access Layer (DAL) and Provisioning logic.
@@ -70,17 +73,20 @@ Holds the backend logic built with **Node.js and Express**.
     - `auth-mounter.js` - Dynamically loads the active authentication strategy's router.
 - **utils/** – Helper functions.
   - `helpers.js` - Shared backend utility functions for tasks like date formatting and data validation.
-  - `db-seeder.js` – **Node.js utility** that programmatically seeds the database with Roles, Permissions, Groups, and Activities based on the JSON files in `server/config/`.
+  - `db-seeder.js` – **Node.js utility** that programmatically seeds the database with Roles, Permissions, Groups, and Activities based on JSON configuration. It also automatically provisions **Demo Users** for testing.
   - `permission-resolver.js` - Implements **least-privileged precedence** logic for users with roles of multiple privilege levels. 
     - For **Unprivileged Users** (level ≤ 1) - Permissions are **additive**, stacking across multiple roles of the same privilege level (e.g., a user can be both a "Student" and "Group Leader").
     - For **Privileged Users** (level > 1) - Enforces a **single-role limit** (e.g., a user cannot be both "TA" and "Professor") to prevent privilege escalation.
 - **config/** – System configuration and definitions.
-  - `role-groups.json` - JSON definitions for default Roles (Student, TA, Professor) and Groups.
-  - `permissions.json` - Master list of all system permissions (e.g., `EDIT_OWN_PROFILE_DATA`, `CREATE_GROUP`).
-  - `activity-config.json` - Definitions for system activity logging events.
+    - **data/**
+        - `role-groups.json` - JSON definitions for default Roles (Student, TA, Professor) and Groups.
+        - `permissions.json` - Master list of all system permissions (e.g., `EDIT_OWN_PROFILE_DATA`, `CREATE_GROUP`).
+        - `activity-config.json` - Definitions for system activity logging events.
    - **auth/**
       - `auth-strategies.js` - Centralized map that dynamically integrates all available auth strategies (Mock, Google, SSO).
       - `sso-modes.js` - Defines operational modes (Mock vs. Real) for SSO handling.
+    - **permissions/**
+        - ``permissions.js`` – An adapter that loads and maps the backend permission constants defined in permissions.json for consistent application use. 
 
 ---
 
