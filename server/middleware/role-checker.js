@@ -13,20 +13,25 @@ const { getFullUserData } = require('../models/db');
  */
 function requirePermission(permissionName) {
     return async (req, res, next) => {
-        // FIX: Explicitly extract the ID from req.user if it exists,
-        // otherwise, use req.session.userId. This ensures 'userId' is a primitive ID or null.
-        const userId = req.session.userId || (req.user && req.user.id); 
+        // USE 'let', NOT 'const', because we might reassign it below
+        let userId = req.session.userId; 
+
+        // If session userId is missing, try getting it from Passport's req.user
+        if (!userId && req.user) {
+            // Handle both object (standard) and primitive (your specific deserializer)
+            userId = (typeof req.user === 'object') ? req.user.id : req.user;
+        }
 
         if (!userId) {
             return res.status(401).json({ error: 'Authentication required.' });
         }
 
         try {
-            // Fetch the user's data, which includes the resolved permissions (Set)
             const userData = await getFullUserData(userId);
-            console.log(userData);
             
-            // Check if the user exists AND if their permissions Set contains the required permission
+            // Debug logging (optional, remove in production)
+            // console.log(`[ROLE-CHECKER] User: ${userId}, Permissions:`, userData ? [...userData.permissions] : 'None');
+            
             if (!userData || !userData.permissions.includes(permissionName)) {
                 return res.status(403).json({ 
                     error: `Access denied. Requires permission: ${permissionName}` 
