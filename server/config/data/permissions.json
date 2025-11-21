@@ -1,36 +1,136 @@
 {
   "permissions": [
     {
+      "name": "ACCESS_LAB_QUEUE",
+      "description": "Allows students/users to enter the lab assistance queue."
+    },
+    {
+      "name": "APPLY_RUBRIC_EVALUATION",
+      "description": "Allows TAs to grade groups and projects using the evaluation rubric tool."
+    },
+    {
+      "name": "ASSIGN_GROUPS",
+      "description": "Allows setting a user's assigned group ID."
+    },
+    {
+      "name": "ASSIGN_ROLES",
+      "description": "Allows assigning or modifying user roles (e.g., Student, TA, Professor)."
+    },
+    {
+      "name": "CAPTURE_INCIDENT_DATA",
+      "description": "Allows tracking and entering incident information and participation notes for individuals."
+    },
+    {
+      "name": "CAPTURE_MEETING_NOTES",
+      "description": "Allows capturing and storing meeting notes and interactions for a group."
+    },
+    {
+      "name": "CREATE_EVALUATION_JOURNAL_ENTRY",
+      "description": "Allows staff to record notes, location, sentiment, and observations about individuals or groups."
+    },
+    {
+      "name": "CREATE_GROUPS",
+      "description": "Allows manual creation of new groups in the system."
+    },
+    {
+      "name": "CREATE_PERMISSIONS",
+      "description": "Allows definition of new system permissions."
+    },
+    {
+      "name": "CREATE_ROLES",
+      "description": "Allows creation of new system roles and privilege levels."
+    },
+    {
+      "name": "CREATE_SURVEY_FORM",
+      "description": "Allows creating and distributing new student surveys for group formation."
+    },
+    {
+      "name": "CREATE_USER_STORIES",
+      "description": "Allows creating and formatting user stories linked to issues."
+    },
+    {
+      "name": "EDIT_ALL_JOURNALS",
+      "description": "Allows editing or grading any journal entry after submission."
+    },
+    {
+      "name": "EDIT_ALL_PROFILE_DATA",
+      "description": "Allows editing any user's profile details (name, photo, availability, etc.)."
+    },
+    {
       "name": "EDIT_OWN_PROFILE_DATA",
       "description": "Allows editing the user's own profile details."
-    },
-    {
-      "name": "PROVISION_USERS",
-      "description": "Allows user provisioning through signup verification codes or uploading rosters."
-    },
-    {
-      "name": "VIEW_LOGS",
-      "description": "Allows viewing system activity logs."
-    },
-    {
-      "name": "VIEW_ALERTS",
-      "description": "Allows viewing and managing system alerts."
-    },
-    {
-      "name": "VIEW_CLASS_DIRECTORY",
-      "description": "Allows viewing all profiles and group metadata."
     },
     {
       "name": "GROUP_MANAGE_ATTENDANCE",
       "description": "Allows marking attendance for members within the user's assigned group (e.g., stand-ups)."
     },
     {
+      "name": "GROUP_MANAGE_METADATA",
+      "description": "Allows updating a user's assigned group's details."
+    },
+    {
       "name": "MANAGE_ALL_ATTENDANCE",
       "description": "Allows viewing and editing attendance for all users across the system (lecture or meetings)."
     },
     {
-      "name": "VIEW_ALL_ATTENDANCE_REPORTS",
-      "description": "Allows viewing summary attendance reports across the entire class."
+      "name": "MANAGE_DEFINITION_OF_DONE",
+      "description": "Allows defining and modifying the Definition of Done checklist template."
+    },
+    {
+      "name": "MANAGE_DOCS_MANAGER",
+      "description": "Allows creating, editing, and linking all project documents (ADRs, pitch docs, assets)."
+    },
+    {
+      "name": "MANAGE_EVALUATION_RUBRICS",
+      "description": "Allows creating, editing, and modifying the grading rubrics (agile, repository)."
+    },
+    {
+      "name": "MANAGE_EXTERNAL_SERVICES",
+      "description": "Allows configuration of external service connections (GitHub, Slack, Gradescope)."
+    },
+    {
+      "name": "MANAGE_FAQ_CONTENT",
+      "description": "Allows creating and editing all FAQ content."
+    },
+    {
+      "name": "MANAGE_GROUP_FORMATION_TOOL",
+      "description": "Allows running, configuring, and executing the automated group formation process."
+    },
+    {
+      "name": "MANAGE_LAB_QUEUE",
+      "description": "Allows Tutors to view, pull from, and manage the student assistance queue."
+    },
+    {
+      "name": "MANAGE_MEETING_MANAGER",
+      "description": "Allows scheduling, creating agendas, and managing all group meetings system-wide."
+    },
+    {
+      "name": "MANAGE_PERMISSIONS",
+      "description": "Allows linking and unlinking permissions to roles (via API, not creation)."
+    },
+    {
+      "name": "PROMOTE_TO_FAQ",
+      "description": "Allows tutors to promote answers from the queue interactions into the FAQ system."
+    },
+    {
+      "name": "PROVISION_USERS",
+      "description": "Allows user provisioning through signup verification codes or uploading rosters."
+    },
+    {
+      "name": "RUN_RETROSPECTIVE_TOOL",
+      "description": "Allows initiating and running the team Retrospective tool."
+    },
+    {
+      "name": "SCHEDULE_OWN_GROUP_MEETINGS",
+      "description": "Allows coordinating and scheduling meetings for the user's assigned group."
+    },
+    {
+      "name": "SUBMIT_LAB_OBSERVATIONS",
+      "description": "Allows Tutors to promote observations and problems about a lab back to teaching staff."
+    },
+    {
+      "name": "SUBMIT_NEGATIVE_INTERACTION",
+      "description": "Allows Tutors to flag a queue interaction where a student failed to use the FAQ."
     },
     {
       "name": "USER_SUBMIT_JOURNAL",
@@ -41,164 +141,64 @@
       "description": "Allows a student to privately submit thoughts on the team, staff, and course."
     },
     {
-      "name": "VIEW_OWN_JOURNAL_SENTIMENT",
-      "description": "Allows a user to view their own recorded sentiment scores."
+      "name": "VIEW_ALERTS",
+      "description": "Allows viewing and managing system alerts."
     },
     {
-      "name": "GROUP_MANAGE_METADATA",
-      "description": "Allows updating a user's assigned group's details."
-    },
-    {
-      "name": "VIEW_GROUP_DIRECTORY",
-      "description": "Allows viewing the directory and details of members within the user's assigned group."
-    },
-    {
-      "name": "VIEW_OWN_GROUP_JOURNALS",
-      "description": "Allows viewing journals and sentiment for members within the user's assigned group."
-    },
-    {
-      "name": "MANAGE_PERMISSIONS",
-      "description": "Allows linking and unlinking permissions to roles (via API, not creation)."
-    },
-    {
-      "name": "CREATE_GROUPS",
-      "description": "Allows manual creation of new groups in the system."
-    },
-    {
-      "name": "CREATE_ROLES",
-      "description": "Allows creation of new system roles and privilege levels."
-    },
-        {
-      "name": "CREATE_PERMISSIONS",
-      "description": "Allows definition of new system permissions."
-    },
-    {
-      "name": "ASSIGN_ROLES",
-      "description": "Allows assigning or modifying user roles (e.g., Student, TA, Professor)."
-    },
-    {
-      "name": "ASSIGN_GROUPS",
-      "description": "Allows setting a user's assigned group ID."
-    },
-    {
-      "name": "CREATE_EVALUATION_JOURNAL_ENTRY",
-      "description": "Allows staff to record notes, location, sentiment, and observations about individuals or groups."
+      "name": "VIEW_ALL_ATTENDANCE_REPORTS",
+      "description": "Allows viewing summary attendance reports across the entire class."
     },
     {
       "name": "VIEW_ALL_EVALUATION_JOURNALS",
       "description": "Allows viewing all Evaluation Journal entries system-wide."
     },
     {
-      "name": "MANAGE_EVALUATION_RUBRICS",
-      "description": "Allows creating, editing, and modifying the grading rubrics (agile, repository)."
-    },
-    {
-      "name": "VIEW_EVALUATION_SCORECARDS",
-      "description": "Allows viewing effort, sentiment, and activity scorecards for all groups and individuals."
-    },
-    {
-      "name": "VIEW_OWN_GROUP_SCORECARDS",
-      "description": "Allows viewing effort and sentiment scorecards for members within the user's assigned group."
-    },
-    {
-      "name": "APPLY_RUBRIC_EVALUATION",
-      "description": "Allows TAs to grade groups and projects using the evaluation rubric tool."
-    },
-    {
       "name": "VIEW_ALL_JOURNALS",
       "description": "Allows viewing all journal entries across the entire system."
-    },
-    {
-      "name": "EDIT_ALL_JOURNALS",
-      "description": "Allows editing or grading any journal entry after submission."
-    },
-    {
-      "name": "MANAGE_GROUP_FORMATION_TOOL",
-      "description": "Allows running, configuring, and executing the automated group formation process."
-    },
-    {
-      "name": "CREATE_SURVEY_FORM",
-      "description": "Allows creating and distributing new student surveys for group formation."
     },
     {
       "name": "VIEW_ALL_SURVEY_RESPONSES",
       "description": "Allows viewing all raw student survey responses."
     },
     {
-      "name": "MANAGE_MEETING_MANAGER",
-      "description": "Allows scheduling, creating agendas, and managing all group meetings system-wide."
-    },
-    {
-      "name": "SCHEDULE_OWN_GROUP_MEETINGS",
-      "description": "Allows coordinating and scheduling meetings for the user's assigned group."
-    },
-    {
-      "name": "CAPTURE_MEETING_NOTES",
-      "description": "Allows capturing and storing meeting notes and interactions for a group."
-    },
-    {
-      "name": "MANAGE_DOCS_MANAGER",
-      "description": "Allows creating, editing, and linking all project documents (ADRs, pitch docs, assets)."
+      "name": "VIEW_CLASS_DIRECTORY",
+      "description": "Allows viewing all profiles and group metadata."
     },
     {
       "name": "VIEW_DOCS_MANAGER",
       "description": "Allows viewing all project documents."
     },
     {
-      "name": "CREATE_USER_STORIES",
-      "description": "Allows creating and formatting user stories linked to issues."
-    },
-    {
-      "name": "MANAGE_DEFINITION_OF_DONE",
-      "description": "Allows defining and modifying the Definition of Done checklist template."
-    },
-    {
-      "name": "RUN_RETROSPECTIVE_TOOL",
-      "description": "Allows initiating and running the team Retrospective tool."
-    },
-    {
-      "name": "ACCESS_LAB_QUEUE",
-      "description": "Allows students/users to enter the lab assistance queue."
-    },
-    {
-      "name": "MANAGE_LAB_QUEUE",
-      "description": "Allows Tutors to view, pull from, and manage the student assistance queue."
+      "name": "VIEW_EVALUATION_SCORECARDS",
+      "description": "Allows viewing effort, sentiment, and activity scorecards for all groups and individuals."
     },
     {
       "name": "VIEW_FAQ_SYSTEM",
       "description": "Allows viewing the FAQ system content."
     },
     {
-      "name": "PROMOTE_TO_FAQ",
-      "description": "Allows tutors to promote answers from the queue interactions into the FAQ system."
+      "name": "VIEW_GROUP_DIRECTORY",
+      "description": "Allows viewing the directory and details of members within the user's assigned group."
     },
     {
-      "name": "SUBMIT_NEGATIVE_INTERACTION",
-      "description": "Allows Tutors to flag a queue interaction where a student failed to use the FAQ."
+      "name": "VIEW_LOGS",
+      "description": "Allows viewing system activity logs."
     },
     {
-      "name": "SUBMIT_LAB_OBSERVATIONS",
-      "description": "Allows Tutors to promote observations and problems about a lab back to teaching staff."
+      "name": "VIEW_OWN_GROUP_JOURNALS",
+      "description": "Allows viewing journals and sentiment for members within the user's assigned group."
     },
     {
-      "name": "MANAGE_FAQ_CONTENT",
-      "description": "Allows creating and editing all FAQ content."
+      "name": "VIEW_OWN_GROUP_SCORECARDS",
+      "description": "Allows viewing effort and sentiment scorecards for members within the user's assigned group."
     },
     {
-      "name": "EDIT_ALL_PROFILE_DATA",
-      "description": "Allows editing any user's profile details (name, photo, availability, etc.)."
-    },
-    {
-      "name": "CAPTURE_INCIDENT_DATA",
-      "description": "Allows tracking and entering incident information and participation notes for individuals."
+      "name": "VIEW_OWN_JOURNAL_SENTIMENT",
+      "description": "Allows a user to view their own recorded sentiment scores."
     },
     {
       "name": "VIEW_REPORTING_ENGINE",
       "description": "Allows viewing long-term trend data, quarter-to-quarter analysis, and grade outcomes."
-    },
-    {
-      "name": "MANAGE_EXTERNAL_SERVICES",
-      "description": "Allows configuration of external service connections (GitHub, Slack, Gradescope)."
     }
   ]
 }
