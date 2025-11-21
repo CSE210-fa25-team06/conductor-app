@@ -44,6 +44,46 @@ function createJournalEntryHTML(entry) {
     `;
 }
 
+// Create HTML for a sentiment entry
+function createSentimentEntryHTML(entry) {
+    const sentimentEmojis = {
+        'happy': '😊',
+        'neutral': '😐',
+        'sad': '😔'
+    };
+    
+    const sentimentLabels = {
+        'happy': 'happy',
+        'neutral': 'neutral',
+        'sad': 'sad'
+    };
+    
+    const emoji = sentimentEmojis[entry.sentiment] || '😐';
+    const label = sentimentLabels[entry.sentiment] || entry.sentiment;
+    
+    const commentHTML = entry.comment
+        ? `<div class="journal-section">
+                <div class="journal-label">Comment</div>
+                <div class="journal-text">${escapeHtml(entry.comment)}</div>
+            </div>`
+        : '';
+    
+    return `
+    <div class="journal-entry sentiment-entry">
+        <div class="journal-header">
+            <div class="sentiment-entry-header">
+                <span class="sentiment-badge">
+                    <span class="sentiment-emoji">${emoji}</span>
+                    <span class="sentiment-text">Emotional Tracker: ${label}</span>
+                </span>
+                <div class="journal-timestamp">${formatTimestamp(entry.timestamp)}</div>
+            </div>
+        </div>
+        ${commentHTML ? `<div class="journal-content">${commentHTML}</div>` : ''}
+    </div>
+    `;
+}
+
 // Escape HTML to prevent XSS
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -68,23 +108,39 @@ export function loadJournals() {
     const storedJournals = localStorage.getItem('journals');
     const journals = storedJournals ? JSON.parse(storedJournals) : [...mockJournals];
     
-    // Sort by timestamp (newest first)
-    journals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // Load sentiment entries
+    const storedSentiments = localStorage.getItem('sentiments');
+    const sentiments = storedSentiments ? JSON.parse(storedSentiments) : [];
     
-    // Check if there are any journals
-    if (journals.length === 0) {
+    // Combine journals and sentiments with type tags
+    const allEntries = [
+        ...journals.map(j => ({ ...j, type: 'journal' })),
+        ...sentiments.map(s => ({ ...s, type: 'sentiment' }))
+    ];
+    
+    // Sort by timestamp (newest first)
+    allEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Check if there are any entries
+    if (allEntries.length === 0) {
         journalList.innerHTML = `
         <div class="empty-state">
             <h3>No Journal Entries Yet</h3>
-            <p>Be the first to submit a stand-up update!</p>
+            <p>Be the first to submit a stand-up update or emotional tracker!</p>
         </div>
         `;
         return;
     }
     
-    // Generate HTML for all journal entries
-    const journalsHTML = journals.map(entry => createJournalEntryHTML(entry)).join('');
-    journalList.innerHTML = journalsHTML;
+    // Generate HTML for all entries based on type
+    const entriesHTML = allEntries.map(entry => {
+        if (entry.type === 'sentiment') {
+            return createSentimentEntryHTML(entry);
+        } else {
+            return createJournalEntryHTML(entry);
+        }
+    }).join('');
+    journalList.innerHTML = entriesHTML;
     
     } catch (error) {
     console.error('Error loading journals:', error);
@@ -271,6 +327,142 @@ function initModalHandlers(modalOverlay) {
     }
 }
 
+// Show modal for emotional tracker
+async function showSentimentModal() {
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.id = 'sentimentModal';
+    
+    try {
+        // Fetch the sentiment form HTML
+        const response = await fetch('journal/sentiment.html');
+        if (!response.ok) throw new Error('Failed to load sentiment form');
+        const html = await response.text();
+        
+        // Extract the form content
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const formElement = doc.querySelector('#sentimentForm');
+        const formHTML = formElement ? formElement.outerHTML : html;
+        
+        // Create modal content
+        modalOverlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Emotional Tracker</h2>
+                    <button type="button" class="modal-close" id="closeSentimentModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p class="page-description">Track your emotional state and share any thoughts.</p>
+                    ${formHTML}
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.appendChild(modalOverlay);
+        
+        // Show modal with animation
+        setTimeout(() => modalOverlay.classList.add('active'), 10);
+        
+        // Initialize sentiment modal event handlers
+        initSentimentModalHandlers(modalOverlay);
+        
+    } catch (error) {
+        console.error('Error loading sentiment form:', error);
+        alert('Failed to load emotional tracker form. Please try again.');
+    }
+}
+
+// Initialize sentiment modal event handlers
+function initSentimentModalHandlers(modalOverlay) {
+    // Close modal button
+    const closeBtn = modalOverlay.querySelector('#closeSentimentModal');
+    const backBtn = modalOverlay.querySelector('#sentimentBackBtn');
+    
+    const closeModal = () => {
+        modalOverlay.classList.remove('active');
+        setTimeout(() => modalOverlay.remove(), 300);
+    };
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+    
+    if (backBtn) {
+        backBtn.addEventListener('click', closeModal);
+    }
+    
+    // Close on overlay click
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+    
+    // Close on Escape key
+    const escapeHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', escapeHandler);
+        }
+    };
+    document.addEventListener('keydown', escapeHandler);
+    
+    // Handle form submission
+    const sentimentForm = modalOverlay.querySelector('#sentimentForm');
+    if (sentimentForm) {
+        sentimentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const sentimentRadio = modalOverlay.querySelector('input[name="sentiment"]:checked');
+            const sentiment = sentimentRadio ? sentimentRadio.value : null;
+            const comment = modalOverlay.querySelector('#sentimentComment').value.trim();
+            
+            // Validate required field
+            if (!sentiment) {
+                alert('Please select how you are feeling.');
+                return;
+            }
+            
+            // Create sentiment entry object
+            const sentimentData = {
+                sentiment: sentiment,
+                comment: comment || null,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                // TODO: Send to API endpoint when available
+                // For now, just save to localStorage
+                const storedSentiments = localStorage.getItem('sentiments');
+                const sentiments = storedSentiments ? JSON.parse(storedSentiments) : [];
+                
+                sentimentData.id = Date.now();
+                sentiments.push(sentimentData);
+                localStorage.setItem('sentiments', JSON.stringify(sentiments));
+                
+                console.log('Sentiment Entry Saved:', sentimentData);
+                
+                // Close modal
+                closeModal();
+                
+                // Reload journals to show new sentiment entry
+                loadJournals();
+                
+                // Show success message
+                alert('Emotional tracker submitted successfully!');
+                
+            } catch (error) {
+                console.error('Error saving sentiment:', error);
+                alert('Failed to submit emotional tracker. Please try again.');
+            }
+        });
+    }
+}
+
 export function initJournals(){
     initializeData();
     loadJournals();
@@ -279,6 +471,12 @@ export function initJournals(){
     const createJournalBtn = document.getElementById('createJournalBtn');
     if (createJournalBtn) {
         createJournalBtn.addEventListener('click', showJournalModal);
+    }
+    
+    // Add event listener for emotional tracker button
+    const createEmotionalTrackerBtn = document.getElementById('createEmotionalTrackerBtn');
+    if (createEmotionalTrackerBtn) {
+        createEmotionalTrackerBtn.addEventListener('click', showSentimentModal);
     }
 }
 
