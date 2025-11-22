@@ -9,28 +9,30 @@
     "test-attendance": "node tests/backend/test-attendance.js",
     "test": "node test-api-simple.js",
     "test:journal": "node tests/backend/test-journal-api.js",
-    "test:direct": "node test-direct.js"
+    "test:direct": "node test-direct.js",
+    "test-integration": "npx playwright test tests/integration/client/example.test.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.10.1",
     "eslint": "^9.39.1",
     "globals": "^16.5.0"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "globals": "^16.5.0",
-    "htmlhint": "^1.7.1",
-    "http-server": "^14.1.1",
-    "jest": "^30.2.0",
-    "nodemon": "^3.0.2",
-    "pa11y-ci": "^4.0.1",
-    "stylelint": "^16.25.0",
-    "stylelint-config-standard": "^39.0.1",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
+    "globals": "^16.5.0",
+    "htmlhint": "^1.7.1",
+    "http-server": "^14.1.1",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.0.2",
+    "pa11y-ci": "^4.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "stylelint": "^16.25.0",
+    "stylelint-config-standard": "^39.0.1"
   }
 }
