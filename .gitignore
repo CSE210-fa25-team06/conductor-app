@@ -4,3 +4,4 @@ node_modules/
 coverage/
 pgdata/
 postgres.log
+package-lock.json
