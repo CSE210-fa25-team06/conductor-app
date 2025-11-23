@@ -1,11 +1,25 @@
+import { PERMISSIONS, protectComponent } from './utils/auth-guard.js';
+
+// --- HELPERS ---
+
+async function getUserSession() {
+    try {
+        const res = await fetch('/api/auth/session');
+        return await res.json();
+    } catch (err) {
+        console.error("Journal: Session fetch failed", err);
+        return { success: false };
+    }
+}
+
 function formatTimestamp(isoString) {
     const date = new Date(isoString);
     const options = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     };
     return date.toLocaleDateString('en-US', options);
 }
@@ -13,47 +27,49 @@ function formatTimestamp(isoString) {
 // Create HTML for a single journal entry
 function createJournalEntryHTML(entry) {
     const blockersHTML = entry.blockers 
-    ? `<div class="journal-blockers">
-            <div class="journal-label">Blockers</div>
-            <div class="journal-text">${escapeHtml(entry.blockers)}</div>
-        </div>`
-    : `<div class="journal-section">
-            <div class="journal-label">Blockers</div>
-            <div class="journal-text no-blockers">No blockers reported</div>
-        </div>`;
+    ? `<div class="journal-blockers"><div class="journal-label">Blockers</div><div class="journal-text">${escapeHtml(entry.blockers)}</div></div>`
+    : `<div class="journal-section"><div class="journal-label">Blockers</div><div class="journal-text no-blockers">No blockers reported</div></div>`;
 
     const timestamp = entry.timestamp || entry.created_at || new Date().toISOString();
+    const isOwner = user && user.id === entry.user_id;
+    const canEditAll = user && user.permissions && user.permissions.includes(PERMISSIONS.EDIT_ALL_JOURNALS);
+    const canModify = isOwner || canEditAll;
+
+    const actionsHTML = canModify 
+        ? `<div class="journal-actions">
+                <button type="button" class="journal-edit-btn" data-journal-id="${entry.id}">Edit</button>
+                <button type="button" class="journal-delete-btn" data-journal-id="${entry.id}">Delete</button>
+           </div>` : ``;
 
     return `
         <div class="journal-entry" data-journal-id="${entry.id}">
         <div class="journal-header">
-            <div class="journal-timestamp">${formatTimestamp(timestamp)}</div>
-            <div class="journal-actions">
-                <button type="button" class="journal-edit-btn" data-journal-id="${entry.id}" aria-label="Edit journal entry">Edit</button>
-                <button type="button" class="journal-delete-btn" data-journal-id="${entry.id}" aria-label="Delete journal entry">Delete</button>
+            <div class="journal-meta">
+                <span class="author-name">${escapeHtml(authorName)}</span>
+                <span class="meta-separator">•</span>
+                <span class="author-role">${escapeHtml(roleName)}</span>
+                <span class="meta-separator">•</span>
+                <span class="author-group">${escapeHtml(groupName)}</span>
+                <div class="journal-timestamp-small">${formatTimestamp(timestamp)}</div>
             </div>
+            ${actionsHTML}
         </div>
         <div class="journal-content">
             <div class="journal-section">
-            <div class="journal-label">What I Did Since Last Meeting</div>
-            <div class="journal-text">${escapeHtml(entry.whatIDid || entry.did || "")}</div>
+                <div class="journal-label">What I Did Since Last Meeting</div>
+                <div class="journal-text">${escapeHtml(entry.whatIDid || entry.did || "")}</div>
             </div>
             <div class="journal-section">
-            <div class="journal-label">What I Will Do Next</div>
-            <div class="journal-text">${escapeHtml(entry.whatIWillDo || entry.doing_next || "")}</div>
+                <div class="journal-label">What I Will Do Next</div>
+                <div class="journal-text">${escapeHtml(entry.whatIWillDo || entry.doing_next || "")}</div>
             </div>
             ${blockersHTML}
         </div>
         </div>
     `;
-    }
-
-// Escape HTML to prevent XSS
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
+
+// --- DATA LOADING ---
 
 // Load and display journal entries
 async function loadJournals() {
@@ -61,11 +77,14 @@ async function loadJournals() {
     
     try {
         const res = await fetch("/journals");
+        
+        if (res.status === 403 || res.status === 401) {
+            throw new Error("You are not authorized to view these journals.");
+        }
+
         const data = await res.json();
 
-        if (!res.ok) {
-            throw new Error(data.message || "Failed to fetch journals");
-        }
+        if (!res.ok) throw new Error(data.message || "Failed to fetch journals");
 
         const journals = data.data || [];
 
@@ -79,26 +98,75 @@ async function loadJournals() {
             return;
         }
     
-    // Sort newest first
-    journals.sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    );
+        journals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    journalList.innerHTML = journals
-        .map(entry => createJournalEntryHTML(entry))
-        .join("");
-    attachEditHandlers(journals);
-    attachDeleteHandlers(journals); 
+        journalList.innerHTML = journals
+            .map(entry => createJournalEntryHTML(entry, currentUser))
+            .join("");
+        
+        attachEditHandlers(journals, currentUser);
+        attachDeleteHandlers(); 
     } catch (error) {
-    console.error('Error loading journals:', error);
-    journalList.innerHTML = `
-        <div class="error">
-        <strong>Error loading journal entries</strong><br>
-        ${error.message}
-        </div>
-    `;
+        console.error('Error loading journals:', error);
+        journalList.innerHTML = `
+            <div class="error">
+            <strong>Error loading journal entries</strong><br>
+            ${error.message}
+            </div>
+        `;
     }
 }
+
+// --- INITIALIZATION ---
+
+export async function initJournals() {
+    const journalListEl = document.getElementById('journalList');
+    const createJournalBtn = document.getElementById('createJournalBtn');
+    
+    // Target the specific header container
+    const pageHeader = document.querySelector('.journal-overview-container .page-header');
+
+    // 1. Fetch Session
+    const session = await getUserSession();
+    const currentUser = (session && session.success) ? session.user : null;
+
+    const hasPermission = (perm) => 
+        currentUser && currentUser.permissions && currentUser.permissions.includes(perm);
+
+    // 2. Button Logic (Create)
+    if (createJournalBtn) {
+        if (hasPermission(PERMISSIONS.USER_SUBMIT_JOURNAL)) {
+            createJournalBtn.style.display = ''; 
+        } else {
+            createJournalBtn.style.display = 'none'; 
+        }
+        createJournalBtn.addEventListener('click', () => showJournalModal(null, currentUser));
+    }
+
+    // 3. List Logic (View)
+    const allowedPermissions = [
+        PERMISSIONS.VIEW_OWN_GROUP_JOURNALS, 
+        PERMISSIONS.VIEW_ALL_JOURNALS
+    ];
+
+    protectComponent(
+        journalListEl, 
+        allowedPermissions, 
+        async () => {
+            // SUCCESS: Reveal the header (fixes the flash)
+            if (pageHeader) pageHeader.style.display = '';
+            
+            // Load the data
+            await loadJournals(currentUser);
+        },
+        () => {
+            // DENIED: Ensure header stays hidden (redundant but safe)
+            if (pageHeader) pageHeader.style.display = 'none';
+        }
+    );
+}
+
+// --- MODAL & HANDLERS ---
 
 // Show modal for creating new journal
 async function showJournalModal(entryToEdit = null) {
@@ -119,12 +187,7 @@ async function showJournalModal(entryToEdit = null) {
         const formElement = doc.querySelector('#journalForm');
         const formHTML = formElement ? formElement.outerHTML : html;
 
-
-        // Edit stand up content
-        const titleText = entryToEdit
-        ? "Edit your stand up update"
-        : "Submit your stand up update";
-
+        const titleText = entryToEdit ? "Edit your stand up update" : "Submit your stand up update";
         const modalButtonText = entryToEdit ? "Save changes" : "Submit journal";
 
         // Create modal content
@@ -161,9 +224,7 @@ async function showJournalModal(entryToEdit = null) {
  
         // Show modal with animation
         setTimeout(() => modalOverlay.classList.add('active'), 10);
-        
-        // Initialize modal event handlers
-        initModalHandlers(modalOverlay, entryToEdit);
+        initModalHandlers(modalOverlay, entryToEdit, currentUser);
         
     } catch (error) {
         console.error('Error loading journal form:', error);
@@ -171,9 +232,7 @@ async function showJournalModal(entryToEdit = null) {
     }
 }
 
-// Initialize modal event handlers
-function initModalHandlers(modalOverlay, entryToEdit = null) {
-    // Close modal button
+function initModalHandlers(modalOverlay, entryToEdit = null, currentUser) {
     const closeBtn = modalOverlay.querySelector('#closeModal');
     const backBtn = modalOverlay.querySelector('#backBtn');
     
@@ -182,22 +241,13 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
         setTimeout(() => modalOverlay.remove(), 300);
     };
     
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (backBtn) backBtn.addEventListener('click', closeModal);
     
-    if (backBtn) {
-        backBtn.addEventListener('click', closeModal);
-    }
-    
-    // Close on overlay click
     modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-            closeModal();
-        }
+        if (e.target === modalOverlay) closeModal();
     });
     
-    // Close on Escape key
     const escapeHandler = (e) => {
         if (e.key === 'Escape') {
             closeModal();
@@ -206,27 +256,27 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
     };
     document.addEventListener('keydown', escapeHandler);
     
-    // Handle form submission
     const journalForm = modalOverlay.querySelector('#journalForm');
     if (journalForm) {
         journalForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Get form values
             const whatIDid = modalOverlay.querySelector('#whatIDid').value.trim();
             const whatIWillDo = modalOverlay.querySelector('#whatIWillDo').value.trim();
             const blockers = modalOverlay.querySelector('#blockers').value.trim();
             
-            // Validate required fields
             if (!whatIDid || !whatIWillDo) {
                 alert('Please fill in all required fields.');
                 return;
             }
             
-            // TODO: Replace with actual user_id and group_id from authentication
-            // For now, using test values matching test-journal-api.js
-            const user_id = 101;
-            const group_id = 1;
+            if (!currentUser || !currentUser.id) {
+                alert("User session not found. Please log in again.");
+                return;
+            }
+
+            const user_id = currentUser.id;
+            const group_id = currentUser.group_id || 1; 
             const today = new Date();
             const entry_date = today.toISOString().split('T')[0];
             const isEdit = Boolean(entryToEdit);
@@ -234,33 +284,19 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
             let url = "/journals/create";
             let method = "POST";
             let body = JSON.stringify({
-                user_id,
-                group_id,
-                entry_date,
-                did: whatIDid,
-                doing_next: whatIWillDo,
-                blockers: blockers || null
+                user_id, group_id, entry_date, did: whatIDid, doing_next: whatIWillDo, blockers: blockers || null
             });
 
             if (isEdit) {
                 url = `/journals/${entryToEdit.id}`;
                 method = "PUT";
-                body = JSON.stringify({
-                did: whatIDid,
-                doing_next: whatIWillDo,
-                blockers: blockers || null,
-                });
+                body = JSON.stringify({ did: whatIDid, doing_next: whatIWillDo, blockers: blockers || null });
             } 
 
             try {
                 const response = await fetch(url, {
-                    method,
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body,
+                    method, headers: { "Content-Type": "application/json" }, body,
                 });
-
                 const result = await response.json();
 
                 if (!response.ok) {
@@ -281,57 +317,32 @@ function initModalHandlers(modalOverlay, entryToEdit = null) {
     }
 }
 
-export function initJournals(){
-    loadJournals();
-
-    // Add event listener for create journal button (on journal.html)
-    const createJournalBtn = document.getElementById('createJournalBtn');
-    createJournalBtn.addEventListener('click', () => showJournalModal(null));
-}
-
-// Edit Functionality
-function attachEditHandlers(journals) {
-  // Select all edit buttons rendered in the journal list
+function attachEditHandlers(journals, currentUser) {
   const buttons = document.querySelectorAll(".journal-edit-btn");
   buttons.forEach((btn) => {
-    // Each button stores the journal ID in its data attribute
     const id = btn.dataset.journalId;
-    // Find the corresponding journal entry object from the journals array
     const entry = journals.find((j) => String(j.id) === String(id));
     if (!entry) return;
-    // When the user clicks edit, open the modal pre-filled with this journal's data
-    btn.addEventListener("click", () => {
-      showJournalModal(entry);
-    });
+    btn.addEventListener("click", () => showJournalModal(entry, currentUser));
   });
 }
 
 // Delete Functionality
 function attachDeleteHandlers() {
-    // Select all delete (trash can) buttons in the rendered list
     const deleteButtons = document.querySelectorAll(".journal-delete-btn");
-
     deleteButtons.forEach(btn => {
-        // Retrieve the journal ID
         const id = btn.dataset.journalId;
-
-        // Clicking the delete button opens a confirmation modal first
-        btn.addEventListener("click", () => {
-        showDeleteConfirmation(id);
-        });
+        btn.addEventListener("click", () => showDeleteConfirmation(id));
     });
-    }
+}
 
 // Show the delete confirmation message before allowing for deletion
 function showDeleteConfirmation(id) {
     const modal = document.createElement("div");
     modal.className = "modal-overlay";
-
     modal.innerHTML = `
         <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Delete Journal Entry</h2>
-        </div>
+        <div class="modal-header"><h2 class="modal-title">Delete Journal Entry</h2></div>
         <div class="modal-body">
             <p>Are you sure you want to delete this journal entry?</p>
             <div class="modal-buttons">
@@ -353,15 +364,23 @@ function showDeleteConfirmation(id) {
 
     document.getElementById("cancelDelete").onclick = closeModal;
     document.getElementById("confirmDelete").onclick = async () => {
-        const res = await fetch(`/journals/${id}`, { method: "DELETE" });
-        const result = await res.json();
-
-        if (!res.ok) {
-            alert(result.message || "Delete failed");
-            return;
+        try {
+            const res = await fetch(`/journals/${id}`, { method: "DELETE" });
+            if (res.status === 403 || res.status === 401) {
+                alert("You are not authorized to delete this entry.");
+                closeModal();
+                return;
+            }
+            const result = await res.json();
+            if (!res.ok) {
+                alert(result.message || "Delete failed");
+                return;
+            }
+            closeModal();
+            const session = await getUserSession();
+            loadJournals(session.user); 
+        } catch (e) {
+            console.error("Delete error:", e);
         }
-
-        closeModal();
-        loadJournals(); // refresh from DB
     };
 }
