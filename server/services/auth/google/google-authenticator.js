@@ -8,17 +8,19 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const express = require('express');
 const router = express.Router(); 
 
-// NOTE: This file currently calls DB functions directly. It is a candidate for Service Layer abstraction.
 const { 
     findUserIdByEmail, 
-    findUserIdInUsers, // Not used in this version but imported
+    findUserIdInUsers,
     logSuccessfulLogin, 
-    createGoogleUser, 
-    linkGoogleAccount
 } = require('../../../models/db'); 
 
-// --- Passport Initialization ---
-// NOTE: app.use(passport.initialize()) and app.use(passport.session()) must be called in app.js.
+const {
+    createUserAccount,
+    linkProviderAccount
+} = require('../../../services/user-provisioning');
+
+// The provider name to be passed to the provisioning service
+const PROVIDER_NAME = 'google';
 
 /**
  * Serializer: Stores only the user's database ID in the session.
@@ -60,19 +62,16 @@ passport.use(new GoogleStrategy({
             // 1. Find User ID in our database using the verified email
             let userId = await findUserIdByEmail(googleEmail);
 
-            // =========================================================================
-            // NOTE: This logic handles BOTH creation and linking in one flow.
-            // =========================================================================
             if (!userId) {
                 // User is not in user_auth. Check if user exists in the main users table (manual creation/migration)
                 userId = await findUserIdInUsers(googleEmail);
                 
                 if (userId) {
                     // Case 2: User exists in 'users' but not 'user_auth'. Link the account.
-                    await linkGoogleAccount(userId, googleEmail, accessToken, refreshToken);
+                    await linkProviderAccount(userId, PROVIDER_NAME, googleEmail, accessToken, refreshToken);
                 } else {
                     // Case 3: User is brand new. Create the user and link the account.
-                    userId = await createGoogleUser(googleEmail, googleName, accessToken, refreshToken);
+                    userId = await createUserAccount(PROVIDER_NAME, googleEmail, googleName, accessToken, refreshToken);
                 }
             }
             
@@ -99,6 +98,11 @@ passport.use(new GoogleStrategy({
 // =========================================================================
 // PASSPORT ROUTER CONFIGURATION
 // =========================================================================
+
+router.get('/login', (req, res) => {
+    res.redirect('/api/auth/google');
+});
+
 
 /**
  * GET /api/auth/google

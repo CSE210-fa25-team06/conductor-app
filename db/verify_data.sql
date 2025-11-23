@@ -48,6 +48,39 @@ GROUP BY
 ORDER BY
     "User Count" DESC;
 
+-- 1.4. Verify Role Permissions: Confirms a specific role has an expected permission.
+SELECT
+    r.name AS "Role",
+    p.name AS "Permission"
+FROM
+    role_permissions rp
+JOIN
+    roles r ON rp.role_id = r.id
+JOIN
+    permissions p ON rp.permission_id = p.id
+WHERE
+    r.name = 'Student'
+    OR r.name = 'Tutor'
+ORDER BY
+    r.name, p.name;
+
+-- 1.5. Verify Stacking Permissions: Confirms a user with multiple roles at the same privilege level inherits ALL permissions.
+SELECT
+    u.name AS "User Name",
+    STRING_AGG(DISTINCT p.name, ', ' ORDER BY p.name) AS "Effective Permissions"
+FROM
+    users u
+JOIN
+    user_roles ur ON u.id = ur.user_id
+JOIN
+    role_permissions rp ON ur.role_id = rp.role_id
+JOIN
+    permissions p ON rp.permission_id = p.id
+WHERE
+    u.name = 'Bob' -- Bob has Role 1 (Student) and Role 2 (Team Lead), both at privilege_level 1.
+GROUP BY
+    u.name;
+
 --------------------------------------------------------------------------------
 -- 2. ACTIVITY LOGGING AND AUDIT VERIFICATION
 --------------------------------------------------------------------------------
