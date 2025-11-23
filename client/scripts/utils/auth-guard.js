@@ -1,7 +1,6 @@
 // Import the permissions directly from your server route
 import { PERMISSIONS } from '/api/config/js/permissions.js';
 
-console.log(PERMISSIONS);
 let cachedSession = null;
 
 async function getSession() {
