@@ -1,54 +1,96 @@
+// Import the Security Guard and the Permission Constants
+import { protectComponent, PERMISSIONS } from './utils/auth-guard.js';
+
+/**
+ * Renders the Class Directory into the provided container.
+ * Wraps the entire UI in the protectComponent guard.
+ * @param {HTMLElement} containerEl - The DOM element to render into.
+ */
 export function renderClassDirectory(containerEl) {
-  containerEl.innerHTML = `
-    <main class="directory">
-      <h1>Class Directory</h1>
-      <form aria-label="Search class directory" id="search-form">
-        <label for="search">Search by Name:</label>
-        <input type="text" id="search" name="search" placeholder="Search by first name">
-      </form>
-      <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-          <tr>
-            <th scope="col">Photo</th>
-            <th scope="col">Name</th>
-            <th scope="col">Role</th>
-            <th scope="col">Group</th>
-            <th scope="col">Contact</th>
-            <th scope="col">Availability</th>
-          </tr>
-        </thead>
-        <tbody id="directory-table-body"></tbody>
-      </table>
-    </main>
-  `;
+  // 1. PROTECT THE COMPONENT
+  // We pass the container, the specific permission required, and the callback code to run if allowed.
+  protectComponent(containerEl, PERMISSIONS.VIEW_CLASS_DIRECTORY, async () => {
+    
+    // =========================================================================
+    // AUTHORIZED CONTENT STARTS HERE
+    // =========================================================================
+    
+    // 2. Render the UI Structure
+    containerEl.innerHTML = `
+      <main class="directory">
+        <h1>Class Directory</h1>
+        
+        <form aria-label="Search class directory" id="search-form">
+          <label for="search">Search by Name:</label>
+          <input type="text" id="search" name="search" placeholder="Search by first name">
+        </form>
 
-  const searchInput = document.getElementById('search');
-  searchInput.addEventListener('input', async (e) => {
-    const query = e.target.value.trim();
-    await loadDirectory(query);
+        <table border="1" cellpadding="8" cellspacing="0">
+          <thead>
+            <tr>
+              <th scope="col">Photo</th>
+              <th scope="col">Name</th>
+              <th scope="col">Role</th>
+              <th scope="col">Group</th>
+              <th scope="col">Contact</th>
+              <th scope="col">Availability</th>
+            </tr>
+          </thead>
+          <tbody id="directory-table-body">
+             <tr><td colspan="6">Loading directory data...</td></tr>
+          </tbody>
+        </table>
+      </main>
+    `;
+
+    // 3. Attach Event Listeners
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.addEventListener('input', async (e) => {
+            const query = e.target.value.trim();
+            await loadDirectory(query);
+        });
+    }
+
+    // 4. Initial Data Load
+    await loadDirectory('');
   });
-
-  // load all students by default (empty query)
-  loadDirectory('');
 }
 
+/**
+ * Fetches users from the API and populates the table.
+ * Note: The backend route (/users) should also be secured with 'VIEW_CLASS_DIRECTORY'.
+ */
 async function loadDirectory(query) {
   try {
     const url = query
       ? `/users?query=${encodeURIComponent(query)}`
-      : `/users?query=`; // backend expects 'query' param, even if empty
+      : `/users?query=`;
 
     const response = await fetch(url);
+
+    // Handle 403 Forbidden from Backend (Double-Check)
+    if (response.status === 403) {
+       const tbody = document.getElementById('directory-table-body');
+       if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="color:red;">Authorization Failed: Backend rejected request.</td></tr>`;
+       return;
+    }
+
     if (!response.ok) {
       console.error('Failed to fetch users');
+      const tbody = document.getElementById('directory-table-body');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6">Error loading data.</td></tr>`;
       return;
     }
 
     const data = await response.json();
     const tbody = document.getElementById('directory-table-body');
+    
+    // Safety check if DOM element still exists
+    if (!tbody) return; 
+    
     tbody.innerHTML = '';
 
-    // Defensive: handle missing data.users
     const users = data.users || [];
 
     if (users.length === 0) {
@@ -68,12 +110,15 @@ async function loadDirectory(query) {
       `;
       tbody.appendChild(row);
     });
+
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in loadDirectory:', error);
   }
 }
 
-// Helper: Convert JSON availability to readable string
+/**
+ * Helper: Convert JSON availability to readable string
+ */
 function formatAvailability(availability) {
     if (!availability) return '—';
     try {

@@ -7,11 +7,18 @@
 
 const express = require('express');
 
-// Import DB Model functions (Common to all modes)
-const { findUserIdByEmail, logSuccessfulLogin } = require('../../../models/db');
+const { 
+    findUserIdByEmail, 
+    findUserIdInUsers, 
+} = require('../../../models/db');
+
+const {
+    createUserAccount,
+    linkProviderAccount
+} = require('../../../services/user-provisioning');
 
 // The final URL the server redirects the client to after successful internal authentication.
-const HOME_URL = '/'; 
+const HOME_URL = '/dashboard.html'; 
 
 /**
  * Creates and returns an Express Router configured for a specific SSO mode.
@@ -22,10 +29,11 @@ const HOME_URL = '/';
  */
 function createSsoRouter(handlers, mode) {
     const router = express.Router();
+    const PROVIDER_NAME = `sso-${mode.toLowerCase()}`;
     
     // Ensure critical handlers are present
     if (!handlers.initiateLogin || !handlers.getVerifiedEmail) {
-        throw new Error(`SSO Handler setup error: Missing initiateLogin or getVerifiedEmail for mode ${mode}.`);
+        throw new Error(`SSO Handler setup error: Missing handlers for mode ${mode}.`);
     }
 
     // =========================================================================
@@ -53,7 +61,7 @@ function createSsoRouter(handlers, mode) {
      * GET /api/auth/callback
      * The callback endpoint that the external provider redirects back to.
      */
-    router.get('/callback', async (req, res) => {
+    router.get('/callback', async (req, res, next) => {
         try {
             // STEP 1: Get the verified email from the mode-specific handler (Real or Mock)
             const email = await handlers.getVerifiedEmail(req);
@@ -62,20 +70,33 @@ function createSsoRouter(handlers, mode) {
                 return res.redirect(302, '/api/auth/login-fail?error=auth_failed');
             }
 
-            // STEP 2: Database and Session (COMMON LOGIC)
-            const userId = await findUserIdByEmail(email);
+            // Provisioning Logic
+            let userId = await findUserIdByEmail(email);
 
             if (!userId) {
-                // User authenticated with external provider but not provisioned internally
-                return res.redirect(302, `/api/auth/login-fail?error=user_not_provisioned`);
+                userId = await findUserIdInUsers(email);
+                const tokenPlaceholder = 'sso-token';
+                const displayName = email.split('@')[0];
+
+                if (userId) {
+                    await linkProviderAccount(userId, PROVIDER_NAME, email, tokenPlaceholder, tokenPlaceholder);
+                } else {
+                    userId = await createUserAccount(PROVIDER_NAME, email, displayName, tokenPlaceholder, tokenPlaceholder);
+                }
             }
 
-            // Set the session variable
-            req.session.userId = userId;
-            await logSuccessfulLogin(userId, req.ip || '127.0.0.1');
+            if (!userId) {
+                return res.redirect(302, `/api/auth/login-fail?error=user_provisioning_failed`);
+            }
 
-            // Final redirect to the client's home page
-            return res.redirect(302, HOME_URL);
+            // FIX: Use Passport's req.login()
+            req.login(userId, (err) => {
+                if (err) {
+                    console.error(`[SSO-${mode}] Login Error:`, err);
+                    return next(err);
+                }
+                return res.redirect(302, HOME_URL);
+            });
 
         } catch (error) {
             console.error(`[SSO-${mode}] Callback Handler Error:`, error);

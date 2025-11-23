@@ -17,6 +17,8 @@ DROP TABLE IF EXISTS user_auth CASCADE;
 DROP TABLE IF EXISTS activity_log CASCADE;
 DROP TABLE IF EXISTS activity CASCADE;
 DROP TABLE IF EXISTS user_roles CASCADE;
+DROP TABLE IF EXISTS role_permissions CASCADE;
+DROP TABLE IF EXISTS permissions CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
@@ -41,11 +43,27 @@ CREATE TABLE groups (
 -- Defines application roles for Role-Based Access Control (RBAC).
 CREATE TABLE roles (
     id            SERIAL PRIMARY KEY,
-    name          VARCHAR(100) UNIQUE NOT NULL,
+    name          VARCHAR(50) UNIQUE NOT NULL,
     description   TEXT,
-    permissions   JSONB, -- Stores granular permissions in a JSON object
+    is_default    BOOLEAN NOT NULL DEFAULT FALSE,
+    privilege_level INT NOT NULL DEFAULT 1, -- NEW: The hierarchy level for custom RBAC logic
     created_at    TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE permissions (
+    id            SERIAL PRIMARY KEY,
+    name          VARCHAR(100) UNIQUE NOT NULL, -- e.g., 'MANAGE_USERS', 'VIEW_JOURNALS'
+    description   TEXT,
+    created_at    TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: role_permissions
+-- Join table for Many-to-Many relationship between roles and permissions.
+CREATE TABLE role_permissions (
+    role_id       INT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id INT NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id)
 );
 
 -- Table: users
