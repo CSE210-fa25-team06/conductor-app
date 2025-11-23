@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16
+    container_name: conductor_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
+      - ./db/migrations:/docker-entrypoint-initdb.d/15-migrations
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/20-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER} -d ${PGDATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: conductor_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      
+      SERVER_HOST: 0.0.0.0
+      DB_HOST: db
+      
+      DB_PORT: 5432
+      DB_USER: ${PGUSER}
+      DB_PASSWORD: ${PGPASSWORD}
+      DB_NAME: ${PGDATABASE}
+      
+      AUTH_STRATEGY: GOOGLE
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      OAUTH_REDIRECT_URL: ${OAUTH_REDIRECT_URL}
+      
+      SESSION_SECRET: ${SESSION_SECRET:-dev_secret}
+      AUTH_SECRET: ${AUTH_SECRET:-dev_secret}
+
+volumes:
+  postgres_data:

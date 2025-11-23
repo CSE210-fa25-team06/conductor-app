@@ -19,7 +19,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../', '.env') });
 // --- End of tests ----
 const pool = new Pool({
   user: process.env.DB_USER,
-  host: process.env.SERVER_HOST,
+  host: process.env.DB_HOST || process.env.SERVER_HOST, 
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,

@@ -4,6 +4,19 @@ Conductor is a lightweight platform to help instructors, TAs, and students manag
 
 The repository is organized into folders that separate the frontend, backend, database, and testing components. Each team can work independently while keeping the project consistent and maintainable.
 
+### **Quick Start with Docker**
+To run the full stack (App + Database) without manual setup:
+1. Create your `.env` file based on `.env.example`.
+2. Run `docker compose up --build`.
+3. The app will be available at `http://localhost:3000`. The database is automatically seeded on the first run.
+
+**To stop the server:**
+Press `Ctrl+C` in the terminal.
+
+**To delete deployment**
+Run `docker compose down -v`.
+*Note: This removes the containers and destroys the database volume. The next time you start the app, the database will be reset to the initial seed data.*
+
 ---
 
 ### **client/**
@@ -45,6 +58,15 @@ Contains all database setup and migration scripts for **PostgreSQL**.
 - **seed.sql** – inserts sample data for local testing
 - **verify_data.sql** - verifies that the database schema and seed data work properly
 - **migrations/** – includes SQL files for versioned schema updates
+
+---
+
+### **Docker Configuration**
+Root-level files for containerization.
+
+- **Dockerfile** – Defines Node.js environment (Node 20 Alpine)
+- **docker-compose.yml** – Orchestrates the application and database containers
+- **.dockerignore** – Prevents local configuration files from breaking the container build
 
 ---
 
