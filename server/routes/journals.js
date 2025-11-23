@@ -4,8 +4,10 @@
 
 const express = require("express");
 const { createJournal, updateJournal, deleteJournal, getJournals } = require("../controllers/journalController");
+const { loadUserContext } = require('../middleware/user-context');
 
 const router = express.Router();
+router.use(loadUserContext);
 
 // GET / - Grabs all the journals to load
 router.get("/", getJournals);
