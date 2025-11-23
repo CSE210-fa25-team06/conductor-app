@@ -2,7 +2,23 @@
  * Journal Controller - Handles HTTP requests for journal entries
  */
 
-const { createJournalEntry } = require("../models/journalModel");
+const { createJournalEntry, updateJournalEntry, deleteJournalEntry, getAllJournals } = require("../models/journalModel");
+
+const getJournals = async (req, res) => {
+  try {
+    const rows = await getAllJournals();
+    res.json({
+      success: true,
+      data: rows
+    });
+  } catch (err) {
+    console.error("Error fetching journals:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to load journals"
+    });
+  }
+};
 
 const createJournal = async (req, res) => {
   try {
@@ -48,4 +64,79 @@ const createJournal = async (req, res) => {
   }
 };
 
-module.exports = { createJournal };
+const updateJournal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { did, doing_next, blockers } = req.body;
+
+    if (!id || !did || !doing_next) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: id, did, doing_next",
+      });
+    }
+
+    const updated = await updateJournalEntry({
+      id,
+      did,
+      doing_next,
+      blockers: blockers || null,
+    });
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Journal entry not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Journal entry updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    console.error("Error updating journal entry:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update journal entry",
+      error: error.message,
+    });
+  }
+};
+
+const deleteJournal = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing journal ID",
+      });
+    }
+
+    const result = await deleteJournalEntry(id);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Journal entry not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Journal entry deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting journal entry:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete journal entry",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { createJournal, updateJournal, deleteJournal, getJournals };
