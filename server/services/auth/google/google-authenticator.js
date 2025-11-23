@@ -7,6 +7,9 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const express = require('express');
 const router = express.Router(); 
+router.get('/probe', (req, res) => {
+  res.status(200).json({ strategy: 'GOOGLE', ok: true });
+});
 
 // NOTE: This file currently calls DB functions directly. It is a candidate for Service Layer abstraction.
 const { 

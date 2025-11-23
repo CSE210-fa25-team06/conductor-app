@@ -83,6 +83,35 @@ app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
+// Explicitly mount strategy-specific router under /api/auth to ensure availability
+try {
+  if (process.env.AUTH_STRATEGY === 'GOOGLE') {
+    const googleAuth = require('./services/auth/google/google-authenticator');
+    if (googleAuth && googleAuth.router) {
+      app.use('/api/auth', googleAuth.router);
+      console.log('[AUTH] Explicitly mounted GOOGLE routes under /api/auth');
+    }
+    // Additionally, hard-wire endpoints to guarantee presence
+    app.get('/api/auth/google', passport.authenticate('google', {
+      scope: ['profile', 'email'],
+      accessType: 'offline',
+      prompt: 'consent'
+    }));
+    app.get('/api/auth/callback/google', passport.authenticate('google', {
+      failureRedirect: '/api/auth/login-fail?error=google_failed'
+    }), (req, res) => {
+      res.redirect('/dashboard.html');
+    });
+  } else if (process.env.AUTH_STRATEGY === 'MOCK') {
+    const mockAuth = require('./services/auth/mock/mock-authenticator');
+    if (mockAuth && mockAuth.router) {
+      app.use('/api/auth', mockAuth.router);
+      console.log('[AUTH] Explicitly mounted MOCK routes under /api/auth');
+    }
+  }
+} catch (e) {
+  console.log('[AUTH] Explicit mount failed:', e.message);
+}
 app.use('/journal', journalRouter);
 
 /**

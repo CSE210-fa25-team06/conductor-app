@@ -17,7 +17,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../../', '.env') })
 //   path: path.resolve(__dirname, '../../../', '.env'),
 //   override: false
 // });
-const ACTIVE_STRATEGY = process.env.AUTH_STRATEGY;
+const ACTIVE_STRATEGY = process.env.AUTH_STRATEGY || 'GOOGLE';
 // // Detect CI
 // const IS_CI = process.env.CI === 'true';
 
@@ -42,6 +42,7 @@ function loadAuthStrategyRoutes() {
     const router = express.Router();
 
     const modulePath = STRATEGY_MAP[ACTIVE_STRATEGY];
+    console.log(`[AUTH-MOUNTER] Strategy '${ACTIVE_STRATEGY}' resolves to: ${modulePath}`);
 
     if (!modulePath) {
         console.error(`[AUTH-MOUNTER] ERROR: Unknown AUTH_STRATEGY: ${ACTIVE_STRATEGY}. Login routes will be empty.`);
@@ -77,6 +78,7 @@ function loadAuthStrategyRoutes() {
         
         // 5. Mount the resulting router
         router.use(finalRouter);
+        console.log(`[AUTH-MOUNTER] Mounted strategy router for '${ACTIVE_STRATEGY}'`);
         
     } catch (error) {
         console.error(`[AUTH-MOUNTER] ERROR: Failed to load authentication module:`, error.message);

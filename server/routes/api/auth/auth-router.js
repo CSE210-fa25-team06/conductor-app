@@ -21,6 +21,20 @@ const { getFullUserData } = require('../../../models/db'); // Needed for /sessio
  */
 router.use(loadAuthStrategyRoutes());
 
+// Fallback: explicitly mount strategy router if dynamic mounter yields no routes
+const active = process.env.AUTH_STRATEGY;
+try {
+  if (active === 'GOOGLE') {
+    const google = require('../../../services/auth/google/google-authenticator');
+    if (google && google.router) router.use(google.router);
+  } else if (active === 'MOCK') {
+    const mock = require('../../../services/auth/mock/mock-authenticator');
+    if (mock && mock.router) router.use(mock.router);
+  }
+} catch (e) {
+  // no-op fallback
+}
+
 
 // =========================================================================
 // 2. GENERIC API ROUTES (Common to ALL strategies)
@@ -124,3 +138,23 @@ router.get('/login-fail', (req, res) => {
 });
 
 module.exports = router;
+// Hard-wire Google endpoints to guarantee availability when ACTIVE_STRATEGY=GOOGLE
+if (process.env.AUTH_STRATEGY === 'GOOGLE') {
+  try {
+    const google = require('../../../services/auth/google/google-authenticator');
+    if (google && google.passport) {
+      router.get('/google', google.passport.authenticate('google', {
+        scope: ['profile', 'email'],
+        accessType: 'offline',
+        prompt: 'consent'
+      }));
+      router.get('/callback/google', google.passport.authenticate('google', {
+        failureRedirect: '/api/auth/login-fail?error=google_failed'
+      }), (req, res) => {
+        res.redirect('/dashboard.html');
+      });
+    }
+  } catch (e) {
+    // ignore
+  }
+}
