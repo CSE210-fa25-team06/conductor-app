@@ -525,7 +525,7 @@ export function initJournals(){
     }
     
     // Add event listener for emotional tracker button
-    const createEmotionalTrackerBtn = document.getElementById('createEmotionalTrackerBtn');
+    const createEmotionalTrackerBtn = document.getElementById('create-emotional-tracker-btn');
     if (createEmotionalTrackerBtn) {
         createEmotionalTrackerBtn.addEventListener('click', showSentimentModal);
     }

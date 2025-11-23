@@ -322,7 +322,7 @@
   margin-left: 0.6rem;
 }
 
-#createEmotionalTrackerBtn {
+#create-emotional-tracker-btn {
   margin-left: auto;
 }
 
@@ -360,9 +360,22 @@
   pointer-events: none;
 }
 
+.sentiment-icon {
+  font-size: 3rem;
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
 .sentiment-option input[type="radio"]:checked + .sentiment-icon {
   transform: scale(1.2);
 }
+
+.sentiment-label {
+  font-size: 0.95rem;
+  color: #333;
+  transition: all 0.2s;
+}
+
 
 .sentiment-option input[type="radio"]:checked ~ .sentiment-label {
   font-weight: bold;
@@ -375,17 +388,6 @@
   box-shadow: 0 2px 8px rgb(0 102 204 / 20%);
 }
 
-.sentiment-icon {
-  font-size: 3rem;
-  transition: transform 0.2s;
-  line-height: 1;
-}
-
-.sentiment-label {
-  font-size: 0.95rem;
-  color: #333;
-  transition: all 0.2s;
-}
 
 /* Sentiment entry display styles */
 .sentiment-entry {
