@@ -1,0 +1,178 @@
+{
+  "documentation": "NOTE: All future-proofing permissions are included in the default_permissions arrays to show the full scope of access for each role, should those features be implemented. The permission lists have been reduced to only include unique grants, as permissions stack across all roles with the same or lower privilege level.",
+  "groups": [
+    {
+      "name": "Unassigned",
+      "isDefault": true,
+      "description": "Default group for all new users upon initial signup."
+    },
+    {
+      "name": "Team Alpha",
+      "isDefault": false
+    },
+    {
+      "name": "Team Beta",
+      "isDefault": false
+    }
+  ],
+  "roles": [
+    {
+      "name": "Guest",
+      "isDefault": false,
+      "privilege_level": 0,
+      "description": "Unauthenticated or unassigned user. Has no system permissions.",
+      "default_permissions": [
+        "VIEW_DOCS_MANAGER",
+        "VIEW_FAQ_SYSTEM"
+      ]
+    },
+    {
+      "name": "Student",
+      "isDefault": true,
+      "privilege_level": 1,
+      "description": "Base role for all students.",
+      "default_permissions": [
+        "ACCESS_LAB_QUEUE",
+        "CREATE_USER_STORIES",
+        "EDIT_OWN_PROFILE_DATA",
+        "USER_SUBMIT_JOURNAL",
+        "USER_SUBMIT_PRIVATE_THOUGHTS",
+        "VIEW_DOCS_MANAGER",
+        "VIEW_FAQ_SYSTEM",
+        "VIEW_OWN_JOURNAL_SENTIMENT"
+      ]
+    },
+    {
+      "name": "Group Leader",
+      "isDefault": false,
+      "privilege_level": 1,
+      "description": "Can manage their group's metadata, attendance, and team dynamics.",
+      "default_permissions": [
+        "CAPTURE_MEETING_NOTES",
+        "CREATE_EVALUATION_JOURNAL_ENTRY",
+        "GROUP_MANAGE_ATTENDANCE",
+        "GROUP_MANAGE_METADATA",
+        "RUN_RETROSPECTIVE_TOOL",
+        "SCHEDULE_OWN_GROUP_MEETINGS",
+        "VIEW_GROUP_DIRECTORY",
+        "VIEW_OWN_GROUP_JOURNALS",
+        "VIEW_OWN_GROUP_SCORECARDS"
+      ]
+    },
+    {
+      "name": "Tutor",
+      "isDefault": false,
+      "privilege_level": 10,
+      "description": "Can view specific student journals and manage the lab assistance queue.",
+      "default_permissions": [
+        "MANAGE_LAB_QUEUE",
+        "PROMOTE_TO_FAQ",
+        "VIEW_OWN_GROUP_JOURNALS",
+        "VIEW_CLASS_DIRECTORY",
+        "SUBMIT_NEGATIVE_INTERACTION",
+        "SUBMIT_LAB_OBSERVATIONS"
+      ]
+    },
+    {
+      "name": "TA",
+      "isDefault": false,
+      "privilege_level": 50,
+      "description": "Can manage and grade all student groups and submissions.",
+      "default_permissions": [
+"ACCESS_LAB_QUEUE",
+        "APPLY_RUBRIC_EVALUATION",
+        "ASSIGN_GROUPS",
+        "CAPTURE_INCIDENT_DATA",
+        "CAPTURE_MEETING_NOTES",
+        "CREATE_EVALUATION_JOURNAL_ENTRY",
+        "CREATE_USER_STORIES",
+        "EDIT_ALL_JOURNALS",
+        "EDIT_OWN_PROFILE_DATA",
+        "GROUP_MANAGE_ATTENDANCE",
+        "GROUP_MANAGE_METADATA",
+        "MANAGE_ALL_ATTENDANCE",
+        "MANAGE_DEFINITION_OF_DONE",
+        "MANAGE_DOCS_MANAGER",
+        "MANAGE_FAQ_CONTENT",
+        "MANAGE_LAB_QUEUE",
+        "MANAGE_MEETING_MANAGER",
+        "PROMOTE_TO_FAQ",
+        "RUN_RETROSPECTIVE_TOOL",
+        "SCHEDULE_OWN_GROUP_MEETINGS",
+        "SUBMIT_LAB_OBSERVATIONS",
+        "SUBMIT_NEGATIVE_INTERACTION",
+        "USER_SUBMIT_JOURNAL",
+        "USER_SUBMIT_PRIVATE_THOUGHTS",
+        "VIEW_ALL_ATTENDANCE_REPORTS",
+        "VIEW_ALL_EVALUATION_JOURNALS",
+        "VIEW_ALL_JOURNALS",
+        "VIEW_CLASS_DIRECTORY",
+        "VIEW_DOCS_MANAGER",
+        "VIEW_EVALUATION_SCORECARDS",
+        "VIEW_FAQ_SYSTEM",
+        "VIEW_GROUP_DIRECTORY",
+        "VIEW_OWN_GROUP_JOURNALS",
+        "VIEW_OWN_GROUP_JOURNALS",
+        "VIEW_OWN_GROUP_SCORECARDS",
+        "VIEW_OWN_JOURNAL_SENTIMENT"
+      ]
+    },
+    {
+      "name": "Professor",
+      "isDefault": false,
+      "privilege_level": 100,
+      "description": "Full administrative access and system configuration.",
+      "default_permissions": [
+        "ACCESS_LAB_QUEUE",
+        "APPLY_RUBRIC_EVALUATION",
+        "ASSIGN_GROUPS",
+        "ASSIGN_ROLES",
+        "CAPTURE_INCIDENT_DATA",
+        "CAPTURE_MEETING_NOTES",
+        "CREATE_EVALUATION_JOURNAL_ENTRY",
+        "CREATE_GROUPS",
+        "CREATE_PERMISSIONS",
+        "CREATE_ROLES",
+        "CREATE_SURVEY_FORM",
+        "CREATE_USER_STORIES",
+        "EDIT_ALL_JOURNALS",
+        "EDIT_ALL_PROFILE_DATA",
+        "EDIT_OWN_PROFILE_DATA",
+        "GROUP_MANAGE_ATTENDANCE",
+        "GROUP_MANAGE_METADATA",
+        "MANAGE_ALL_ATTENDANCE",
+        "MANAGE_DEFINITION_OF_DONE",
+        "MANAGE_DOCS_MANAGER",
+        "MANAGE_EVALUATION_RUBRICS",
+        "MANAGE_EXTERNAL_SERVICES",
+        "MANAGE_FAQ_CONTENT",
+        "MANAGE_GROUP_FORMATION_TOOL",
+        "MANAGE_LAB_QUEUE",
+        "MANAGE_MEETING_MANAGER",
+        "MANAGE_PERMISSIONS",
+        "PROMOTE_TO_FAQ",
+        "PROVISION_USERS",
+        "RUN_RETROSPECTIVE_TOOL",
+        "SCHEDULE_OWN_GROUP_MEETINGS",
+        "SUBMIT_LAB_OBSERVATIONS",
+        "SUBMIT_NEGATIVE_INTERACTION",
+        "USER_SUBMIT_JOURNAL",
+        "USER_SUBMIT_PRIVATE_THOUGHTS",
+        "VIEW_ALERTS",
+        "VIEW_ALL_ATTENDANCE_REPORTS",
+        "VIEW_ALL_EVALUATION_JOURNALS",
+        "VIEW_ALL_JOURNALS",
+        "VIEW_ALL_SURVEY_RESPONSES",
+        "VIEW_CLASS_DIRECTORY",
+        "VIEW_DOCS_MANAGER",
+        "VIEW_EVALUATION_SCORECARDS",
+        "VIEW_FAQ_SYSTEM",
+        "VIEW_GROUP_DIRECTORY",
+        "VIEW_LOGS",
+        "VIEW_OWN_GROUP_SCORECARDS",
+        "VIEW_OWN_JOURNAL_SENTIMENT",
+        "VIEW_REPORTING_ENGINE"
+      ]
+    }
+  ]
+}

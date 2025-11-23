@@ -3,7 +3,7 @@
   It communicates with the service for searching the directory and returns users that match the query.
 */
 
-const { searchDirectory } = require("../service/search");
+const { searchDirectory } = require("../services/search");
 
 async function getUsers(req, res) {
   try {
