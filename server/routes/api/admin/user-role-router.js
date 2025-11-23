@@ -74,7 +74,7 @@ router.put('/users/:userId/roles', requirePermission('ASSIGN_ROLES'), async (req
         );
         
         const newPrivilegedRoleCount = privilegeLevelChecks.filter(
-            level => level <= UNPRIVILEGED_THRESHOLD
+            level => level > UNPRIVILEGED_THRESHOLD
         ).length;
 
         if (newPrivilegedRoleCount > 1) {
