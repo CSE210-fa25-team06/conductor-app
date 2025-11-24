@@ -23,6 +23,7 @@ export function renderClassDirectory(containerEl) {
         <form aria-label="Search class directory" id="search-form">
           <label for="search">Search by Name:</label>
           <input type="text" id="search" name="search" placeholder="Search by first name">
+          <button type="submit" hidden>Search</button>
         </form>
 
         <table border="1" cellpadding="8" cellspacing="0">
@@ -51,6 +52,11 @@ export function renderClassDirectory(containerEl) {
             await loadDirectory(query);
         });
     }
+    
+    //prevent page from reloading when user presses enter after typing in search bar
+    document.getElementById('search-form').addEventListener('submit', e => {
+      e.preventDefault();
+    });
 
     // 4. Initial Data Load
     await loadDirectory('');
