@@ -24,13 +24,30 @@ function formatTimestamp(isoString) {
     return date.toLocaleDateString('en-US', options);
 }
 
-// Create HTML for a single journal entry
-function createJournalEntryHTML(entry) {
+// FIX: Added missing escapeHtml helper
+function escapeHtml(text) {
+    if (!text) return "";
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// --- RENDERING ---
+
+// FIX: Added 'user' parameter so we can check permissions
+function createJournalEntryHTML(entry, user) {
+    // FIX: Defined variables that were missing
+    const authorName = entry.author_name || "Unknown User";
+    const groupName = entry.group_name || "Unassigned";
+    const roleName = entry.author_roles || "Member";
+
     const blockersHTML = entry.blockers 
     ? `<div class="journal-blockers"><div class="journal-label">Blockers</div><div class="journal-text">${escapeHtml(entry.blockers)}</div></div>`
     : `<div class="journal-section"><div class="journal-label">Blockers</div><div class="journal-text no-blockers">No blockers reported</div></div>`;
 
     const timestamp = entry.timestamp || entry.created_at || new Date().toISOString();
+    
+    // Authorization Check
     const isOwner = user && user.id === entry.user_id;
     const canEditAll = user && user.permissions && user.permissions.includes(PERMISSIONS.EDIT_ALL_JOURNALS);
     const canModify = isOwner || canEditAll;
@@ -71,8 +88,8 @@ function createJournalEntryHTML(entry) {
 
 // --- DATA LOADING ---
 
-// Load and display journal entries
-async function loadJournals() {
+// FIX: Added 'currentUser' parameter
+async function loadJournals(currentUser) {
     const journalList = document.getElementById('journalList');
     
     try {
@@ -101,6 +118,7 @@ async function loadJournals() {
         journals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         journalList.innerHTML = journals
+            // FIX: Passed currentUser to the HTML generator
             .map(entry => createJournalEntryHTML(entry, currentUser))
             .join("");
         
@@ -123,8 +141,7 @@ export async function initJournals() {
     const journalListEl = document.getElementById('journalList');
     const createJournalBtn = document.getElementById('createJournalBtn');
     
-    // Target the specific header container
-    const pageHeader = document.querySelector('.journal-overview-container .page-header');
+    const pageHeader = document.querySelector('.page-header');
 
     // 1. Fetch Session
     const session = await getUserSession();
@@ -153,14 +170,11 @@ export async function initJournals() {
         journalListEl, 
         allowedPermissions, 
         async () => {
-            // SUCCESS: Reveal the header (fixes the flash)
             if (pageHeader) pageHeader.style.display = '';
-            
-            // Load the data
+            // FIX: Passing currentUser to loadJournals
             await loadJournals(currentUser);
         },
         () => {
-            // DENIED: Ensure header stays hidden (redundant but safe)
             if (pageHeader) pageHeader.style.display = 'none';
         }
     );
@@ -168,20 +182,17 @@ export async function initJournals() {
 
 // --- MODAL & HANDLERS ---
 
-// Show modal for creating new journal
-async function showJournalModal(entryToEdit = null) {
-    // Create modal overlay
+// FIX: Added currentUser parameter so we can use it in submission
+async function showJournalModal(entryToEdit = null, currentUser = null) {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
     modalOverlay.id = 'journalModal';
     
     try {
-        // Fetch the journal submission form HTML
         const response = await fetch('journal_submission.html');
         if (!response.ok) throw new Error('Failed to load form');
         const html = await response.text();
         
-        // Extract only the form content (not the title/description from the HTML)
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const formElement = doc.querySelector('#journalForm');
@@ -190,7 +201,6 @@ async function showJournalModal(entryToEdit = null) {
         const titleText = entryToEdit ? "Edit your stand up update" : "Submit your stand up update";
         const modalButtonText = entryToEdit ? "Save changes" : "Submit journal";
 
-        // Create modal content
         modalOverlay.innerHTML = `
             <div class="modal-content">
                 <div class="modal-header">
@@ -204,14 +214,11 @@ async function showJournalModal(entryToEdit = null) {
             </div>
         `;
         
-        // Add modal to page
         document.body.appendChild(modalOverlay);
 
-        // Update submit button label
         const submitBtn = modalOverlay.querySelector("#journalForm button[type='submit']");
         if (submitBtn) submitBtn.textContent = modalButtonText;
 
-        // Prefill form when editing
         if (entryToEdit) {
             const didField = modalOverlay.querySelector("#whatIDid");
             const doingField = modalOverlay.querySelector("#whatIWillDo");
@@ -222,8 +229,8 @@ async function showJournalModal(entryToEdit = null) {
             if (blockersField) blockersField.value = entryToEdit.blockers || "";
         }
  
-        // Show modal with animation
         setTimeout(() => modalOverlay.classList.add('active'), 10);
+        // FIX: Passing currentUser
         initModalHandlers(modalOverlay, entryToEdit, currentUser);
         
     } catch (error) {
@@ -303,12 +310,10 @@ function initModalHandlers(modalOverlay, entryToEdit = null, currentUser) {
                     alert(result.message || "Error saving journal");
                     return;
                 }
-                    // Close modal
-                    closeModal();
-                    // Reload journals to show new entry
-                    loadJournals();
-                    // Show success message
-                    alert(isEdit ? "Journal updated successfully!" : "Journal submitted successfully!");
+                closeModal();
+                // FIX: Passing currentUser on reload
+                loadJournals(currentUser);
+                alert(isEdit ? "Journal updated successfully!" : "Journal submitted successfully!");
             } catch (error) {
                 console.error('Network Error:', error);
                 alert('Failed to submit journal. Please check if the server is running.');
@@ -336,7 +341,6 @@ function attachDeleteHandlers() {
     });
 }
 
-// Show the delete confirmation message before allowing for deletion
 function showDeleteConfirmation(id) {
     const modal = document.createElement("div");
     modal.className = "modal-overlay";
@@ -352,11 +356,9 @@ function showDeleteConfirmation(id) {
         </div>
         </div>
     `;
-    // Add modal to the page and show it
     document.body.appendChild(modal);
     modal.classList.add("active");
 
-    // Closes and removes the modal with a small fade animation
     const closeModal = () => {
         modal.classList.remove("active");
         setTimeout(() => modal.remove(), 300);
@@ -377,6 +379,7 @@ function showDeleteConfirmation(id) {
                 return;
             }
             closeModal();
+            // FIX: Re-fetch session to get user context again for reload
             const session = await getUserSession();
             loadJournals(session.user); 
         } catch (e) {
