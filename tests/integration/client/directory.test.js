@@ -18,7 +18,7 @@ test.afterAll(() => {
 test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard.html');
     const loginButton = page.locator('a#google-login');
-    loginButton.click();
+    await loginButton.click();
     await page.getByTestId('directory-tab').click();
 
     /* 
@@ -33,11 +33,11 @@ test.beforeEach(async ({ page }) => {
 
 //same check as in the beforeEach but explicitly laid out here for clarity
 test('Class Directory title appears', async ({ page }) => {
-    expect(page.getByText('Class Directory')).toBeVisible();
+    await expect(page.getByText('Class Directory')).toBeVisible();
 });
 
 test('Search Bar Appears', async ({ page }) => {
-    expect(page.locator('.directory input')).toBeVisible();
+    await expect(page.locator('.directory input')).toBeVisible();
 });
 
 test('Search bar properly retrieves names that match via the prefix', async ({ page }) => {
