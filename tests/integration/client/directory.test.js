@@ -1,10 +1,19 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeAll(() => {
+  process.env.MOCK_EMAIL = "ian@example.com";
+});
+
+test.afterAll(() => {
+  process.env.MOCK_EMAIL = "alice@example.com";
+});
+
 test.beforeEach(async ({ page }) => {
-    await page.goto('/api/auth/login');
     await page.goto('/dashboard.html');
-    await page.waitForLoadState('domcontentloaded');
+    const loginButton = page.locator('a#google-login');
+    loginButton.click();
     await page.getByTestId('directory-tab').click();
+    await expect(page.getByText('Class Directory')).toBeVisible();
 });
 
 
