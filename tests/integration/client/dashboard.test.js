@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+/*
+This file contains a test suite of integration tests for the default dashboard screen.
+Since the dashboard doesn't have much, all it can really check for is the welcome text and the current main text.
+*/
+
+//this beforeEach is used across testSuites to get all individual tests to start from the same point
 test.beforeEach(async ({ page }) => {
   await page.goto('/dashboard.html');
   const loginButton = page.locator('a#google-login');

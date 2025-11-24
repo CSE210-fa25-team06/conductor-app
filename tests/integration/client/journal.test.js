@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test'
 
+/*
+This file contains a test suite of integration tests for the journal screen.
+It checks for existence of the main framework for journal entry, from the title to the button for opening the journal modal.
+It also checks for functionality of a full journal entry.
+*/
+
 test.beforeEach(async ({ page }) => {
     await page.goto('/api/auth/login');
     await page.goto('/dashboard.html');
@@ -9,11 +15,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Journals title properly renders', async ({ page }) => {
-    await expect(page.getByText('My Journals')).toBeVisible();
+    expect(page.getByText('My Journals')).toBeVisible();
 });
 
 test('New Journal button properly renders', async ({ page }) => {
-    await expect(page.getByRole('button', {name: '+ New Journal'})).toBeVisible();
+    expect(page.getByRole('button', {name: '+ New Journal'})).toBeVisible();
 });
 
 test('Journal entry works', async ({ page }) => {
