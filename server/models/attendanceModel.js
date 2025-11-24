@@ -99,7 +99,7 @@ async function getSession(session_id) {
   
 }
 async function updateStudents({ user_id, group_id, session_id, date, meeting_type, recorded_by}){
-    query = `
+    const query = `
     INSERT INTO attendance(user_id, group_id, session_id, date, status, meeting_type, recorded_by, is_excused, reason)
     VALUES ($1, $2, $3, $4, 'Present', $5, $6, FALSE, NULL)
     ON CONFLICT (user_id, session_id) DO NOTHING`

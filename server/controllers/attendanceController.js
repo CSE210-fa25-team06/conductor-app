@@ -10,7 +10,6 @@ const {
   fetchAttendanceByDate,
   createSession,
   endSession,
-  getSession,
   updateStudents
 } = require("../models/attendanceModel");
 

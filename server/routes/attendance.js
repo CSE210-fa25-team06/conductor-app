@@ -14,9 +14,6 @@ const {
   startAttendance,
   endAttendance,
   scanAttendance,
-  professorView,
-  submitAttendance,
-  viewMyAttendance
 } = require("../controllers/attendanceController");
 
 const router = express.Router();
