@@ -454,6 +454,7 @@ button.danger:hover {
 #journal-list .error {
   /* Ensure it fills the flex container */
   width: 100%;
+  
   /* Optional: Add a subtle shadow to make it pop like the cards */
   box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
