@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/api/auth/login');
   await page.goto('/dashboard.html');
+  const loginButton = page.locator('a#google-login');
+  loginButton.click();
 });
 
 test('user name shows up on dashboard', async ({ page }) => {
