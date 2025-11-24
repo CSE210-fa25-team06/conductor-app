@@ -18,6 +18,7 @@ const sentimentRouter = require('./routes/sentiments');
 const groupsRouter = require('./routes/groups');
 const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
+const { ensureSentimentsTable } = require('./models/db');
 
 // Configuration
 // Load environment variables from the project root .env file.
@@ -86,6 +87,10 @@ app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
 app.use('/journal', journalRouter);
+
+ensureSentimentsTable().catch((e) => {
+  console.error('Failed to ensure sentiments table:', e);
+});
 
 /**
  * GET /

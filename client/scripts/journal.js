@@ -405,6 +405,14 @@ async function showSentimentModal() {
         // Show modal with animation
         setTimeout(() => modalOverlay.classList.add('active'), 10);
         
+        // Set the Date/Time display to current time if present
+        const dtInput = modalOverlay.querySelector('#sentimentDateTime');
+        if (dtInput) {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            dtInput.value = now.toLocaleDateString('en-US', options);
+        }
+        
         // Initialize sentiment modal event handlers
         initSentimentModalHandlers(modalOverlay);
         

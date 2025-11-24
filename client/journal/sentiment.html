@@ -6,19 +6,32 @@
       <h1 class="page-title">Emotional Tracker</h1>
       <form class="journal-form" id="sentimentForm">
         <div class="journal-form-group">
+          <label for="sentimentDateTime">Date and time</label>
+          <input 
+            type="text" 
+            id="sentimentDateTime" 
+            name="sentimentDateTime" 
+            value="Auto: current time" 
+            disabled
+          />
+        </div>
+        <div class="journal-form-group">
           <label>How are you feeling today?</label>
           <div class="sentiment-options">
             <label class="sentiment-option">
               <input type="radio" name="sentiment" value="happy" required>
               <span class="sentiment-icon">😊</span>
+              <span class="sentiment-label">Happy</span>
             </label>
             <label class="sentiment-option">
               <input type="radio" name="sentiment" value="neutral" required>
               <span class="sentiment-icon">😐</span>
+              <span class="sentiment-label">Neutral</span>
             </label>
             <label class="sentiment-option">
               <input type="radio" name="sentiment" value="sad" required>
               <span class="sentiment-icon">😔</span>
+              <span class="sentiment-label">Sad</span>
             </label>
           </div>
         </div>

@@ -187,4 +187,20 @@ module.exports = {
   logSuccessfulLogin,
   createGoogleUser, 
   linkGoogleAccount,
+  ensureSentimentsTable
 };
+
+async function ensureSentimentsTable() {
+  const query = `
+    CREATE TABLE IF NOT EXISTS sentiments (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+      sentiment VARCHAR(20) NOT NULL CHECK (sentiment IN ('happy', 'neutral', 'sad')),
+      comment TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+  await pool.query(query);
+}
