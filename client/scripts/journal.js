@@ -90,7 +90,7 @@ function createJournalEntryHTML(entry, user) {
 
 // FIX: Added 'currentUser' parameter
 async function loadJournals(currentUser) {
-    const journalList = document.getElementById('journalList');
+    const journalList = document.getElementById('journal-list');
     
     try {
         const res = await fetch("/journals");
@@ -138,7 +138,7 @@ async function loadJournals(currentUser) {
 // --- INITIALIZATION ---
 
 export async function initJournals() {
-    const journalListEl = document.getElementById('journalList');
+    const journalListEl = document.getElementById('journal-list');
     const createJournalBtn = document.getElementById('createJournalBtn');
     
     const pageHeader = document.querySelector('.page-header');
@@ -351,7 +351,7 @@ function showDeleteConfirmation(id) {
             <p>Are you sure you want to delete this journal entry?</p>
             <div class="modal-buttons">
                 <button id="confirmDelete" class="danger">Yes, delete</button>
-                <button id="cancelDelete">No</button>
+                <button id="cancel-delete">No</button>
             </div>
         </div>
         </div>
@@ -364,7 +364,7 @@ function showDeleteConfirmation(id) {
         setTimeout(() => modal.remove(), 300);
     };
 
-    document.getElementById("cancelDelete").onclick = closeModal;
+    document.getElementById("cancel-delete").onclick = closeModal;
     document.getElementById("confirmDelete").onclick = async () => {
         try {
             const res = await fetch(`/journals/${id}`, { method: "DELETE" });

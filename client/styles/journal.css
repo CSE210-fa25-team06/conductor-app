@@ -50,6 +50,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .journal-entry {
@@ -68,6 +70,11 @@
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .journal-timestamp {
@@ -126,11 +133,9 @@
   padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
-  
-  width: 100%; 
+  width: 100%;
   display: block;
   box-sizing: border-box;
-  
   border: 1px solid #ef9a9a;
 }
 
@@ -324,23 +329,6 @@
   font-size: 0;
 }
 
-/* =========================================
-   ADD THESE TO THE BOTTOM OF YOUR CSS FILE
-   ========================================= */
-
-/* --- New Journal Header Layout (Metadata + Actions) --- */
-.journal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 1rem;
-  /* Keep existing border/margin from your previous CSS */
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #eee;
-}
-
 /* --- Metadata Styling (Name, Role, Group) --- */
 .journal-meta {
   display: flex;
@@ -448,7 +436,7 @@ button.danger:hover {
 
 /* The 'No' button in delete modal uses default button styles, 
    but let's ensure it looks like a secondary action */
-#cancelDelete {
+#cancel-delete {
   background: white;
   border: 1px solid #ddd;
   color: #333;
@@ -458,20 +446,14 @@ button.danger:hover {
   font-weight: bold;
 }
 
-#cancelDelete:hover {
+#cancel-delete:hover {
   background: #f8f9fa;
 }
 
 /* Fix for Error Box Width */
-#journalList .error {
+#journal-list .error {
   /* Ensure it fills the flex container */
   width: 100%;
   /* Optional: Add a subtle shadow to make it pop like the cards */
   box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
-}
-
-/* Ensure the list container itself fills the width */
-.journal-list {
-  width: 100%;
-  box-sizing: border-box;
 }
