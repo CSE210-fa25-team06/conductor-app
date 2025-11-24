@@ -37,21 +37,21 @@ router.get("/by-date/:date", getAttendanceByDate);
 router.get("/by-date", getAttendanceByDate);
 
 // Start attendance
-router.post("/start/:user_id", startAttendance)
+router.post("/start/", startAttendance)
 
 // End attendance
-router.post("/end/:session_id", endAttendance)
+router.post("/end/", endAttendance)
 
 //Scan students for who attended
 router.post("/scan", scanAttendance)
 
 // Show which students attended class (Professor view)
-router.get("/session/:session_id/students", professorView)
+//router.get("/session/:session_id/students", professorView)
 
 // Allows students to submit attendance
-router.post("/submit", submitAttendance)
+//router.post("/submit", submitAttendance)
 
 // Student view for attendance
-router.get("/mine/:class_id", viewMyAttendance)
+//router.get("/mine/:class_id", viewMyAttendance)
 
 module.exports = router;

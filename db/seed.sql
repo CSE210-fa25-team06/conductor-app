@@ -182,15 +182,18 @@ VALUES
 -- =========================================================================
 -- FIX: Added ON CONFLICT (user_id, date) DO UPDATE SET to avoid unique constraint violations on rerun.
 -- Recorded by David (104), the TA
-INSERT INTO attendance (user_id, group_id, date, status, recorded_by, meeting_type, is_excused)
-VALUES
-(101, 1, '2025-11-01', 'Present', 104, 'Standup', FALSE)
-ON CONFLICT (user_id, date) DO UPDATE SET status = EXCLUDED.status;
 
-INSERT INTO attendance (user_id, group_id, date, status, recorded_by, meeting_type, is_excused, reason)
+INSERT INTO attendance_sessions(created_by, session_code, is_active)
 VALUES
-(103, 2, '2025-11-01', 'Absent', 104, 'Lecture', TRUE, 'Doctor appointment') -- FIXED user_id 103 now exists
-ON CONFLICT (user_id, date) DO UPDATE SET status = EXCLUDED.status;
+(104, 'absced', FALSE);
+
+INSERT INTO attendance (user_id, group_id, session_id, date, status, recorded_by, meeting_type, is_excused)
+VALUES
+(101, 1, 'absced', '2025-11-01', 'Present', 104, 'Standup', FALSE);
+
+INSERT INTO attendance (user_id, group_id, session_id, date, status, recorded_by, meeting_type, is_excused, reason)
+VALUES
+(103, 2, NULL, '2025-11-01', 'Absent', 104, 'Lecture', TRUE, 'Doctor appointment');
 
 -- =========================================================================
 -- 13. JOURNALS (Sample Entry from Bob)

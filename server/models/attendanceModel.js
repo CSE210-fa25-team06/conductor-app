@@ -71,8 +71,8 @@ async function fetchAttendanceByDate({ date, start_date, end_date }) {
 
 async function createSession(user_id, sessionID){
     const query =  `
-    INSERT INTO attendance_sessions(created_by, session_code)
-    VALUES ($1, $2)
+    INSERT INTO attendance_sessions(created_by, session_code, is_active)
+    VALUES ($1, $2, TRUE)
     RETURNING *
     `;
     await pool.query(query,[user_id,sessionID]);
@@ -94,7 +94,7 @@ async function endSession(sessionID){
 
 async function getSession(session_id) {
     const query = `SELECT * FROM attendance_sessions WHERE session_code = $1`;
-    const result = await db.query(query, [session_id]);
+    const result = await pool.query(query, [session_id]);
     return result.rows[0];
   
 }

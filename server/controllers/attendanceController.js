@@ -2,15 +2,16 @@
  * Attendance Controller - Handles HTTP requests for attendance entries and retrieval
  */
 
-import crypto from "crypto"
-import { create } from "domain";
+const crypto = require("crypto");
 const { 
   fetchDirectory,
   recordStudentAttendance,
   fetchStudentAttendanceHistory,
   fetchAttendanceByDate,
   createSession,
-  endSession
+  endSession,
+  getSession,
+  updateStudents
 } = require("../models/attendanceModel");
 
 const QRCode = require("qrcode")
@@ -76,6 +77,7 @@ async function getAttendanceByDate(req, res) {
 }
 // Create QR Code:
 async function createQRCode(sessionId){
+    const BASE_URL = "http://127.0.0.1:3000";
     const qrPayload = `${BASE_URL}/attend?session=${sessionId}`;
 
     const qrImageDataUrl = await QRCode.toDataURL(qrPayload);
@@ -83,7 +85,7 @@ async function createQRCode(sessionId){
     return { qrPayload, qrImageDataUrl };
 }
 // Creates a unique sessionID
-async function createSessionID(){
+function createSessionID(){
     return crypto.randomBytes(16).toString("hex");
 
 }
@@ -91,19 +93,23 @@ async function createSessionID(){
 async function startAttendance(req,res){
     try{
         // Store the creator of the attendance tracker
-        const user_id = req.user_id
+        const { user_id } = req.body;
+
+        if (!user_id) {
+          return res.status(400).json({ error: "user_id is required" });
+        }
         const sessionID = createSessionID();
 
-        const session = await createSession({user_id, sessionID});
+        await createSession(user_id, sessionID);
 
         const {qrPayload, qrImageDataUrl} = await createQRCode(sessionID);
 
-        return res.json({
+        return res.status(201).json({
             success: true,
-            sessionID,
+            user_id,
+            session_id: sessionID,
             qrPayload,
-            qrImageDataUrl,
-            session
+            qrImageDataUrl
 
         });
 
@@ -118,11 +124,11 @@ async function startAttendance(req,res){
 // End attendance session
 async function endAttendance(req,res){
     try{
-        const {sessionID} = req.body;
-        const ended = await endSession(sessionID);
+        const {session_id} = req.body;
+        const ended = await endSession(session_id);
         return res.json({
             success: true,
-            ended
+            is_active : ended.is_active
           });
         } catch (err) {
           console.error("Error ending attendance session:", err);
@@ -136,14 +142,14 @@ async function scanAttendance(req, res){
         const{user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason} = req.body
 
         // Grab the session
-        const {session} = getSession(session_id)
+        //const {session} = await getSession(session_id)
         // If session is not active throw an error
-        if(!session || !session.active){
-            return res.status(400).json({ error: "Invalid or inactive session" });
-        }
+        //if(!session || !session.is_active){
+            //return res.status(400).json({ error: "Invalid or inactive session" });
+        //}
 
         // Update the student attendance
-        await updateStudent({user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason})
+        await updateStudents({user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason})
         res.json({message : "Student attendance recorded sucessfully!"})
     } catch(err){
         console.error("Error recording attendance:", err);
