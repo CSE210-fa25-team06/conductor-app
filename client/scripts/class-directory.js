@@ -18,11 +18,19 @@ export function renderClassDirectory(containerEl) {
     // 2. Render the UI Structure
     containerEl.innerHTML = `
       <main class="directory">
-        <h1>Class Directory</h1>
+        <!-- <h1>Class Directory</h1> -->
         
         <form aria-label="Search class directory" id="search-form">
-          <label for="search">Search by Name:</label>
           <input type="text" id="search" name="search" placeholder="Search by first name">
+
+          <select id="role-filter" name="role">
+            <option value="">All Roles</option>
+            <option value="Student">Student</option>
+            <option value="Team Lead">Team Lead</option>
+            <option value="Tutor">Tutor</option>
+            <option value="Teaching Assistant">Teaching Assistant</option>
+            <option value="Instructor">Instructor</option>
+          </select>
         </form>
 
         <table border="1" cellpadding="8" cellspacing="0">
@@ -45,15 +53,24 @@ export function renderClassDirectory(containerEl) {
 
     // 3. Attach Event Listeners
     const searchInput = document.getElementById('search');
+    const roleSelect = document.getElementById('role-filter');
+
+    const triggerDirectoryLoad = async () => {
+        const query = searchInput ? searchInput.value.trim() : '';
+        const role = roleSelect ? roleSelect.value : '';
+        await loadDirectory(query, role);
+    };
+
     if (searchInput) {
-        searchInput.addEventListener('input', async (e) => {
-            const query = e.target.value.trim();
-            await loadDirectory(query);
-        });
+        searchInput.addEventListener('input', triggerDirectoryLoad);
+    }
+
+    if (roleSelect) {
+        roleSelect.addEventListener('change', triggerDirectoryLoad);
     }
 
     // 4. Initial Data Load
-    await loadDirectory('');
+    await loadDirectory('', '');
   });
 }
 
@@ -61,11 +78,20 @@ export function renderClassDirectory(containerEl) {
  * Fetches users from the API and populates the table.
  * Note: The backend route (/users) should also be secured with 'VIEW_CLASS_DIRECTORY'.
  */
-async function loadDirectory(query) {
+async function loadDirectory(query, role) {
   try {
-    const url = query
-      ? `/users?query=${encodeURIComponent(query)}`
-      : `/users?query=`;
+    const params = new URLSearchParams();
+
+    if (query) {
+      params.set('query', query);
+    }
+
+    if (role) {
+      params.set('role', role);
+    }
+
+    const queryString = params.toString();
+    const url = queryString ? `/users?${queryString}` : `/users`;
 
     const response = await fetch(url);
 

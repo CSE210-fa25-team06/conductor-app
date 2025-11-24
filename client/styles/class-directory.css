@@ -57,6 +57,22 @@
   color: #999;
 }
 
+.directory form select {
+  padding: 0.7em 1em;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95em;
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+  transition: border-color 0.3s, box-shadow 0.3s, background-color 0.2s;
+}
+
+.directory form select:focus {
+  outline: none;
+  border-color: #06c;
+  box-shadow: 0 0 0 3px rgb(0 102 204 / 10%);
+}
+
 /* ===============================================================
    TABLE STYLING
    =============================================================== */
@@ -182,6 +198,19 @@
   .directory tbody td img {
     width: 35px;
     height: 35px;
+  }
+}
+
+@media (width >= 768px) {
+  .directory form {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 1em;
+  }
+
+  .directory form input[type="text"],
+  .directory form select {
+    flex: 1 1 0;
   }
 }
 

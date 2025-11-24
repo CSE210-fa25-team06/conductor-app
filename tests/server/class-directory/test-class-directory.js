@@ -100,6 +100,65 @@ const testUsersMatchQuery = async () => {
     }
 }
 
+//test - role filter returns only users whose roles include the requested role
+
+const testRoleFilterMatchesRole = async () => {
+    try {
+        const role = 'Student';
+        const response = await fetch(`${API_BASE_URL}/users?role=${encodeURIComponent(role)}`);
+        const data = await response.json();
+
+        if (!Array.isArray(data.users)) {
+            console.error('role filter test: users is not an array');
+            return false;
+        }
+
+        for (const user of data.users) {
+            if (!Array.isArray(user.roles) || !user.roles.includes(role)) {
+                console.error(`role filter test: found user '${user.name}' without role '${role}'`);
+                return false;
+            }
+        }
+
+        return true;
+    } catch (err) {
+        console.error('role filter test failed to run', err);
+        return false;
+    }
+}
+
+//test - combining query and role still respects both filters
+
+const testQueryAndRoleTogether = async () => {
+    try {
+        const query = 'al';
+        const role = 'Student';
+        const response = await fetch(`${API_BASE_URL}/users?query=${encodeURIComponent(query)}&role=${encodeURIComponent(role)}`);
+        const data = await response.json();
+
+        if (!Array.isArray(data.users)) {
+            console.error('query+role test: users is not an array');
+            return false;
+        }
+
+        for (const user of data.users) {
+            if (!user.name.toLowerCase().startsWith(query)) {
+                console.error(`query+role test: user '${user.name}' did not match name query '${query}'`);
+                return false;
+            }
+            if (!Array.isArray(user.roles) || !user.roles.includes(role)) {
+                console.error(`query+role test: user '${user.name}' did not have role '${role}'`);
+                return false;
+            }
+        }
+
+        return true;
+    } catch (err) {
+        console.error('query+role test failed to run', err);
+        return false;
+    }
+}
+
 //test - not including query parameter throws a 400 error
 const testFailsWhenNoQueryParam = async () => {
     try {
@@ -135,6 +194,12 @@ const runAllTests = async () => {
 
     const usersMatchQuery = await testUsersMatchQuery();
     console.log(`USERS MATCH QUERY TEST: ${usersMatchQuery ? 'passed' : 'failed'}`);
+
+    const roleFilterMatchesRole = await testRoleFilterMatchesRole();
+    console.log(`ROLE FILTER MATCHES ROLE TEST: ${roleFilterMatchesRole ? 'passed' : 'failed'}`);
+
+    const queryAndRoleTogether = await testQueryAndRoleTogether();
+    console.log(`QUERY AND ROLE TOGETHER TEST: ${queryAndRoleTogether ? 'passed' : 'failed'}`);
 
     const failsWhenNoQueryParam = await testFailsWhenNoQueryParam();
     console.log(`FAILS WHEN NO QUERY TEST: ${failsWhenNoQueryParam ? 'passed' : 'failed'}`)
