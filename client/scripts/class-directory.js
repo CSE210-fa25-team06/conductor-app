@@ -26,10 +26,10 @@ export function renderClassDirectory(containerEl) {
           <select id="role-filter" name="role">
             <option value="">All Roles</option>
             <option value="Student">Student</option>
-            <option value="Team Lead">Team Lead</option>
+            <option value="Group Leader">Team Lead</option>
             <option value="Tutor">Tutor</option>
-            <option value="Teaching Assistant">Teaching Assistant</option>
-            <option value="Instructor">Instructor</option>
+            <option value="TA">Teaching Assistant</option>
+            <option value="Professor">Instructor</option>
           </select>
         </form>
 
