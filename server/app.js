@@ -125,20 +125,12 @@ if (process.env.ENVIRONMENT === "DEV") {
   const swaggerUi = require('swagger-ui-express');
   const swaggerAutogen = require('swagger-autogen')({ openapi: '3.0.0' });
 
-  const doc = {
-    openapi: '3.0.0',
-    info: {
-      title: "Conductor API",
-      description: "Backend API Documentation",
-    },
-  };
 
   const apiRoutes = ["./routes/*.js", "./routes/*/*.js"];
 
   swaggerAutogen("./swagger-output.json", apiRoutes)
     .then(swaggerSpec => {
       app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec.data));
-      console.log("Swagger docs loaded.");
     })
     .catch(err => {
       console.error("Swagger generation failed:", err);
