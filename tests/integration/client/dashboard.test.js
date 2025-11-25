@@ -8,14 +8,15 @@ Since the dashboard doesn't have much, all it can really check for is the welcom
 //this beforeEach is used across testSuites to get all individual tests to start from the same point
 test.beforeEach(async ({ page }) => {
   await page.goto('/dashboard.html');
-    const loginButton = page.locator('a#google-login');
-    await loginButton.click();
+  await expect(page.locator('a#google-login')).toBeVisible();
+  const loginButton = page.locator('a#google-login');
+  await loginButton.click();
 });
 
 test('user name shows up on dashboard', async ({ page }) => {
-  await expect(page.getByText('Welcome, Alice')).toBeVisible();
+  await expect(page.getByText('Welcome, Professor Demo User')).toBeVisible();
 });
 
 test('dashboard shows description', async ({ page }) => {
   await expect(page.getByText('Dashboard content will appear here...')).toBeVisible();
-})
+});
