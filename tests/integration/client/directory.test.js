@@ -5,18 +5,9 @@ This file contains a test suite of integration tests for the class directory scr
 It checks for existence of main elements sucha s the search bar and title. It checks functionality of searching as well.
 */
 
-// Only professors can use the class directory feature so a professor account needs to be logged in
-test.beforeAll(() => {
-  process.env.MOCK_EMAIL = "ian@example.com";
-});
-
-// reset to original logged in user because dashboard test depends on it
-test.afterAll(() => {
-  process.env.MOCK_EMAIL = "alice@example.com";
-});
-
 test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard.html');
+    await expect(page.locator('a#google-login')).toBeVisible();
     const loginButton = page.locator('a#google-login');
     await loginButton.click();
     await page.getByTestId('directory-tab').click();

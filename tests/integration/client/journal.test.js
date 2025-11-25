@@ -8,6 +8,7 @@ It also checks for functionality of a full journal entry.
 
 test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard.html');
+    await expect(page.locator('a#google-login')).toBeVisible();
     const loginButton = page.locator('a#google-login');
     await loginButton.click();
     await page.getByTestId('journal-tab').click();
@@ -24,6 +25,9 @@ test('New Journal button properly renders', async ({ page }) => {
 
 test('Journal entry works', async ({ page }) => {
     await page.getByRole('button', {name: '+ New Journal'}).click();
+    await expect(page.getByPlaceholder('Describe what you accomplished since the last meeting...')).toBeVisible();
+    await expect(page.getByPlaceholder('Describe what you plan to work on next...')).toBeVisible();
+    await expect(page.getByPlaceholder("Describe any obstacles or issues you're facing (leave blank if none)...")).toBeVisible();
     const accomplishedField = page.getByPlaceholder('Describe what you accomplished since the last meeting...');
     const nextField = page.getByPlaceholder('Describe what you plan to work on next...');
     const blockersField = page.getByPlaceholder("Describe any obstacles or issues you're facing (leave blank if none)...");
