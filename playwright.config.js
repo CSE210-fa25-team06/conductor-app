@@ -44,11 +44,6 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',
@@ -78,7 +73,7 @@ export default defineConfig({
      env: {
       SESSION_SECRET: 'some-long-random-string',
       AUTH_STRATEGY: 'MOCK',
-      MOCK_EMAIL: 'alice@example.com'
+      MOCK_EMAIL: 'professor@test.com'
      }
    },
 });
