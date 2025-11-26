@@ -21,8 +21,9 @@ router.use("/users", usersRouter
   // #swagger.tags = ['Users']
 );
 
-// #swagger.tags = ['Groups']
-router.use("/groups", groupsRouter);
+router.use("/groups", groupsRouter
+  // #swagger.tags = ['Groups']
+);
 
 router.use("/journal", journalsRoute
   // #swagger.tags = ['Journals']

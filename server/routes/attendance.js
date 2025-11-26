@@ -28,6 +28,7 @@ router.get("/directory", requirePermission(PERMISSIONS.VIEW_CLASS_DIRECTORY), ge
 router.post("/", (req, res) => {
   /** 
    *  @swagger
+   *  #swagger.tags = ['Attendance']
    *  #swagger.summary = 'Mark or update attendance'
    *  #swagger.description = 'Creates or updates attendance for a student.'
    *  #swagger.responses[200] = { description: "Attendance saved" }
@@ -52,13 +53,14 @@ router.get("/by-date/:date", getAttendanceByDate
  */
 );
 
-router.get("/by-date", getAttendanceByDate
-/**
- * @swagger
- * #swagger.summary = 'Get attendance for a date range'
- * #swagger.parameters['start'] = { in: 'query', required: false }
- * #swagger.parameters['end'] = { in: 'query', required: false }
- */
-);
+router.get("/by-date", (req, res) => {
+  /**
+   * @swagger
+   * #swagger.summary = 'Get attendance for a date range'
+   * #swagger.parameters['start'] = { in: 'query', required: false }
+   * #swagger.parameters['end'] = { in: 'query', required: false }
+   */
+  getAttendanceByDate(req, res);
+});
 
 module.exports = router;
