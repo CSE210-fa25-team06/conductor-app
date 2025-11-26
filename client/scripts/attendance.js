@@ -1,63 +1,19 @@
 // scripts/attendance.js
 export function renderAttendance(containerEl) {
-	containerEl.innerHTML = `
-    <main class="attendance-container">
-      <div class="controls">
-        <div class="controls-row">
-          <div class="controls-left">
-            <div class="form-group">
-              <label for="meetingDate">Meeting date:</label>
-              <input type="text" id="meetingDate" class="date-input" placeholder="____/__/____">
-            </div>
-            <div class="form-group">
-              <label>Meeting type:</label>
-              <div class="checkbox-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="lecture" name="meetingType">
-                  <span>Lecture</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="informal" name="meetingType">
-                  <span>Informal</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bottom-row">
-          <button type="button" class="sort-btn">Sort ⋯</button>
-          <button type="button" class="submit-btn">Submit</button>
-        </div>
-      </div>
-
-      <div class="student-list">
-        <div class="student-row">
-          <div class="student-avatar"></div>
-          <div class="student-info">
-            <div class="student-name">FName LName</div>
-            <div class="student-group">Group N</div>
-          </div>
-        </div>
-        <div class="student-row selected">
-          <div class="student-avatar"></div>
-          <div class="student-info">
-            <div class="student-name">FName LName</div>
-            <div class="student-group">Group N</div>
-          </div>
-        </div>
-        <div class="student-row">
-          <div class="student-avatar"></div>
-          <div class="student-info">
-            <div class="student-name">FName LName</div>
-            <div class="student-group">Group N</div>
-          </div>
-        </div>
-      </div>
-    </main>
-  `
-
-	initAttendanceLogic()
+  //same code as in dashboard.js
+  fetch("../attendance.html")
+    .then((resp) => {
+      if (!resp.ok) throw new Error(resp.statusText || "Network error");
+      return resp.text();
+    })
+    .then((html) => {
+      containerEl.innerHTML = html;
+      initAttendanceLogic()
+    })
+    .catch((err) => {
+      containerEl.innerHTML = `<p>Failed to load attendance: ${err.message}</p>`;
+      containerEl.style.opacity = 1;
+    });
 }
 
 function initAttendanceLogic() {
