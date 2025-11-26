@@ -125,10 +125,17 @@ if (process.env.ENVIRONMENT === "DEV") {
   const swaggerUi = require('swagger-ui-express');
   const swaggerAutogen = require('swagger-autogen')({ openapi: '3.0.0' });
 
+  const docsMetadata = {
+    info: {
+      title: 'Conductor Backend',
+      description: 'Conductor Backend API (usage manual TBD)'
+    },
+    host: 'localhost:3000'
+  };
 
-  const apiRoutes = ["./routes/*.js", "./routes/*/*.js"];
+  const apiRoutes = ["./routes/*.js", "./routes/*/*.js","./routes/*/*/*.js"];
 
-  swaggerAutogen("./swagger-output.json", apiRoutes)
+  swaggerAutogen("./swagger-output.json", apiRoutes, docsMetadata)
     .then(swaggerSpec => {
       app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec.data));
     })
@@ -136,7 +143,6 @@ if (process.env.ENVIRONMENT === "DEV") {
       console.error("Swagger generation failed:", err);
     });
 }
-
 
 // =========================================================================
 // SERVER START
