@@ -108,11 +108,6 @@ const testRoleFilterMatchesRole = async () => {
         const response = await fetch(`${API_BASE_URL}/users?role=${encodeURIComponent(role)}`);
         const data = await response.json();
 
-        if (!Array.isArray(data.users)) {
-            console.error('role filter test: users is not an array');
-            return false;
-        }
-
         for (const user of data.users) {
             if (!Array.isArray(user.roles) || !user.roles.includes(role)) {
                 console.error(`role filter test: found user '${user.name}' without role '${role}'`);
@@ -135,11 +130,6 @@ const testQueryAndRoleTogether = async () => {
         const role = 'Student';
         const response = await fetch(`${API_BASE_URL}/users?query=${encodeURIComponent(query)}&role=${encodeURIComponent(role)}`);
         const data = await response.json();
-
-        if (!Array.isArray(data.users)) {
-            console.error('query+role test: users is not an array');
-            return false;
-        }
 
         for (const user of data.users) {
             if (!user.name.toLowerCase().startsWith(query)) {

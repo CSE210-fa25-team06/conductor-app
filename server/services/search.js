@@ -18,7 +18,7 @@ async function searchDirectory(query, role) {
         ;
     `;
 
-    const values = [query + '%', role || null];
+    const values = ['%' + query + '%', role || null];
     const res = await pool.query(baseQuery, values);
     return res.rows;
 }
