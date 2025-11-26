@@ -15,7 +15,20 @@ router.get("/", (req, res) => {
 });
 
 // Mount sub-routers
-router.use("/users", usersRouter);
+
+
+router.use("/users", usersRouter
+  // #swagger.tags = ['Users']
+);
+
+// #swagger.tags = ['Groups']
 router.use("/groups", groupsRouter);
-router.use("/journal", journalsRouter);
-router.use("/attendance", attendanceRouter);
+
+router.use("/journal", journalsRoute
+  // #swagger.tags = ['Journals']
+);
+
+router.use("/attendance", attendanceRouter
+  // #swagger.tags = ['Attendance']
+);
+

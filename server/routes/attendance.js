@@ -15,19 +15,50 @@ const {
 
 const router = express.Router();
 
-// Get directory of students to display
-router.get("/directory", requirePermission(PERMISSIONS.VIEW_CLASS_DIRECTORY), getDirectory);
+router.get("/directory", requirePermission(PERMISSIONS.VIEW_CLASS_DIRECTORY), getDirectory
+/**
+ * @swagger
+ * #swagger.summary = 'Get student directory'
+ * #swagger.description = 'Returns the list of students for attendance.'
+ * #swagger.security = [{ "sessionAuth": [] }]
+ * #swagger.responses[200] = { description: "Student list" }
+ */
+);
 
-// Submit or update attendance for a student
-router.post("/", markAttendance);
+router.post("/", (req, res) => {
+  /** 
+   *  @swagger
+   *  #swagger.summary = 'Mark or update attendance'
+   *  #swagger.description = 'Creates or updates attendance for a student.'
+   *  #swagger.responses[200] = { description: "Attendance saved" }
+  */
+  markAttendance(req, res);
+});
 
-// Get full attendance history of a student
-router.get("/history/:user_id", getStudentAttendanceHistory);
+router.get("/history/:user_id", getStudentAttendanceHistory
+/**
+ * @swagger
+ * #swagger.summary = 'Get attendance history'
+ * #swagger.description = 'Returns full attendance history for a student.'
+ * #swagger.parameters['user_id'] = { description: 'User ID' }
+ */
+);
 
-// Get full history for a specific date
-router.get("/by-date/:date", getAttendanceByDate);
+router.get("/by-date/:date", getAttendanceByDate
+/**
+ * @swagger
+ * #swagger.summary = 'Get attendance for a specific date'
+ * #swagger.parameters['date'] = { description: 'YYYY-MM-DD' }
+ */
+);
 
-// Get full history for a date range
-router.get("/by-date", getAttendanceByDate);
+router.get("/by-date", getAttendanceByDate
+/**
+ * @swagger
+ * #swagger.summary = 'Get attendance for a date range'
+ * #swagger.parameters['start'] = { in: 'query', required: false }
+ * #swagger.parameters['end'] = { in: 'query', required: false }
+ */
+);
 
 module.exports = router;

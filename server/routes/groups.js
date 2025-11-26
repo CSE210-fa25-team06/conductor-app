@@ -7,6 +7,13 @@ const { getGroups } = require("../controllers/groupController");
 
 const router = express.Router();
 
-router.get("/", getGroups);
+router.get("/", getGroups
+/**
+ * @swagger
+ * #swagger.summary = 'Get all groups'
+ * #swagger.description = 'Returns the list of groups.'
+ * #swagger.responses[200] = { description: "Group list" }
+*/
+);
 
 module.exports = router;
