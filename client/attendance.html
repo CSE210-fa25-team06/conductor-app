@@ -61,5 +61,29 @@
         </div>
         </div>
     </main>
+
+    <!-- Reusable QR code component which can be scanned
+    to record meeting attendance. It should:
+    1. Display the QR code
+    2. Be "closable" (a button to make the display window disappear)
+    3. Have an "end meeting" button if you are the owner of the meeting -->
+
+    <!-- this is included to appease htmlhint -->
+    <!-- this uses classes from journal.css (since they are already implemented and work great) -->
+    <template class="modal-overlay">
+        <article class="modal-content">
+            <section class="modal-header">
+                <h2 class="modal-title">Scan for Attendance</h2>
+                <button type="button" class="modal-close" id="closeModal">&times;</button>
+            </section>
+
+        <!-- using image to display the QR code, will update when I know what the endpoint returns -->
+            <section class="modal-body">
+                <img src="placeholder.jpg" alt="" width="200" height="200">
+
+                <button type="button" class="button" id="endMeeting">End Meeting</button>
+            </section>
+        </article>
+    </template>
 <!-- </body>
 </html> -->
