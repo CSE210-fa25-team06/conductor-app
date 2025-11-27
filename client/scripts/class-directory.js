@@ -58,7 +58,7 @@ export function renderClassDirectory(containerEl) {
     const triggerDirectoryLoad = async () => {
         const query = searchInput ? searchInput.value.trim() : '';
         const role = roleSelect ? roleSelect.value : '';
-        await loadDirectory(query, role);
+        await loadDirectory(query, role, containerEl);
     };
 
     if (searchInput) {
@@ -70,15 +70,16 @@ export function renderClassDirectory(containerEl) {
     }
 
     // 4. Initial Data Load
-    await loadDirectory('', '');
+    await loadDirectory('', '', containerEl);
   });
 }
 
 /**
  * Fetches users from the API and populates the table.
- * Note: The backend route (/users) should also be secured with 'VIEW_CLASS_DIRECTORY'.
+ * @param {string} query - Search string
+ * @param {HTMLElement} containerEl - Reference to main container (for full-page error handling)
  */
-async function loadDirectory(query, role) {
+async function loadDirectory(query, role, containerEl) {
   try {
     const params = new URLSearchParams();
 
@@ -95,10 +96,15 @@ async function loadDirectory(query, role) {
 
     const response = await fetch(url);
 
-    // Handle 403 Forbidden from Backend (Double-Check)
+    // FIX 1: Handle 403 Forbidden by replacing the ENTIRE container
+    // This matches the Journal Page behavior (hiding the header/search).
     if (response.status === 403) {
-       const tbody = document.getElementById('directory-table-body');
-       if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="color:red;">Authorization Failed: Backend rejected request.</td></tr>`;
+       containerEl.innerHTML = `
+            <div class="error">
+                <h2>Access Denied</h2>
+                <p>You do not have permission to view this content.</p>
+            </div>
+       `;
        return;
     }
 
@@ -126,10 +132,16 @@ async function loadDirectory(query, role) {
 
     users.forEach((user) => {
       const row = document.createElement('tr');
+      
+      // FIX 2: Sort roles alphabetically and use the dot separator
+      const roleString = Array.isArray(user.roles) 
+          ? user.roles.sort().join(' • ') 
+          : '—';
+
       row.innerHTML = `
         <td><img src="${user.photo_url || 'https://via.placeholder.com/40'}" alt="Photo of ${user.name}" width="40" height="40"></td>
         <td>${user.name}</td>
-        <td>${Array.isArray(user.roles) ? user.roles.join(', ') : '—'}</td>
+        <td>${roleString}</td>
         <td>${user.group_name || '—'}</td>
         <td><a href="mailto:${user.email}">${user.contact_info || user.email}</a></td>
         <td>${formatAvailability(user.availability)}</td>
@@ -139,6 +151,9 @@ async function loadDirectory(query, role) {
 
   } catch (error) {
     console.error('Error in loadDirectory:', error);
+    // Optional: You could also wipe the container here on critical network failure
+    const tbody = document.getElementById('directory-table-body');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6">Network error loading directory.</td></tr>`;
   }
 }
 

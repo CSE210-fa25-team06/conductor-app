@@ -78,12 +78,13 @@ async function findUserIdInUsers(email) {
  * @returns {object|null} The user object with roles and permissions, or null.
  */
 async function getFullUserData(userId, ipAddress) {
-    // 1. Get Base User Data (ID, Email, Name, GroupName)
+    // 1. Get Base User Data (ID, Email, Name, Group ID, Group Name)
     const baseQuery = `
         SELECT
             u.id,
             u.email,
-            u.name,              
+            u.name,
+            u.group_id,   
             COALESCE(g.name, 'Group Lookup Failed') AS "groupName"
         FROM users u
         LEFT JOIN groups g ON u.group_id = g.id 
@@ -134,6 +135,7 @@ async function getFullUserData(userId, ipAddress) {
                     role_id: row.role_id,
                     name: row.role_name,
                     privilege_level: row.privilege_level, 
+                    group_id: firstRow.group_id,
                     permissions: row.permission_id != null ? [{ id: row.permission_id, name: row.permission_name }] : []
                 });
             } else if (row.permission_id != null && existingRole) {
@@ -151,6 +153,7 @@ async function getFullUserData(userId, ipAddress) {
             id: rawUserResult.id,
             email: rawUserResult.email,
             name: rawUserResult.name,
+            group_id: firstRow.group_id,
             groupName: rawUserResult.groupName, // Now guaranteed to be a string
             permissions: Array.from(permissionDetails.permissions), 
             effectiveRoleName: permissionDetails.effectiveRoleName, 
