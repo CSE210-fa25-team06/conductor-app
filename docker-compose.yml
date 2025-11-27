@@ -45,6 +45,7 @@ services:
       
       SESSION_SECRET: ${SESSION_SECRET:-dev_secret}
       AUTH_SECRET: ${AUTH_SECRET:-dev_secret}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
 
 volumes:
   postgres_data:
