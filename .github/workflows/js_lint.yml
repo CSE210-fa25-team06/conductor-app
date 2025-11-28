@@ -20,5 +20,8 @@ jobs:
       - name: Run ESLint
         run: npx eslint .
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
       - name: Run Playwright Tests
         run: npx playwright test --reporter=line
