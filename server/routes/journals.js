@@ -12,8 +12,16 @@ router.use(loadUserContext);
 // GET / - Grabs all the journals to load
 router.get("/", getJournals);
 
-// POST /journal/create - Create a new journal entry
-router.post("/create", createJournal);
+router.post("/create", (req, res) => {
+    /** 
+     *  @swagger
+     *  #swagger.tags = ['Journals']
+     *  #swagger.summary = 'Create a journal entry'
+     *  #swagger.description = 'Creates a new journal entry.'
+     *  #swagger.responses[200] = { description: "Journal created" }
+    */
+    createJournal(req, res);
+});
 
 // PUT /journals/:id - Update an existing journal entry
 router.put("/:id", updateJournal);

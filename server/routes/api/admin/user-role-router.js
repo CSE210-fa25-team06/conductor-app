@@ -16,12 +16,19 @@ const {
 const { requirePermission } = require('../../../middleware/role-checker'); 
 const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver');
 
-/**
- * PUT /api/admin/users/:userId/group
- * Assigns a user to a group using the ASSIGN_GROUPS permission.
- * Request Body: { groupId: number | null }
- */
 router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (req, res) => {
+    /**
+     * @swagger
+     * #swagger.tags = ['Admin - Users']
+     * #swagger.summary = 'Assign user to a group'
+     * #swagger.description = 'Requires ASSIGN_GROUPS permission.'
+     * #swagger.parameters['userId'] = { description: 'User ID' }
+     * #swagger.parameters['body'] = {
+     *    in: 'body',
+     *    schema: { groupId: 1 }
+     * }
+     */
+
     const userId = parseInt(req.params.userId, 10);
     const { groupId } = req.body; 
 
@@ -51,13 +58,13 @@ router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (re
     }
 });
 
-/**
- * PUT /api/admin/users/:userId/roles
- * Professor assigns a list of role IDs to a user.
- * Requires Permission: 'ASSIGN_ROLES'
- * Request Body: { roleIds: Array<number> }
- */
 router.put('/users/:userId/roles', requirePermission('ASSIGN_ROLES'), async (req, res) => {
+    /**
+     * @swagger
+     * #swagger.tags = ['Admin - Users']
+     * #swagger.summary = 'Assign roles to user'
+     * #swagger.description = 'Requires ASSIGN_ROLES permission.<br>Enforces privilege rules.'
+     */
     const userId = parseInt(req.params.userId, 10);
     const { roleIds } = req.body; 
 

@@ -17,20 +17,22 @@
     "globals": "^16.5.0"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "globals": "^16.5.0",
     "htmlhint": "^1.7.1",
     "http-server": "^14.1.1",
     "jest": "^30.2.0",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.2",
     "pa11y-ci": "^4.0.1",
-    "stylelint": "^16.25.0",
-    "stylelint-config-standard": "^39.0.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "express-session": "^1.18.2",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "stylelint": "^16.25.0",
+    "stylelint-config-standard": "^39.0.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
   }
 }

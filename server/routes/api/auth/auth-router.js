@@ -25,15 +25,15 @@ router.use(loadAuthStrategyRoutes());
 // =========================================================================
 // 2. GENERIC API ROUTES (Common to ALL strategies)
 // =========================================================================
-
-/**
- * GET /api/auth/session
- * Retrieves the current authenticated user's data from the session, and logs a successful session check.
- * @param {object} req - Express request object.
- * @param {object} res - Express response object.
- * @returns {object} JSON response with success status and user data, or 401.
- */
 router.get('/session', async (req, res) => {
+  /**
+   * @swagger
+   * #swagger.tags = ['Auth']
+   * #swagger.summary = 'Check user session'
+   * #swagger.description = 'Returns the currently authenticated user.'
+   * #swagger.responses[200] = { description: "Authenticated" }
+   * #swagger.responses[401] = { description: "Not authenticated" }
+   */
   if (req.isAuthenticated()) {
     const userId = req.user || req.session.userId; 
 
@@ -80,14 +80,14 @@ router.get('/session', async (req, res) => {
   });
 });
 
-/**
- * GET /api/auth/logout
- * Logs out the user by destroying the session. Supports both Passport and session-only methods.
- * @param {object} req - Express request object.
- * @param {object} res - Express response object.
- * @returns {object} JSON response with success status.
- */
 router.get('/logout', (req, res) => {
+  /**
+   * @swagger
+   * #swagger.tags = ['Auth']
+   * #swagger.summary = 'Logout user'
+   * #swagger.description = 'Destroys session and clears cookie.'
+   * #swagger.responses[200] = { description: "Logged out" }
+   */
   // Passport-specific logout method (clears req.user and session)
   if (req.user) {
       req.logout((err) => {
@@ -116,15 +116,13 @@ router.get('/logout', (req, res) => {
   }
 });
 
-/**
- * GET /api/auth/login-fail
- * Universal route for all authentication strategies to redirect to upon failure.
- * Redirects the client to the root URL, optionally with an error query parameter.
- * @param {object} req - Express request object.
- * @param {object} res - Express response object.
- * @returns {void} Redirects the response.
- */
 router.get('/login-fail', (req, res) => {
+  /**
+   * @swagger
+   * #swagger.tags = ['Auth']
+   * #swagger.summary = 'Authentication failed handler'
+   * #swagger.description = 'Redirects user to login page.'
+   */
     const errorMessage = req.query.error ? `?error=${req.query.error}` : '';
     console.warn(`Authentication failed. Redirecting to login page with error: ${errorMessage}`);
     // Redirect the client-side app back to the login page (index.html)

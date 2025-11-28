@@ -8,13 +8,18 @@ const router = express.Router();
 const { createGroup, createRole, createPermission, setRolePermissions } = require('../../../models/db');
 const { requirePermission } = require('../../../middleware/role-checker');
 
-/**
- * POST /api/admin/groups
- * Creates a new Group.
- * Requires Permission: 'CREATE_GROUPS'
- * Request Body: { name: string, ...optional fields }
- */
 router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
+    /**
+     * @swagger
+     * #swagger.tags = ['Admin - Groups & Roles']
+     * #swagger.summary = 'Create a group'
+     * #swagger.description = 'Requires CREATE_GROUPS permission.'
+     * #swagger.parameters['body'] = {
+     *    in: 'body',
+     *    schema: { name: "Team A", logoUrl: "", slackLink: "", repoLink: "" }
+     * }
+     * #swagger.responses[201] = { description: "Group created" }
+     */
     const { name, logoUrl, slackLink, repoLink } = req.body;
 
     if (!name) {
@@ -41,10 +46,10 @@ router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
 });
 
 /**
- * POST /api/admin/roles
- * Creates a new Role.
- * Requires Permission: 'CREATE_ROLES'
- * Request Body: { name: string, privilege_level: number }
+ * @swagger
+ * #swagger.tags = ['Admin - Groups & Roles']
+ * #swagger.summary = 'Create a role'
+ * #swagger.description = 'Requires CREATE_ROLES permission.'
  */
 router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
     const { name, privilege_level } = req.body;
@@ -69,9 +74,10 @@ router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
 });
 
 /**
- * POST /api/admin/permissions
- * Requires Permission: 'CREATE_PERMISSIONS'
- * Professor creates a new permission (optional for front-end configuration).
+ * @swagger
+ * #swagger.tags = ['Admin - Groups & Roles']
+ * #swagger.summary = 'Create a permission'
+ * #swagger.description = 'Requires CREATE_PERMISSIONS permission.'
  */
 router.post('/permissions', requirePermission('CREATE_PERMISSIONS'), async (req, res) => {
     const { name, description } = req.body;
@@ -100,9 +106,11 @@ router.post('/permissions', requirePermission('CREATE_PERMISSIONS'), async (req,
 
 
 /**
- * PUT /api/admin/roles/:roleId/permissions
- * Requires Permission: 'MANAGE_PERMISSIONS'
- * Professor configures the full list of permissions for a single role.
+ * @swagger
+ * #swagger.tags = ['Admin - Groups & Roles']
+ * #swagger.summary = 'Set permissions for a role'
+ * #swagger.description = 'Requires MANAGE_PERMISSIONS permission.'
+ * #swagger.parameters['roleId'] = { description: 'Role ID' }
  */
 router.put('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
     const roleId = parseInt(req.params.roleId, 10);
