@@ -185,6 +185,21 @@
 	gap: 40px;
 }
 
+#qrImage {
+  max-width: 450px;
+  width: 100%;
+  height: auto;
+}
+
+/* Attendance-specific modal updates */
+.centered-modal-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
 /* Responsive Design */
 @media (width <= 768px) {
 	.attendance-container {
