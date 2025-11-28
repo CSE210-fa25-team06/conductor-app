@@ -19,3 +19,6 @@ jobs:
       
       - name: Run ESLint
         run: npx eslint .
+
+      - name: Run Playwright Tests
+        run: npx playwright test --reporter=line
