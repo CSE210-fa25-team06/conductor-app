@@ -1,0 +1,70 @@
+<div class="settings-container">
+    <header class="settings-header">
+        <h1>Role Assignment</h1>
+        <p class="settings-subtitle">Manage user roles and permissions</p>
+    </header>
+
+    <div class="settings-controls">
+        <div class="search-box">
+            <input type="text" id="user-search" placeholder="Search by name or email..." />
+        </div>
+        <div class="filter-box">
+            <label for="role-filter">Filter by role:</label>
+            <select id="role-filter">
+                <option value="">All Roles</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="users-table-container">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Current Role</th>
+                    <th>Group</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                <!-- User rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="loading-indicator" class="loading-indicator">
+        <p>Loading users...</p>
+    </div>
+
+    <div id="error-message" class="error-message hidden">
+        <p></p>
+    </div>
+</div>
+
+<!-- Role Assignment Modal -->
+<div id="role-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Assign Role</h2>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Assign role for: <strong id="modal-user-name"></strong></p>
+            
+            <div class="role-selection">
+                <label for="role-select">Select Role:</label>
+                <select id="role-select" class="role-select">
+                    <!-- Role options will be populated by JavaScript -->
+                </select>
+                <div class="role-description">
+                    <p id="role-description-text"></p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="button button-secondary" id="modal-cancel">Cancel</button>
+            <button class="button button-primary" id="modal-assign">Assign Role</button>
+        </div>
+    </div>
+</div>
