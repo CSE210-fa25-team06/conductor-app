@@ -1,0 +1,359 @@
+/*
+  Settings page styles for role assignment
+*/
+
+.settings-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.settings-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.settings-header h1 {
+    margin: 0 0 0 0;
+    color: white;
+    font-size: 2rem;
+}
+
+.settings-subtitle {
+    margin: 0;
+    color: white;
+    font-size: 1rem;
+}
+
+.settings-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-box input {
+    width: 95%;
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #06c;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+.filter-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-box label {
+    font-weight: 500;
+    color: #555;
+}
+
+.filter-box select {
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    min-width: 150px;
+}
+
+.users-table-container {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background: white;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.users-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.user-email {
+    color: #666;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.role-guest {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.role-student {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.role-group-leader {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.role-tutor {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.role-ta {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.role-professor {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+.role-none {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.button-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.button-secondary {
+    background: #6c757d;
+}
+
+.button-secondary:hover {
+    background: #5a6268;
+}
+
+.button-primary {
+    background: #06c;
+}
+
+.button-primary:hover {
+    background: #0059b3;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-body p {
+    margin: 0 0 1rem 0;
+}
+
+.modal-note {
+    border: 1px solid #ffc107;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #856404;
+}
+
+.role-selection {
+    margin-top: 1.5rem;
+}
+
+.role-selection label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.role-select {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.role-description {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 4px;
+    min-height: 3rem;
+}
+
+.role-description p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Loading and Error States */
+.loading-indicator {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.error-message {
+    border: 1px solid #f5c2c7;
+    color: #842029;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.error-message p {
+    margin: 0;
+}
+
+.success-message {
+    border: 1px solid #badbcc;
+    color: #0f5132;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 0 1rem;
+    }
+
+    .settings-controls {
+        flex-direction: column;
+    }
+
+    .search-box,
+    .filter-box {
+        width: 100%;
+    }
+
+    .filter-box {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .users-table {
+        font-size: 0.85rem;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 0.5rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+}

@@ -147,18 +147,47 @@ function loadDropdownSection(section) {
   content.classList.add("centered");
 
 	setTimeout(() => {
-		let text = ''
 		switch (section) {
 			case 'profile':
 				renderProfilePage(content);
 				break
 			case 'settings':
-				text = 'Settings content will appear here...'
+				renderSettings();
 				break
 		}
-		content.innerHTML = `<p>${text}</p>`
 		content.style.opacity = 1
 	}, 250)
+}
+
+// Render Settings page
+function renderSettings() {
+	const content = document.getElementById('content-section');
+	const welcomeSection = document.getElementById('welcome-section');
+	
+	content.classList.remove("centered");
+	welcomeSection.style.display = 'none';
+	
+	fetch('../settings.html')
+		.then((resp) => {
+			if (!resp.ok) throw new Error(resp.statusText || 'Network error');
+			return resp.text();
+		})
+		.then(async (html) => {
+			content.innerHTML = html;
+			
+			// Import and initialize the role assignment script
+			try {
+				await import('./role-assignment.js');
+			} catch (err) {
+				console.error('Error loading role assignment module:', err);
+			}
+			
+			content.style.opacity = 1;
+		})
+		.catch((err) => {
+			content.innerHTML = `<p>Failed to load settings: ${err.message}</p>`;
+			content.style.opacity = 1;
+		});
 }
 
 function renderJournal(){
