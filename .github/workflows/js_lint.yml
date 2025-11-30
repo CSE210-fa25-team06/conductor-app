@@ -20,31 +20,11 @@ jobs:
       - name: Run ESLint
         run: npx eslint .
 
-      - name: Create Docker network
-        run: docker network create conductor-net
-
-      - name: Start Postgres
-        run: |
-          docker run -d --name conductor_db --network conductor-net \
-            -e POSTGRES_USER=youruser \
-            -e POSTGRES_PASSWORD=yourpass \
-            -e POSTGRES_DB=yourdb \
-            -v postgres_data:/var/lib/postgresql/data \
-            -p 5432:5432 postgres:16
-
-      - name: Build Docker image with test env
-        run: docker build . -t conductor-app-test
-
-      - name: Run Docker container for tests
-        run: |
-          docker run -d --name conductor-app-test --network conductor-net \
-            -e AUTH_STRATEGY=MOCK \
-            -e MOCK_EMAIL=professor@test.com \
-            -e DB_HOST=db \
-            -p 3000:3000 conductor-app-test
+      - name: Start services with docker-compose
+        run: docker-compose up -d --build
 
       - name: Seed database
-        run: docker exec conductor-app-test node server/utils/db-seeder.js
+        run: docker-compose exec app node server/utils/db-seeder.js
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
