@@ -31,7 +31,7 @@ jobs:
             -p 3000:3000 conductor-app-test
 
       - name: Seed database
-        run: node server/utils/db-seeder.js
+        run: docker exec conductor-app-test node server/utils/db-seeder.js
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
