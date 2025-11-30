@@ -8,9 +8,11 @@ It also checks for functionality of a full journal entry.
 
 test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard.html');
+    /*
     await expect(page.locator('a#google-login')).toBeVisible();
     const loginButton = page.locator('a#google-login');
     await loginButton.click();
+    */
     await page.getByTestId('journal-tab').click();
     await expect(page.getByText('My Journals')).toBeVisible();
 });

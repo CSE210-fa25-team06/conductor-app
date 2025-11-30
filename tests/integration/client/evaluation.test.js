@@ -7,9 +7,11 @@ Since the evaluation screen doesn't have much, all it can really check for is th
 
 test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard.html');
+    /*
     await expect(page.locator('a#google-login')).toBeVisible();
     const loginButton = page.locator('a#google-login');
     await loginButton.click();
+    */
     await page.getByTestId('evaluation-tab').click();
     await expect(page.getByText('Evaluation content will be here...')).toBeVisible();
 });

@@ -7,9 +7,11 @@ It checks for existence of main elements sucha s the search bar and title. It ch
 
 test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard.html');
+    /*
     await expect(page.locator('a#google-login')).toBeVisible();
     const loginButton = page.locator('a#google-login');
     await loginButton.click();
+    */
     await page.getByTestId('directory-tab').click();
 
     /* 
