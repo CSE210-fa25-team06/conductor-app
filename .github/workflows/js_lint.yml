@@ -47,7 +47,7 @@ jobs:
       - name: Wait for app to be ready
         run: npx wait-on http://localhost:3000/dashboard.html
 
-      - name: Debug: curl dashboard
+      - name: Debug curl dashboard
         run: curl -v http://localhost:3000/dashboard.html
 
       - name: Run Playwright Tests
