@@ -66,6 +66,8 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
+
+  /*
    webServer: {
      command: 'npm run start',
      url: 'http://localhost:3000',
@@ -76,5 +78,6 @@ export default defineConfig({
       MOCK_EMAIL: 'professor@test.com'
      }
    },
+   */
 });
 
