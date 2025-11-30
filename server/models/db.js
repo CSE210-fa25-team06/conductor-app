@@ -27,6 +27,8 @@ const pool = new Pool({
 
 const { resolveUserPermissions } = require('../utils/permission-resolver');
 
+const { encrypt } = require('../utils/crypto');
+
 // =========================================================================
 // AUTH/USER DATA FUNCTIONS
 // =========================================================================
@@ -542,8 +544,13 @@ async function insertUserAuth(client, userId, provider, email, accessToken, refr
         VALUES ($1, $2, $3, $4, $5);
     `;
     try {
-        // $1=userId, $2=provider, $3=email, $4=accessToken, $5=refreshToken
-        await client.query(authInsertQuery, [userId, provider, email, accessToken, refreshToken]); 
+        // Encrypt the tokens before saving them
+        const encryptedAccessToken = encrypt(accessToken);
+        // Also handle null/undefined refresh tokens gracefully
+        const encryptedRefreshToken = refreshToken ? encrypt(refreshToken) : refreshToken;
+
+        // Pass the ENCRYPTED tokens to the database query
+        await client.query(authInsertQuery, [userId, provider, email, encryptedAccessToken, encryptedRefreshToken]); 
     } catch (error) {
         console.error('Database Error in insertUserAuth:', error);
         throw error;
