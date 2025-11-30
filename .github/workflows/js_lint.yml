@@ -30,8 +30,14 @@ jobs:
             -e MOCK_EMAIL=professor@test.com \
             -p 3000:3000 conductor-app-test
 
+      - name: Seed database
+        run: node server/utils/db-seeder.js
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+
+      - name: Wait for app to be ready
+        run: npx wait-on http://localhost:3000/dashboard.html
 
       - name: Run Playwright Tests
         run: npm run test-integration
