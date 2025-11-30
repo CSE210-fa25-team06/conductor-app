@@ -27,6 +27,15 @@ jobs:
           docker-compose version
 
       - name: Start services with docker-compose
+        env:
+          PGUSER: testuser
+          PGPASSWORD: testpass
+          PGDATABASE: testdb
+          GOOGLE_CLIENT_ID: dummy
+          GOOGLE_CLIENT_SECRET: dummy
+          OAUTH_REDIRECT_URL: http://localhost:3000/auth/callback
+          AUTH_STRATEGY: MOCK
+          MOCK_EMAIL: professor@test.com
         run: docker-compose up -d --build
 
       - name: Seed database
