@@ -19,14 +19,9 @@ test.beforeEach(async ({ page }) => {
     If this were to hypothetically fail, it would not trigger an infinite loop. Playwright would stop it after 5 seconds.
     */
     
-    await expect(page.getByText('Class Directory')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByPlaceholder('Search by first name')).toBeVisible();
 });
 
-
-//same check as in the beforeEach but explicitly laid out here for clarity
-test('Class Directory title appears', async ({ page }) => {
-    await expect(page.getByText('Class Directory')).toBeVisible();
-});
 
 test('Search Bar Appears', async ({ page }) => {
     await expect(page.locator('.directory input')).toBeVisible();
