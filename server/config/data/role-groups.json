@@ -39,6 +39,7 @@
         "USER_SUBMIT_PRIVATE_THOUGHTS",
         "VIEW_DOCS_MANAGER",
         "VIEW_FAQ_SYSTEM",
+        "VIEW_OWN_GROUP_JOURNALS",
         "VIEW_OWN_JOURNAL_SENTIMENT"
       ]
     },

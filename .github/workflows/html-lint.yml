@@ -38,6 +38,7 @@ jobs:
       # Dummy secrets for CI
       AUTH_SECRET: test_auth_secret
       SESSION_SECRET: test_session_secret
+      ENCRYPTION_KEY: e54631c0b8b17eb8e0037d09bea38ff3c9daa1b3a53cff8d323603f4070801e1
 
     steps:
       - name: Checkout repository

@@ -50,6 +50,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .journal-entry {
@@ -68,6 +70,11 @@
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .journal-timestamp {
@@ -126,6 +133,10 @@
   padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid #ef9a9a;
 }
 
 .empty-state {
@@ -318,3 +329,132 @@
   font-size: 0;
 }
 
+/* --- Metadata Styling (Name, Role, Group) --- */
+.journal-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #555;
+  flex-wrap: wrap;
+}
+
+.author-name {
+  font-weight: 700;
+  color: #222;
+  font-size: 1rem;
+}
+
+.author-role {
+  background-color: #e3f2fd; /* Light Blue Badge */
+  color: #0d47a1;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.author-group {
+  color: #666;
+}
+
+.meta-separator {
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.journal-timestamp-small {
+  color: #999;
+  font-size: 0.85rem;
+  margin-left: 4px;
+}
+
+/* --- Action Buttons (Edit / Delete) --- */
+.journal-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.journal-edit-btn,
+.journal-delete-btn {
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.journal-edit-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.journal-edit-btn:hover {
+  border-color: #06c;
+  color: #06c;
+  background: #f0f7ff;
+}
+
+.journal-delete-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #c62828;
+}
+
+.journal-delete-btn:hover {
+  background: #fff5f5;
+  border-color: #c62828;
+}
+
+/* --- Delete Confirmation Modal Specifics --- */
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* The 'Yes, Delete' button */
+button.danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button.danger:hover {
+  background-color: #bb2d3b;
+}
+
+/* The 'No' button in delete modal uses default button styles, 
+   but let's ensure it looks like a secondary action */
+#cancel-delete {
+  background: white;
+  border: 1px solid #ddd;
+  color: #333;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#cancel-delete:hover {
+  background: #f8f9fa;
+}
+
+/* Fix for Error Box Width */
+#journal-list .error {
+  /* Ensure it fills the flex container */
+  width: 100%;
+  
+  /* Optional: Add a subtle shadow to make it pop like the cards */
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+}

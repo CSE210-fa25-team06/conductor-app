@@ -9,8 +9,10 @@ async function getUsers(req, res) {
   try {
     const raw = req.query.query ?? "";
     const query = String(raw).trim();
+    const rawRole = req.query.role ?? "";
+    const role = String(rawRole).trim() || null;
 
-    const users = await searchDirectory(query);
+    const users = await searchDirectory(query, role);
     return res.status(200).json({ users });
   } catch (err) {
     console.error("Error in getUsers:", err);

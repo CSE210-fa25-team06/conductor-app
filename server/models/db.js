@@ -27,6 +27,8 @@ const pool = new Pool({
 
 const { resolveUserPermissions } = require('../utils/permission-resolver');
 
+const { encrypt } = require('../utils/crypto');
+
 // =========================================================================
 // AUTH/USER DATA FUNCTIONS
 // =========================================================================
@@ -78,12 +80,13 @@ async function findUserIdInUsers(email) {
  * @returns {object|null} The user object with roles and permissions, or null.
  */
 async function getFullUserData(userId, ipAddress) {
-    // 1. Get Base User Data (ID, Email, Name, GroupName)
+    // 1. Get Base User Data (ID, Email, Name, Group ID, Group Name)
     const baseQuery = `
         SELECT
             u.id,
             u.email,
-            u.name,              
+            u.name,
+            u.group_id,   
             COALESCE(g.name, 'Group Lookup Failed') AS "groupName"
         FROM users u
         LEFT JOIN groups g ON u.group_id = g.id 
@@ -134,6 +137,7 @@ async function getFullUserData(userId, ipAddress) {
                     role_id: row.role_id,
                     name: row.role_name,
                     privilege_level: row.privilege_level, 
+                    group_id: firstRow.group_id,
                     permissions: row.permission_id != null ? [{ id: row.permission_id, name: row.permission_name }] : []
                 });
             } else if (row.permission_id != null && existingRole) {
@@ -151,6 +155,7 @@ async function getFullUserData(userId, ipAddress) {
             id: rawUserResult.id,
             email: rawUserResult.email,
             name: rawUserResult.name,
+            group_id: firstRow.group_id,
             groupName: rawUserResult.groupName, // Now guaranteed to be a string
             permissions: Array.from(permissionDetails.permissions), 
             effectiveRoleName: permissionDetails.effectiveRoleName, 
@@ -539,8 +544,13 @@ async function insertUserAuth(client, userId, provider, email, accessToken, refr
         VALUES ($1, $2, $3, $4, $5);
     `;
     try {
-        // $1=userId, $2=provider, $3=email, $4=accessToken, $5=refreshToken
-        await client.query(authInsertQuery, [userId, provider, email, accessToken, refreshToken]); 
+        // Encrypt the tokens before saving them
+        const encryptedAccessToken = encrypt(accessToken);
+        // Also handle null/undefined refresh tokens gracefully
+        const encryptedRefreshToken = refreshToken ? encrypt(refreshToken) : refreshToken;
+
+        // Pass the ENCRYPTED tokens to the database query
+        await client.query(authInsertQuery, [userId, provider, email, encryptedAccessToken, encryptedRefreshToken]); 
     } catch (error) {
         console.error('Database Error in insertUserAuth:', error);
         throw error;
