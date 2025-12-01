@@ -6,6 +6,7 @@ It checks for existence of main elements sucha s the search bar and title. It ch
 */
 
 test.beforeEach(async ({ page }) => {
+    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
     await page.goto('/dashboard.html');
     await expect(page.locator('a#google-login')).toBeVisible();
     const loginButton = page.locator('a#google-login');
@@ -19,7 +20,8 @@ test.beforeEach(async ({ page }) => {
     If this were to hypothetically fail, it would not trigger an infinite loop. Playwright would stop it after 5 seconds.
     */
     //console.log(await page.content());
-    await expect(page.getByText('Class Directory')).toBeVisible({ timeout: 10000 });
+    
+    await expect(page.getByText('Class Directory')).toBeVisible({ timeout: 5000 });
 });
 
 
