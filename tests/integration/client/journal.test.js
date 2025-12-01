@@ -36,8 +36,8 @@ test('Journal entry works', async ({ page }) => {
     await nextField.fill('relax by the beach');
     await blockersField.fill('nothing');
     await submitButton.click();
-    await expect(page.getByText('Accomplished nothing', {exact: true})).toBeVisible();
-    await expect(page.getByText('relax by the beach', {exact: true})).toBeVisible();
-    await expect(page.getByText('nothing', {exact: true})).toBeVisible();
+    await expect(page.getByText('Accomplished nothing', {exact: true}).first()).toBeVisible();
+    await expect(page.getByText('relax by the beach', {exact: true}).first()).toBeVisible();
+    await expect(page.getByText('nothing', {exact: true}).first()).toBeVisible();
 
 });
