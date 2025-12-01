@@ -1,0 +1,60 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master, internal-testing ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose version
+
+    - name: Start services with docker-compose
+      env:
+        CI: true
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: testdb
+        GOOGLE_CLIENT_ID: dummy
+        GOOGLE_CLIENT_SECRET: dummy
+        OAUTH_REDIRECT_URL: http://localhost:3000/api/auth/callback/google
+        AUTH_STRATEGY: MOCK
+        MOCK_EMAIL: professor@test.com
+        DB_NAME: conductor_app_db
+        DB_PORT: 5432
+        SERVER_HOST: localhost
+        AUTH_SECRET: test_auth_secret
+        SESSION_SECRET: test_session_secret
+      run: docker-compose up -d --build
+
+    - name: Seed database
+      run: docker-compose exec app node server/utils/db-seeder.js
+
+    - name: Wait for app to be ready
+      run: npx wait-on http://localhost:3000/dashboard.html
+
+    - name: Run Playwright Tests
+      run: npm run test-integration
+
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30

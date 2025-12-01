@@ -4,3 +4,10 @@ node_modules/
 coverage/
 pgdata/
 postgres.log
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
