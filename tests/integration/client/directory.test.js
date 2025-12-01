@@ -18,6 +18,7 @@ test.beforeEach(async ({ page }) => {
     A solution here is to await the class directory title so every test starts when the screen is loaded.
     If this were to hypothetically fail, it would not trigger an infinite loop. Playwright would stop it after 5 seconds.
     */
+    console.log(await page.content());
     await expect(page.getByText('Class Directory')).toBeVisible();
 });
 
