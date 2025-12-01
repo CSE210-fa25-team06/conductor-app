@@ -15,7 +15,6 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('user name shows up on dashboard', async ({ page }) => {
-  console.log(await page.content());
   await expect(page.getByText('Welcome, Professor Demo User')).toBeVisible();
 });
 

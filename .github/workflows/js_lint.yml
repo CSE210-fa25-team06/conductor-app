@@ -57,4 +57,4 @@ jobs:
         run: curl -v http://localhost:3000/dashboard.html
 
       - name: Run Playwright Tests
-        run: npx playwright test tests/integration/client/dashboard.test.js --workers=1
+        run: npx run test-integration
