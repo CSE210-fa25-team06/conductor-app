@@ -28,14 +28,20 @@ jobs:
 
       - name: Start services with docker-compose
         env:
-          PGUSER: testuser
-          PGPASSWORD: testpass
+          CI: true
+          PGUSER: postgres
+          PGPASSWORD: postgres
           PGDATABASE: testdb
           GOOGLE_CLIENT_ID: dummy
           GOOGLE_CLIENT_SECRET: dummy
-          OAUTH_REDIRECT_URL: http://localhost:3000/auth/callback
+          OAUTH_REDIRECT_URL: http://localhost:3000/api/auth/callback/google
           AUTH_STRATEGY: MOCK
           MOCK_EMAIL: professor@test.com
+          DB_NAME: conductor_app_db
+          DB_PORT: 5432
+          SERVER_HOST: localhost
+          AUTH_SECRET: test_auth_secret
+          SESSION_SECRET: test_session_secret
         run: docker-compose up -d --build
 
       - name: Seed database
