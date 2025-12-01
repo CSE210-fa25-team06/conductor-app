@@ -50,7 +50,7 @@ jobs:
       run: npx wait-on http://localhost:3000/dashboard.html
 
     - name: Run Playwright Tests
-      run: npx playwright test tests/integration/client/directory.test.js --workers=1
+      run: npm run test-integration
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}

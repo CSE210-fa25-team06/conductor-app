@@ -6,7 +6,6 @@ It checks for existence of main elements sucha s the search bar and title. It ch
 */
 
 test.beforeEach(async ({ page }) => {
-    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
     await page.goto('/dashboard.html');
     await expect(page.locator('a#google-login')).toBeVisible();
     const loginButton = page.locator('a#google-login');
@@ -19,7 +18,6 @@ test.beforeEach(async ({ page }) => {
     A solution here is to await the class directory title so every test starts when the screen is loaded.
     If this were to hypothetically fail, it would not trigger an infinite loop. Playwright would stop it after 5 seconds.
     */
-    //console.log(await page.content());
     
     await expect(page.getByText('Class Directory')).toBeVisible({ timeout: 5000 });
 });
