@@ -1,0 +1,10 @@
+"defaults": {
+  "hideElements": [],
+  "includeNotices": true,
+  "includeWarnings": true,
+  "log": {
+    "debug": true,
+    "error": true,
+    "info": true
+  }
+}
