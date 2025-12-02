@@ -7,31 +7,37 @@
 // Available roles in the system with their details
 const SYSTEM_ROLES = [
     {
+        id: 0,
         name: "Guest",
         privilege_level: 0,
         description: "Unauthenticated or unassigned user. Has no system permissions."
     },
     {
+        id: 1,
         name: "Student",
         privilege_level: 1,
         description: "Base role for all students."
     },
     {
+        id: 2,
         name: "Group Leader",
         privilege_level: 1,
         description: "Can manage their group's metadata, attendance, and team dynamics."
     },
     {
+        id: 3,
         name: "Tutor",
         privilege_level: 10,
         description: "Can view specific student journals and manage the lab assistance queue."
     },
     {
+        id: 4,
         name: "TA",
         privilege_level: 50,
         description: "Can manage and grade all student groups and submissions."
     },
     {
+        id: 5,
         name: "Professor",
         privilege_level: 100,
         description: "Full administrative access and system configuration."
@@ -309,7 +315,7 @@ function closeModal() {
 /**
  * Assign role (frontend only - not persisted to backend)
  */
-function assignRole() {
+async function assignRole() {
     const modal = document.getElementById('role-modal');
     const userId = parseInt(modal.dataset.userId);
     const roleSelect = document.getElementById('role-select');
@@ -319,21 +325,52 @@ function assignRole() {
         alert('Invalid role selection');
         return;
     }
-    
-    // Find the user and update their role locally
-    const user = usersData.find(u => u.id === userId);
-    if (user) {
-        const oldRole = user.role_name;
-        user.role_name = newRole;
+
+    try {
+        const saveButton = document.getElementById('modal-assign');
+        saveButton.disabled = true;
+        const role = SYSTEM_ROLES.find(r => r.name === newRole);
+        if (!role) {
+            throw new Error('Selected role not found');
+        }
+
+        const response = await fetch(`/api/admin/users/${userId}/roles`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                roleIds: [role.id]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update role');
+        }
+
+        // Find the user and update their role locally
+        const user = usersData.find(u => u.id === userId);
+        if (user) {
+            const oldRole = user.role_name;
+            user.role_name = newRole;
+            
+            // Update the display
+            filterUsers();
+            
+            // Show success message
+            showSuccessMessage(`Role updated: ${user.name} changed from "${oldRole || 'No Role'}" to "${newRole}"`);
+        }
         
-        // Update the display
-        filterUsers();
-        
-        // Show success message
-        showSuccessMessage(`Role updated: ${user.name} changed from "${oldRole || 'No Role'}" to "${newRole}"`);
+        closeModal();
+    } catch (error) {
+        console.error('Error updating role:', error);
+        showError(error.message || 'Failed to update role. Please try again.');
+    } finally {
+        const saveButton = document.getElementById('modal-assign');
+        if (saveButton) {
+            saveButton.disabled = false;
+        }
     }
-    
-    closeModal();
 }
 
 /**
