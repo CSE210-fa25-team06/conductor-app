@@ -6,8 +6,22 @@ const { pool } = require("../models/db");
 */
 
 async function searchDirectory(query, role) {
-    const  baseQuery = `
-        SELECT u.id, u.photo_url, u.name, u.email, array_agg(r.name) as roles, g.name as group_name, contact_info, availability
+    const baseQuery = `
+        SELECT u.id, u.photo_url, u.name, u.email, array_agg(r.name) AS roles, g.name AS group_name, contact_info, 
+            (
+                SELECT COUNT(*)
+                FROM attendance a
+                WHERE a.user_id = u.id
+                  AND a.meeting_type = 'Lecture'
+                  AND a.status IN ('Present', 'Late')
+            ) AS attended_count,
+
+            (
+                SELECT COUNT(*)
+                FROM attendance a2
+                WHERE a2.meeting_type = 'Lecture'
+            ) AS total_lectures
+
         FROM users u
         LEFT JOIN user_roles ur ON u.id = ur.user_id
         LEFT JOIN roles r on ur.role_id = r.id
@@ -20,7 +34,11 @@ async function searchDirectory(query, role) {
 
     const values = ['%' + query + '%', role || null];
     const res = await pool.query(baseQuery, values);
-    return res.rows;
+
+    return res.rows.map(row => ({
+        ...row,
+        attendance: `${row.attended_count}/${row.total_lectures}`
+    }));
 }
 
 module.exports = { searchDirectory };
