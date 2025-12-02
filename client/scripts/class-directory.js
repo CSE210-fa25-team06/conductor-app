@@ -21,8 +21,10 @@ export function renderClassDirectory(containerEl) {
         <!-- <h1>Class Directory</h1> -->
         
         <form aria-label="Search class directory" id="search-form">
+          <label for="search" class="sr-only">Search by first name</label>
           <input type="text" id="search" name="search" placeholder="Search by first name">
-
+          <button type="submit" hidden>Search</button>
+          <label for="role-filter" class="sr-only">Filter by role</label>
           <select id="role-filter" name="role">
             <option value="">All Roles</option>
             <option value="Student">Student</option>
@@ -68,6 +70,11 @@ export function renderClassDirectory(containerEl) {
     if (roleSelect) {
         roleSelect.addEventListener('change', triggerDirectoryLoad);
     }
+    
+    //prevent page from reloading when user presses enter after typing in search bar
+    document.getElementById('search-form').addEventListener('submit', e => {
+      e.preventDefault();
+    });
 
     // 4. Initial Data Load
     await loadDirectory('', '', containerEl);

@@ -117,7 +117,7 @@
 }
 
 .no-blockers {
-  color: #999;
+  color: #767676;
   font-style: italic;
 }
 
@@ -361,12 +361,12 @@
 }
 
 .meta-separator {
-  color: #ccc;
+  color: #767676;
   font-size: 0.8rem;
 }
 
 .journal-timestamp-small {
-  color: #999;
+  color: #767676;
   font-size: 0.85rem;
   margin-left: 4px;
 }

@@ -33,7 +33,7 @@ jobs:
 
       # Auth in MOCK mode for CI
       AUTH_STRATEGY: MOCK
-      MOCK_EMAIL: pa11y-ci@example.com
+      MOCK_EMAIL: professor@test.com
 
       # Dummy secrets for CI
       AUTH_SECRET: test_auth_secret
@@ -63,7 +63,7 @@ jobs:
       - name: Initialise database
         run: |
           psql -h localhost -U postgres -d conductor_app_db -f db/schema.sql
-          psql -h localhost -U postgres -d conductor_app_db -f db/seed.sql
+          node server/utils/db-seeder.js
 
       - name: Lint with htmlhint
         run: npx htmlhint "**/*.html"
