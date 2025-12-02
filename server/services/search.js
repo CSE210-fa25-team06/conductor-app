@@ -17,7 +17,7 @@ async function searchDirectory(query, role) {
             ) AS attended_count,
 
             (
-                SELECT COUNT(*)
+                SELECT COUNT(DISTINCT a2.date)
                 FROM attendance a2
                 WHERE a2.meeting_type = 'Lecture'
             ) AS total_lectures
