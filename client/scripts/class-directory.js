@@ -43,7 +43,7 @@ export function renderClassDirectory(containerEl) {
               <th scope="col">Role</th>
               <th scope="col">Group</th>
               <th scope="col">Contact</th>
-              <th scope="col">Availability</th>
+              <th scope="col">Attendance</th>
             </tr>
           </thead>
           <tbody id="directory-table-body">
@@ -151,7 +151,7 @@ async function loadDirectory(query, role, containerEl) {
         <td>${roleString}</td>
         <td>${user.group_name || '—'}</td>
         <td><a href="mailto:${user.email}">${user.contact_info || user.email}</a></td>
-        <td>${formatAvailability(user.availability)}</td>
+        <td>${user.attendance || '—'}</td>
       `;
       tbody.appendChild(row);
     });
@@ -162,19 +162,4 @@ async function loadDirectory(query, role, containerEl) {
     const tbody = document.getElementById('directory-table-body');
     if (tbody) tbody.innerHTML = `<tr><td colspan="6">Network error loading directory.</td></tr>`;
   }
-}
-
-/**
- * Helper: Convert JSON availability to readable string
- */
-function formatAvailability(availability) {
-    if (!availability) return '—';
-    try {
-        const obj = typeof availability === 'string' ? JSON.parse(availability) : availability;
-        return Object.entries(obj)
-            .map(([day, time]) => `${day}: ${time}`)
-            .join(', ');
-    } catch {
-        return availability;
-    }
 }
