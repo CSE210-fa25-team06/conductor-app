@@ -3,6 +3,8 @@
  */
 
 const crypto = require("crypto");
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../', '.env') });
 const { 
   fetchDirectory,
   recordStudentAttendance,
@@ -76,7 +78,7 @@ async function getAttendanceByDate(req, res) {
 }
 // Create QR Code:
 async function createQRCode(sessionId){
-    const BASE_URL = "http://127.0.0.1:3000";
+    const BASE_URL = process.env.BASE_URL // Fixed issue, BASE_URL is stored in .env file
     const qrPayload = `${BASE_URL}/attend?session=${sessionId}`;
 
     const qrImageDataUrl = await QRCode.toDataURL(qrPayload);

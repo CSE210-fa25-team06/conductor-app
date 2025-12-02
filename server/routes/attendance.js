@@ -34,10 +34,10 @@ router.get("/by-date/:date", getAttendanceByDate);
 router.get("/by-date", getAttendanceByDate);
 
 // Start attendance
-router.post("/start/", startAttendance)
+router.post("/start", requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), startAttendance) // Added permissions
 
 // End attendance
-router.post("/end/", endAttendance)
+router.post("/end", requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), endAttendance) // Added permissions
 
 //Scan students for who attended
 router.post("/scan", scanAttendance)
