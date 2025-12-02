@@ -40,6 +40,11 @@ PGDATABASE=conductor_app_db
 PGPASSWORD= "Your Password Here"
 PGPORT=5432
 SESSION_SECRET = hhoighowihgkoewnkngouhwoghowiknkwengoi (can be any random super long string)
+BASE_URL=http://127.0.0.1:3000
+API_BASE_URL=http://localhost:3000
+MOCK_EMAIL="professor@test.com"
+AUTH_STRATEGY="MOCK" 
+ENCRYPTION_KEY= Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 ## Test Scripts
@@ -52,8 +57,8 @@ npm run test-db
 ```
 
 This script tests:
-- ✅ .env creation and it being read
-- ✅ Database connection
+- .env creation and it being read
+- Database connection
 
 ### 2. Simple Functionality Test Script (`test-attendance-new.js`)
 
@@ -62,8 +67,8 @@ node tests/server/attendance/test-attendance-new.js
 ```
 
 This script tests:
-- ✅ Starting a session which returns session_id and QR code
-- ✅ Updating a students attendance (simulating them scanning the code)
-- ✅ Ending the session once lecture attendance has been taken
+- Starting a session which returns session_id and QR code
+- Updating a students attendance (simulating them scanning the code)
+- Ending the session once lecture attendance has been taken
 
 
