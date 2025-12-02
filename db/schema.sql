@@ -166,7 +166,8 @@ CREATE TABLE journals (
     did           TEXT NOT NULL,
     doing_next    TEXT NOT NULL,
     blockers      TEXT,
-    created_at    TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at    TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    edited_at     TIMESTAMP WITH TIME ZONE
 );
 
 -- Table: message_threads

@@ -18,11 +18,21 @@ export function renderClassDirectory(containerEl) {
     // 2. Render the UI Structure
     containerEl.innerHTML = `
       <main class="directory">
-        <h1>Class Directory</h1>
+        <!-- <h1>Class Directory</h1> -->
         
         <form aria-label="Search class directory" id="search-form">
-          <label for="search">Search by Name:</label>
+          <label for="search" class="sr-only">Search by first name</label>
           <input type="text" id="search" name="search" placeholder="Search by first name">
+          <button type="submit" hidden>Search</button>
+          <label for="role-filter" class="sr-only">Filter by role</label>
+          <select id="role-filter" name="role">
+            <option value="">All Roles</option>
+            <option value="Student">Student</option>
+            <option value="Group Leader">Team Lead</option>
+            <option value="Tutor">Tutor</option>
+            <option value="Teaching Assistant">Teaching Assistant</option>
+            <option value="Professor">Instructor</option>
+          </select>
         </form>
 
         <table border="1" cellpadding="8" cellspacing="0">
@@ -45,34 +55,63 @@ export function renderClassDirectory(containerEl) {
 
     // 3. Attach Event Listeners
     const searchInput = document.getElementById('search');
+    const roleSelect = document.getElementById('role-filter');
+
+    const triggerDirectoryLoad = async () => {
+        const query = searchInput ? searchInput.value.trim() : '';
+        const role = roleSelect ? roleSelect.value : '';
+        await loadDirectory(query, role, containerEl);
+    };
+
     if (searchInput) {
-        searchInput.addEventListener('input', async (e) => {
-            const query = e.target.value.trim();
-            await loadDirectory(query);
-        });
+        searchInput.addEventListener('input', triggerDirectoryLoad);
     }
 
+    if (roleSelect) {
+        roleSelect.addEventListener('change', triggerDirectoryLoad);
+    }
+    
+    //prevent page from reloading when user presses enter after typing in search bar
+    document.getElementById('search-form').addEventListener('submit', e => {
+      e.preventDefault();
+    });
+
     // 4. Initial Data Load
-    await loadDirectory('');
+    await loadDirectory('', '', containerEl);
   });
 }
 
 /**
  * Fetches users from the API and populates the table.
- * Note: The backend route (/users) should also be secured with 'VIEW_CLASS_DIRECTORY'.
+ * @param {string} query - Search string
+ * @param {HTMLElement} containerEl - Reference to main container (for full-page error handling)
  */
-async function loadDirectory(query) {
+async function loadDirectory(query, role, containerEl) {
   try {
-    const url = query
-      ? `/users?query=${encodeURIComponent(query)}`
-      : `/users?query=`;
+    const params = new URLSearchParams();
+
+    if (query) {
+      params.set('query', query);
+    }
+
+    if (role) {
+      params.set('role', role);
+    }
+
+    const queryString = params.toString();
+    const url = queryString ? `/users?${queryString}` : `/users`;
 
     const response = await fetch(url);
 
-    // Handle 403 Forbidden from Backend (Double-Check)
+    // FIX 1: Handle 403 Forbidden by replacing the ENTIRE container
+    // This matches the Journal Page behavior (hiding the header/search).
     if (response.status === 403) {
-       const tbody = document.getElementById('directory-table-body');
-       if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="color:red;">Authorization Failed: Backend rejected request.</td></tr>`;
+       containerEl.innerHTML = `
+            <div class="error">
+                <h2>Access Denied</h2>
+                <p>You do not have permission to view this content.</p>
+            </div>
+       `;
        return;
     }
 
@@ -100,10 +139,16 @@ async function loadDirectory(query) {
 
     users.forEach((user) => {
       const row = document.createElement('tr');
+      
+      // FIX 2: Sort roles alphabetically and use the dot separator
+      const roleString = Array.isArray(user.roles) 
+          ? user.roles.sort().join(' • ') 
+          : '—';
+
       row.innerHTML = `
         <td><img src="${user.photo_url || 'https://via.placeholder.com/40'}" alt="Photo of ${user.name}" width="40" height="40"></td>
         <td>${user.name}</td>
-        <td>${Array.isArray(user.roles) ? user.roles.join(', ') : '—'}</td>
+        <td>${roleString}</td>
         <td>${user.group_name || '—'}</td>
         <td><a href="mailto:${user.email}">${user.contact_info || user.email}</a></td>
         <td>${formatAvailability(user.availability)}</td>
@@ -113,6 +158,9 @@ async function loadDirectory(query) {
 
   } catch (error) {
     console.error('Error in loadDirectory:', error);
+    // Optional: You could also wipe the container here on critical network failure
+    const tbody = document.getElementById('directory-table-body');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6">Network error loading directory.</td></tr>`;
   }
 }
 
