@@ -16,7 +16,28 @@ export function renderAttendance(containerEl) {
     });
 }
 
-function startMeeting() {
+async function startMeeting() {
+	//get session info (from dashboard page - should redirect if not logged in)
+	const resp = await fetch('/api/auth/session', {
+		cache: 'no-store'
+	})
+
+	if (!resp.ok) {
+		window.location.href = '/index.html';
+		return;
+	}
+
+	const data = await response.json();
+	//successful login
+	if (data.success && data.user) {
+		//start meeting
+		const meetingData = startMeeting(data.user.id);
+		//create modal QR
+		const qrModal = createQRModal();
+		//initialize QR modal
+		initQRModal(qrModal, meetingData.session_id, meetingData.qrImageDataUrl)
+	}
+
 	const qrModal = createQRModal();
 	initQRModal(qrModal);
 }
@@ -33,11 +54,36 @@ function createQRModal() {
 
 	//return reference to modal
 	const modalRoot = document.getElementById("modalRoot");
-	modalRoot.classList.add("active")
-	return modalRoot
+	modalRoot.classList.add("active");
+	return modalRoot;
 }
 
-function initQRModal(qrModal) {
+async function startMeeting(uid) {
+	try {
+		const payload = {user_id: uid};
+		const resp = await fetch('attendance/start', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({payload})
+		});
+
+		if (!resp.ok) {
+			throw new Error(`Fetch error. Status: ${resp.status}`)
+		}
+
+		const data = await resp.json();
+
+		return data;
+	}
+	catch (error) {
+    	console.error('Error starting attendance session:', error);
+  	}
+	
+}
+
+function initQRModal(qrModal, session_id, qr_code_img) {
 	//initialize content of qrModal. needs to:
 	//1. update QR code image to relevant meeting QR
 	//2. create end meeting button listener to end current meeting
@@ -45,13 +91,15 @@ function initQRModal(qrModal) {
 
 	//1. update QR image
 	const img = document.getElementById("qrImage");
-	img.src = "TEMP-QR-TEST.png" //PUT QR IMAGE or whatever the endpoint generates here
+	img.src = qr_code_img;
 
 	//2. end meeting event listener
 	const endMeetingBtn = document.getElementById("endMeeting");
-	endMeetingBtn.addEventListener("click", endMeeting);
+	endMeetingBtn.addEventListener("click", () => endMeeting(session_id, qrModal));
 
 	//3. close button event listener
+	//TODO: Re-open modal if closed but session is not ended
+	//this will need to be done once I can work with Isheta's changes (right now just a button)
 	const removeModal = () => {
 		qrModal.classList.remove('active');
 		setTimeout(() => {qrModal.remove()}, 300);
@@ -60,12 +108,36 @@ function initQRModal(qrModal) {
 	closeBtn.addEventListener("click", removeModal);
 }
 
-function endMeeting(meetingID) {
+function endMeeting(meetingID, qrModal) {
 	//end meeting - need to ensure user is authorized to end
 	//the meeting they are trying to end
+	try {
+		const payload = {session_id: meetingID};
+		const resp = fetch("attendance/end", {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({payload})
+		})
 
-	//TODO: connect with backend
-	console.log(`Meeting ${meetingID} ended.`);
+		if (!resp.ok) {
+			throw new Error(`Fetch error. Status: ${resp.status}`);
+		}
+
+		const data = resp.json();
+
+		if (data.success && !data.is_active) {
+			//success ending session, can safely destroy modal
+			qrModal.classList.remove('active');
+			setTimeout(() => {qrModal.remove()}, 300);
+			alert(`Session ${meetingID} successfully ended.`)
+		} else {
+			throw new Error(`Session ${meetingID} still active.`)
+		}
+	} catch (error) {
+		console.error(`Failed to end session: ${error}`);
+	}
 }
 
 function initAttendanceLogic() {
