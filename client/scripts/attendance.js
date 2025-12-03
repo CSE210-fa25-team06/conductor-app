@@ -16,7 +16,7 @@ export function renderAttendance(containerEl) {
     });
 }
 
-async function startMeeting() {
+async function createQRAndStartMeeting() {
 	//get session info (from dashboard page - should redirect if not logged in)
 	const resp = await fetch('/api/auth/session', {
 		cache: 'no-store'
@@ -27,7 +27,7 @@ async function startMeeting() {
 		return;
 	}
 
-	const data = await response.json();
+	const data = await resp.json();
 	//successful login
 	if (data.success && data.user) {
 		//start meeting
@@ -151,7 +151,7 @@ function initAttendanceLogic() {
 
 	// Start meeting button
 	const meetingBtn = document.getElementById("startMeetingBtn");
-	meetingBtn.addEventListener("click", startMeeting)
+	meetingBtn.addEventListener("click", createQRAndStartMeeting)
 
 	// Date input formatting
 	const dateInput = document.getElementById('meetingDate')
