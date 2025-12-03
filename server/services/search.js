@@ -37,6 +37,7 @@ async function searchDirectory(query, role) {
 
     return res.rows.map(row => ({
         ...row,
+        role_name: row.roles && row.roles.length > 0 ? row.roles[0] : "Guest",
         attendance: `${row.attended_count}/${row.total_lectures}`
     }));
 }

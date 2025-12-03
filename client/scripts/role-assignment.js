@@ -7,37 +7,37 @@
 // Available roles in the system with their details
 const SYSTEM_ROLES = [
     {
-        id: 0,
+        id: 1,
         name: "Guest",
         privilege_level: 0,
         description: "Unauthenticated or unassigned user. Has no system permissions."
     },
     {
-        id: 1,
+        id: 2,
         name: "Student",
         privilege_level: 1,
         description: "Base role for all students."
     },
     {
-        id: 2,
+        id: 3,
         name: "Group Leader",
         privilege_level: 1,
         description: "Can manage their group's metadata, attendance, and team dynamics."
     },
     {
-        id: 3,
+        id: 4,
         name: "Tutor",
         privilege_level: 10,
         description: "Can view specific student journals and manage the lab assistance queue."
     },
     {
-        id: 4,
+        id: 5,
         name: "TA",
         privilege_level: 50,
         description: "Can manage and grade all student groups and submissions."
     },
     {
-        id: 5,
+        id: 6,
         name: "Professor",
         privilege_level: 100,
         description: "Full administrative access and system configuration."
@@ -84,9 +84,6 @@ async function initializeRoleAssignment() {
         hideLoading();
     }
 }
-
-// Auto-initialize when module is loaded
-initializeRoleAssignment();
 
 /**
  * Check if current user has ASSIGN_ROLES permission
@@ -416,3 +413,5 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+export { initializeRoleAssignment };

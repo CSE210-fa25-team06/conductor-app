@@ -177,7 +177,8 @@ function renderSettings() {
 			
 			// Import and initialize the role assignment script
 			try {
-				await import('./role-assignment.js');
+				const module = await import('./role-assignment.js');
+        module.initializeRoleAssignment();
 			} catch (err) {
 				console.error('Error loading role assignment module:', err);
 			}
