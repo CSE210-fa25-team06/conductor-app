@@ -5,7 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { createGroup, createRole, createPermission, setRolePermissions } = require('../../../models/db');
+const { createGroup, createRole, createPermission, setRolePermissions, getAllGroups } = require('../../../models/db');
 const { requirePermission } = require('../../../middleware/role-checker');
 
 /**
@@ -31,6 +31,9 @@ router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
         });
         
     } catch (error) {
+        if (error.code === 'GROUP_EXISTS') {
+            return res.status(409).json({ error: `Group '${name}' already exists.` });
+        }
         // Handle unique constraint error (e.g., group name already exists)
         if (error.code === '23505') { 
             return res.status(409).json({ error: `Group name '${name}' already exists.` });
@@ -126,6 +129,21 @@ router.put('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS')
         }
         console.error('API Error setting role permissions:', error);
         return res.status(500).json({ error: 'Failed to set role permissions due to a server error.' });
+    }
+});
+
+/**
+ * GET /api/admin/groups
+ * Returns all groups for dropdown population
+ * Requires Permission: 'CREATE_GROUPS' or 'ASSIGN_GROUPS'
+ */
+router.get('/groups', requirePermission('ASSIGN_GROUPS'), async (req, res) => {
+    try {
+        const groups = await getAllGroups();
+        return res.status(200).json({ success: true, groups });
+    } catch (error) {
+        console.error('API Error fetching groups:', error);
+        return res.status(500).json({ error: 'Failed to fetch groups.' });
     }
 });
 

@@ -7,7 +7,7 @@ const { pool } = require("../models/db");
 
 async function searchDirectory(query, role) {
     const baseQuery = `
-        SELECT u.id, u.photo_url, u.name, u.email, array_agg(r.name) AS roles, g.name AS group_name, contact_info, 
+        SELECT u.id, u.photo_url, u.name, u.email, u.group_id, array_agg(r.name) AS roles, g.name AS group_name, contact_info, 
             (
                 SELECT COUNT(*)
                 FROM attendance a

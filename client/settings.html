@@ -1,7 +1,11 @@
 <div class="settings-container">
     <header class="settings-header">
-        <h1>Role Assignment</h1>
-        <p class="settings-subtitle">Manage user roles and permissions</p>
+        <h1>Role and Group Assignment</h1>
+        <div class="settings-actions">
+            <button id="create-group-btn" class="create-group-btn">
+                Create Group
+            </button>
+        </div>
     </header>
 
     <div class="settings-controls">
@@ -46,11 +50,11 @@
 <div id="role-modal" class="modal hidden">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>Assign Role</h2>
+            <h2>Assign Role and Group</h2>
             <button class="modal-close" id="modal-close">&times;</button>
         </div>
         <div class="modal-body">
-            <p>Assign role for: <strong id="modal-user-name"></strong></p>
+            <p>Assign role and group for: <strong id="modal-user-name"></strong></p>
             
             <div class="role-selection">
                 <label for="role-select">Select Role:</label>
@@ -61,10 +65,35 @@
                     <p id="role-description-text"></p>
                 </div>
             </div>
+            <div class="group-selection" style="margin-top: 1.5rem;">
+                <label for="group-select">Assign Group:</label>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <select id="group-select" class="role-select">
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="modal-footer">
             <button class="button button-secondary" id="modal-cancel">Cancel</button>
-            <button class="button button-primary" id="modal-assign">Assign Role</button>
+            <button class="button button-primary" id="modal-assign">Assign Role or Group</button>
         </div>
     </div>
 </div>
+
+<!-- Create Group Form -->
+<div id="create-group-modal" class="hidden modal">
+    <div class="modal-content">
+        <h2>Create New Group</h2>
+
+        <label for="new-group-name">Group Name:</label>
+        <input id="new-group-name" type="text" placeholder="Enter group name">
+
+        <div class="modal-actions">
+            <button id="create-group-confirm">Create</button>
+            <button onclick="closeCreateGroupModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Popup -->
+<div id="toast-container" class="toast-container"></div>

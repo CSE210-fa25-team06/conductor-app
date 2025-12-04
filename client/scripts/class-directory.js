@@ -30,7 +30,7 @@ export function renderClassDirectory(containerEl) {
             <option value="Student">Student</option>
             <option value="Group Leader">Team Lead</option>
             <option value="Tutor">Tutor</option>
-            <option value="Teaching Assistant">Teaching Assistant</option>
+            <option value="TA">Teaching Assistant</option>
             <option value="Professor">Instructor</option>
           </select>
         </form>

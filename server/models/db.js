@@ -227,6 +227,14 @@ async function logSuccessfulLogin(userId, ipAddress) {
  * @returns {number} The ID of the created group.
  */
 async function createGroup(name, logoUrl, slackLink, repoLink) {
+    // Prevent duplicate group names
+    const existing = await findGroupByName(name);
+    if (existing) {
+        const err = new Error('Group already exists');
+        err.code = 'GROUP_EXISTS';
+        throw err;
+    }
+
     const query = `
         INSERT INTO groups (name, logo_url, slack_link, repo_link)
         VALUES ($1, $2, $3, $4)
@@ -518,6 +526,21 @@ async function findRoleByName(name) {
     }
 }
 
+/**
+ * Looks up a role's ID and privilege level by its name.
+ * @param {string} name - Looks up all the group names
+ */
+async function getAllGroups() {
+    const query = `
+        SELECT id, name
+        FROM groups
+        ORDER BY name;
+    `;
+    const result = await pool.query(query);
+    return result.rows; // [{id, name}, ...]
+}
+
+
 // =========================================================================
 // INSERT FUNCTIONS (Called by the Service Layer)
 // =========================================================================
@@ -600,5 +623,6 @@ module.exports = {
   
   // Lookup Functions
   findGroupByName,
-  findGroupIdByName
+  findGroupIdByName,
+  getAllGroups
 };

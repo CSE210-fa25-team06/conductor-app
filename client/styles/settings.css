@@ -9,15 +9,21 @@
 }
 
 .settings-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #063970;
+    color: white;
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
 }
 
 .settings-header h1 {
     margin: 0 0 0 0;
     color: white;
-    font-size: 2rem;
+    font-weight: 600;
+    font-size: 1.6rem;
 }
 
 .settings-subtitle {
@@ -306,6 +312,60 @@
     border-radius: 6px;
     margin-bottom: 1.5rem;
     animation: slideDown 0.3s ease-out;
+}
+
+/* Create Group CSS */
+.settings-actions {
+    margin: 12px 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.create-group-btn {
+    background-color: #0b5ed7;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.create-group-btn:hover {
+    background-color: #094bb5;
+}
+
+/* Toast Popup */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: #0f5132;
+    color: white;
+    padding: 1rem 1.2rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-size: 0.95rem;
+    min-width: 250px;
+    animation: toastSlideIn 0.3s ease-out;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.toast.error {
+    background: #842029;
+}
+
+@keyframes toastSlideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slideDown {

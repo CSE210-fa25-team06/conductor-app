@@ -47,6 +47,22 @@ const SYSTEM_ROLES = [
 // Store users data
 let usersData = [];
 let filteredUsers = [];
+let groupsData = [];
+
+/**
+ * Load groups for settings page
+ */
+async function loadGroups() {
+    try {
+        const resp = await fetch('/api/admin/groups');
+        if (!resp.ok) throw new Error('Failed to fetch groups');
+        const data = await resp.json();
+        groupsData = data.groups || [];
+    } catch (err) {
+        console.error('Error loading groups:', err);
+        showError('Failed to load groups. Please refresh the page.');
+    }
+}
 
 /**
  * Initialize the role assignment page
@@ -56,8 +72,11 @@ async function initializeRoleAssignment() {
         // Check if user has permission to access this page
         await checkPermission();
         
-        // Load users data
-        await loadUsers();
+        // Load users and groups in parallel
+        await Promise.all([
+            loadUsers(),
+            loadGroups()
+        ]);
         
         // Setup UI components
         setupRoleFilter();
@@ -214,7 +233,7 @@ function renderUsersTable(users) {
             <td class="user-group">${escapeHtml(user.group_name || 'No Group')}</td>
             <td class="user-actions">
                 <button class="button button-small" data-user-id="${user.id}" onclick="openRoleModal(${user.id})">
-                    Change Role
+                    Change Role or Group
                 </button>
             </td>
         `;
@@ -239,7 +258,59 @@ function setupModal() {
     const cancelBtn = document.getElementById('modal-cancel');
     const assignBtn = document.getElementById('modal-assign');
     const roleSelect = document.getElementById('role-select');
-    
+    const groupSelect = document.getElementById('group-select');
+    const createGroupBtn = document.getElementById('create-group-btn');
+
+    // Populate group options
+    function populateGroupOptions() {
+        groupSelect.innerHTML = '';
+        // unassigned option
+        const noneOption = document.createElement('option');
+        noneOption.value = '';
+        noneOption.textContent = 'No Group';
+        groupSelect.appendChild(noneOption);
+
+        groupsData.forEach(group => {
+            const opt = document.createElement('option');
+            opt.value = group.id;
+            opt.textContent = group.name;
+            groupSelect.appendChild(opt);
+        });
+    }
+    populateGroupOptions();
+
+    // Create Group button handler
+    createGroupBtn.addEventListener('click', async () => {
+        const name = window.prompt('Enter new group name:');
+        if (!name || !name.trim()) return;
+
+        try {
+            const resp = await fetch('/api/admin/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name.trim() })
+            });
+
+            const data = await resp.json();
+            if (!resp.ok) {
+                showError(data.error || 'Failed to create group.');
+                return;
+            }
+
+            // Add new group to local list and repopulate dropdown
+            groupsData.push({ id: data.id, name: name.trim() });
+            populateGroupOptions();
+
+            // Select the newly created group
+            groupSelect.value = String(data.id);
+            showSuccessMessage(data.message);
+
+        } catch (err) {
+            console.error('Error creating group:', err);
+            showError('Failed to create group. Please try again.');
+        }
+    });
+
     // Populate role select options
     SYSTEM_ROLES.forEach(role => {
         const option = document.createElement('option');
@@ -281,7 +352,8 @@ window.openRoleModal = function(userId) {
     const modal = document.getElementById('role-modal');
     const userNameEl = document.getElementById('modal-user-name');
     const roleSelect = document.getElementById('role-select');
-    
+    const groupSelect = document.getElementById('group-select');
+
     // Set user information
     userNameEl.textContent = user.name;
     modal.dataset.userId = userId;
@@ -295,7 +367,14 @@ window.openRoleModal = function(userId) {
         roleSelect.value = 'Guest';
         roleSelect.dispatchEvent(new Event('change'));
     }
-    
+
+    // Set group selection
+    if (user.group_id !== null && user.group_id !== undefined) {
+        groupSelect.value = String(user.group_id);   // Matches option values
+    } else {
+        groupSelect.value = '';  // No group assigned
+    }
+
     // Show modal
     modal.classList.remove('hidden');
 };
@@ -317,7 +396,9 @@ async function assignRole() {
     const userId = parseInt(modal.dataset.userId);
     const roleSelect = document.getElementById('role-select');
     const newRole = roleSelect.value;
-    
+    const groupSelect = document.getElementById('group-select');
+    const newGroupId = groupSelect.value === "" ? null : Number(groupSelect.value);
+
     if (!userId || !newRole) {
         alert('Invalid role selection');
         return;
@@ -331,6 +412,19 @@ async function assignRole() {
             throw new Error('Selected role not found');
         }
 
+        // Update Group
+        const groupRes = await fetch(`/api/admin/users/${userId}/group`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ groupId: newGroupId })
+        });
+
+        if (!groupRes.ok) {
+            const data = await groupRes.json();
+            throw new Error(data.error || 'Failed to update group');
+        }
+
+        // Update Role
         const response = await fetch(`/api/admin/users/${userId}/roles`, {
             method: 'PUT',
             headers: {
@@ -350,12 +444,18 @@ async function assignRole() {
         if (user) {
             const oldRole = user.role_name;
             user.role_name = newRole;
-            
+            user.group_id = newGroupId;
+            if (newGroupId === null) {
+                user.group_name = "No Group";
+            } else {
+                const selectedGroup = groupsData.find(g => g.id === newGroupId);
+                user.group_name = selectedGroup ? selectedGroup.name : "Unknown";
+            }
             // Update the display
             filterUsers();
             
             // Show success message
-            showSuccessMessage(`Role updated: ${user.name} changed from "${oldRole || 'No Role'}" to "${newRole}"`);
+            showSuccessMessage(`Updated: ${user.name} → Role: "${newRole}", Group: ${user.group_name || 'None'}`);
         }
         
         closeModal();
@@ -371,29 +471,51 @@ async function assignRole() {
 }
 
 /**
- * Show success message
+ * Show a success notification toast.
  */
 function showSuccessMessage(message) {
-    // Create a temporary success message element
-    const successDiv = document.createElement('div');
-    successDiv.className = 'success-message';
-    successDiv.textContent = message;
-    
-    document.querySelector('.settings-container').prepend(successDiv);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        successDiv.remove();
-    }, 3000);
+    showToast(message, false);
 }
 
 /**
- * Show error message
+ * Show an error notification toast.
  */
 function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.querySelector('p').textContent = message;
-    errorDiv.classList.remove('hidden');
+    showToast(message, true);
+}
+
+/**
+ * Core toast renderer. Creates a notification pop-up that:
+ * - slides in from the right
+ * - stays for 3 seconds
+ * - fades out and removes itself
+ */
+function showToast(message, isError = false) {
+    // Get the toast container
+    const container = document.getElementById('toast-container');
+    if (!container) return; // prevents errors if container isn't mounted
+
+    // Create the toast element
+    const toast = document.createElement('div');
+    toast.classList.add('toast'); // Base toast styling
+
+    // If error → apply red styling
+    if (isError) toast.classList.add('error');
+
+    toast.textContent = message;
+
+    // Add toast to the container so it becomes visible
+    container.appendChild(toast);
+
+    // After 3 seconds, fade out and remove the toast
+    setTimeout(() => {
+        // Trigger fade-out animation
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(30px)';
+
+        // Remove from DOM after animation finishes
+        setTimeout(() => toast.remove(), 600);
+    }, 3000);
 }
 
 /**
@@ -413,5 +535,68 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+/**
+ * Open and close the form
+ */
+function openCreateGroupModal() {
+    document.getElementById('create-group-modal').classList.remove('hidden');
+}
+
+function closeCreateGroupModal() {
+    document.getElementById('create-group-modal').classList.add('hidden');
+}
+
+/**
+ * Create Group functionality
+ */
+async function createNewGroup() {
+    const name = document.getElementById('new-group-name').value.trim();
+
+    if (!name) {
+        showError("Group name cannot be empty");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/admin/groups', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showError(data.error || "Failed to create group");
+            return;
+        }
+
+        showSuccessMessage(`Group "${name}" created successfully`);
+
+        // Refresh the groups list so modal dropdown updates immediately
+        await loadGroups();
+
+        closeCreateGroupModal();
+
+    } catch (err) {
+        console.error(err);
+        showError("Server error while creating group");
+    }
+}
+
+/* For the DOM content */
+document.addEventListener("DOMContentLoaded", () => {
+    const createBtn = document.getElementById('create-group-btn');
+    const confirmBtn = document.getElementById('create-group-confirm');
+
+    if (createBtn) {
+        createBtn.addEventListener('click', openCreateGroupModal);
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', createNewGroup);
+    }
+});
 
 export { initializeRoleAssignment };
