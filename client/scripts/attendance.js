@@ -105,11 +105,11 @@ function initQRModal(qrModal, session_id, qr_code_img) {
 	//2. create end meeting button listener to end current meeting
 
 	//1. update QR image
-	const img = qrModal.getElementById("qrImage");
+	const img = qrModal.querySelector("#qr-image");
 	img.src = qr_code_img;
 
 	//2. end meeting event listener
-	const endMeetingBtn = qrModal.getElementById("endMeeting");
+	const endMeetingBtn = qrModal.querySelector("#endMeeting");
 	endMeetingBtn.addEventListener("click", () => endMeeting(session_id, qrModal));
 }
 
@@ -130,7 +130,7 @@ async function endMeeting(meetingID, qrModal) {
 			throw new Error(`Fetch error. Status: ${resp.status}`);
 		}
 
-		const data = resp.json();
+		const data = await resp.json();
 
 		if (data.success && !data.is_active) {
 			//success ending session, can safely destroy modal
