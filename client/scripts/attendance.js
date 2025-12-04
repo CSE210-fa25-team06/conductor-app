@@ -30,16 +30,13 @@ async function createQRAndStartMeeting() {
 	const data = await resp.json();
 	//successful login
 	if (data.success && data.user) {
-		//start meeting
-		const meetingData = startMeeting(data.user.id);
 		//create modal QR
 		const qrModal = createQRModal();
+		//start meeting
+		const meetingData = await startMeeting(data.user.id);
 		//initialize QR modal
-		initQRModal(qrModal, meetingData.session_id, meetingData.qrImageDataUrl)
+		initQRModal(qrModal, meetingData.session_id, meetingData.qrImageDataUrl);
 	}
-
-	const qrModal = createQRModal();
-	initQRModal(qrModal);
 }
 
 function createQRModal() {
@@ -55,6 +52,17 @@ function createQRModal() {
 	//return reference to modal
 	const modalRoot = document.getElementById("modalRoot");
 	modalRoot.classList.add("active");
+
+	//TODO: Re-open modal if closed but session is not ended
+	//this will need to be done once I can work with Isheta's changes (right now just a button)
+	const removeModal = () => {
+		modalRoot.classList.remove('active');
+		setTimeout(() => {modalRoot.remove()}, 300);
+	}
+	//setup modal close functionality here
+	const closeBtn = document.getElementById("closeModal");
+	closeBtn.addEventListener("click", removeModal);
+
 	return modalRoot;
 }
 
@@ -81,13 +89,13 @@ async function startMeeting(uid) {
     	console.error('Error starting attendance session:', error);
   	}
 	
+	return null;
 }
 
 function initQRModal(qrModal, session_id, qr_code_img) {
 	//initialize content of qrModal. needs to:
 	//1. update QR code image to relevant meeting QR
 	//2. create end meeting button listener to end current meeting
-	//3. set up close button functionality to remove element from the DOM
 
 	//1. update QR image
 	const img = document.getElementById("qrImage");
@@ -96,24 +104,14 @@ function initQRModal(qrModal, session_id, qr_code_img) {
 	//2. end meeting event listener
 	const endMeetingBtn = document.getElementById("endMeeting");
 	endMeetingBtn.addEventListener("click", () => endMeeting(session_id, qrModal));
-
-	//3. close button event listener
-	//TODO: Re-open modal if closed but session is not ended
-	//this will need to be done once I can work with Isheta's changes (right now just a button)
-	const removeModal = () => {
-		qrModal.classList.remove('active');
-		setTimeout(() => {qrModal.remove()}, 300);
-	}
-	const closeBtn = document.getElementById("closeModal");
-	closeBtn.addEventListener("click", removeModal);
 }
 
-function endMeeting(meetingID, qrModal) {
+async function endMeeting(meetingID, qrModal) {
 	//end meeting - need to ensure user is authorized to end
 	//the meeting they are trying to end
 	try {
 		const payload = {session_id: meetingID};
-		const resp = fetch("attendance/end", {
+		const resp = await fetch("attendance/end", {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
