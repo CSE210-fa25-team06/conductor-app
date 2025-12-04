@@ -134,9 +134,9 @@ async function testEndSession(session_id) {
 
   // 5️⃣ Test: Fetch student history
 async function testFetchStudentHistory() {
-    console.log("\n Test 5: Fetching student history for user_id=101...");
+    console.log("\n Test 5: Fetching student history for user_id=2...");
   
-    const { response, data } = await request(API_BASE_URL + "/attendance/history/101");
+    const { response, data } = await request(API_BASE_URL + "/attendance/history/2");
   
     console.log("Status:", response.status);
     console.log("Response:", data);

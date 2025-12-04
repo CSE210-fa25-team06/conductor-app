@@ -11,6 +11,7 @@ const {
   fetchStudentAttendanceHistory,
   fetchAttendanceByDate,
   createSession,
+  getSession,
   endSession,
   updateStudents
 } = require("../models/attendanceModel");
@@ -140,18 +141,18 @@ async function endAttendance(req,res){
 // Update attendance session
 async function scanAttendance(req, res){
     try{
-        const{user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason} = req.body
+        const{user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason} = req.body;
 
-        // Grab the session
-        //const {session} = await getSession(session_id)
+        //Grab the session
+        const session = await getSession(session_id);
         // If session is not active throw an error
-        //if(!session || !session.is_active){
-            //return res.status(400).json({ error: "Invalid or inactive session" });
-        //}
+        if(!session || session.is_active == false){
+            return res.status(400).json({ error: "Invalid or inactive session" });
+        }
 
         // Update the student attendance
-        await updateStudents({user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason})
-        res.json({message : "Student attendance recorded sucessfully!"})
+        await updateStudents({user_id, group_id, session_id, date, meeting_type, recorded_by, is_excused, reason});
+        res.json({message : "Student attendance recorded sucessfully!"});
     } catch(err){
         console.error("Error recording attendance:", err);
         res.status(500).json({ error: "Failed to record attendance" });
