@@ -34,6 +34,14 @@ async function createQRAndStartMeeting() {
 		const qrModal = createQRModal();
 		//start meeting
 		const meetingData = await startMeeting(data.user.id);
+		if (meetingData == null) {
+			//temp fix - maybe we should have a placeholder img to display when
+			//network failure?
+			qrModal.classList.remove('active');
+			setTimeout(() => {qrModal.remove()}, 300);
+			alert("Error starting attendance session. Please try again.");
+			return;
+		}
 		//initialize QR modal
 		initQRModal(qrModal, meetingData.session_id, meetingData.qrImageDataUrl);
 	}
@@ -87,9 +95,8 @@ async function startMeeting(uid) {
 	}
 	catch (error) {
     	console.error('Error starting attendance session:', error);
+		return null;
   	}
-	
-	return null;
 }
 
 function initQRModal(qrModal, session_id, qr_code_img) {
@@ -98,11 +105,11 @@ function initQRModal(qrModal, session_id, qr_code_img) {
 	//2. create end meeting button listener to end current meeting
 
 	//1. update QR image
-	const img = document.getElementById("qrImage");
+	const img = qrModal.getElementById("qrImage");
 	img.src = qr_code_img;
 
 	//2. end meeting event listener
-	const endMeetingBtn = document.getElementById("endMeeting");
+	const endMeetingBtn = qrModal.getElementById("endMeeting");
 	endMeetingBtn.addEventListener("click", () => endMeeting(session_id, qrModal));
 }
 
