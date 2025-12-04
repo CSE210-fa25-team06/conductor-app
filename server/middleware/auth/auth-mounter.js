@@ -41,6 +41,15 @@ console.log(`[AUTH-MOUNTER] Configured Strategy: ${ACTIVE_STRATEGY}`);
 function loadAuthStrategyRoutes() {
     const router = express.Router();
 
+    // --- NEW: Expose Auth Config to Frontend ---
+    // This allows the login page to know if it should auto-redirect (Mock) or show buttons (Google).
+    router.get('/config', (req, res) => {
+        res.json({ 
+            strategy: ACTIVE_STRATEGY,
+            loginUrl: '/api/auth/login' // The universal entry point
+        });
+    });
+
     const modulePath = STRATEGY_MAP[ACTIVE_STRATEGY];
 
     if (!modulePath) {

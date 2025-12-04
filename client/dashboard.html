@@ -11,8 +11,9 @@
     <link rel="stylesheet" href="styles/components.css" />
     <link rel="stylesheet" href="styles/class-directory.css" />
     <link rel="stylesheet" href="styles/attendance.css" />
-    <link rel="stylesheet" href="styles/journal.css" />
-    <link rel="stylesheet" href="styles/components.css" />
+    <link rel="stylesheet" href="styles/profile.css">
+    <script type="module" src="scripts/profile.js"></script>
+
 </head>
 
 <body>
@@ -22,16 +23,16 @@
         <nav>
             <ul>
                 <li>
-                    <a href="#" onclick="loadSection('directory', event)">Directory</a>
+                    <a data-testid="directory-tab" id="directory" href="#" onclick="loadSection('directory', event)">Directory</a>
                 </li>
                 <li>
-                    <a href="#" onclick="loadSection('attendance', event)">Attendance</a>
+                    <a data-testid="attendance-tab" id="attendance" href="#" onclick="loadSection('attendance', event)">Attendance</a>
                 </li>
                 <li>
-                    <a href="#" onclick="loadSection('journal', event)">Journal</a>
+                    <a data-testid="journal-tab" id="journal" href="#" onclick="loadSection('journal', event)">Journal</a>
                 </li>
                 <li>
-                    <a href="#" onclick="loadSection('evaluation', event)">Evaluation</a>
+                    <a data-testid="evaluation-tab" id="evaluation" href="#" onclick="loadSection('evaluation', event)">Evaluation</a>
                 </li>
             </ul>
         </nav>

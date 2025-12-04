@@ -149,12 +149,10 @@ main {
   overflow-y: auto;
 }
 
-/* Center content only when it's a simple message */
 .content.centered {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  position: relative;
+  margin: 0; 
+  padding: 0;
 }
 
 footer {

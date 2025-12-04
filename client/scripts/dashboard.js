@@ -1,5 +1,6 @@
 import { renderAttendance } from './attendance.js'
 import { renderClassDirectory } from './class-directory.js';
+import { renderProfilePage } from './profile.js';
 
 // This block runs when the page loads to check if the user is logged in.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -149,7 +150,7 @@ function loadDropdownSection(section) {
 		let text = ''
 		switch (section) {
 			case 'profile':
-				text = 'Profile content will appear here...'
+				renderProfilePage(content);
 				break
 			case 'settings':
 				text = 'Settings content will appear here...'
