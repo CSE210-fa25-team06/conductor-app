@@ -82,7 +82,7 @@ async function startMeeting(uid) {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({payload})
+			body: JSON.stringify(payload)
 		});
 
 		if (!resp.ok) {
@@ -123,7 +123,7 @@ async function endMeeting(meetingID, qrModal) {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({payload})
+			body: JSON.stringify(payload)
 		})
 
 		if (!resp.ok) {
