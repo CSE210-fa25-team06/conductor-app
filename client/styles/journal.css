@@ -197,12 +197,17 @@
   align-self: flex-start;
 }
 
-.submit-btn:hover { background: #0056b3; }
-.submit-btn:active { background: #004494; }
+.submit-btn:hover {
+  background: #0056b3;
+}
 
-.submit-btn:disabled { 
-  background: #ccc; 
-  cursor: not-allowed; 
+.submit-btn:active {
+  background: #004494;
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .form-actions {
@@ -223,7 +228,9 @@
   transition: all 0.2s;
 }
 
-.back-btn:hover { background: #f0f7ff; }
+.back-btn:hover {
+  background: #f0f7ff;
+}
 
 /* Modal styles */
 .modal-overlay {
@@ -273,7 +280,6 @@
   border-bottom: 1px solid #eee;
 }
 
-
 .modal-title {
   color: #333;
   margin: 0;
@@ -322,7 +328,7 @@
 
 /* Update button text in modal */
 .modal-body #back-btn::before {
-  content: 'Cancel';
+  content: "Cancel";
   font-size: 1rem;
 }
 
@@ -333,6 +339,7 @@
 .header-top .button + .button {
   margin-left: 0.6rem;
 }
+
 /* --- Metadata Styling (Name, Role, Group) --- */
 .journal-meta {
   display: flex;
@@ -350,7 +357,7 @@
 }
 
 .author-role {
-  background-color: #e3f2fd; /* Light Blue Badge */
+  background-color: #e3f2fd;
   color: #0d47a1;
   padding: 2px 8px;
   border-radius: 12px;
@@ -422,7 +429,6 @@
   margin-top: 2rem;
 }
 
-/* The 'Yes, Delete' button */
 button.danger {
   background-color: #dc3545;
   color: white;
@@ -438,8 +444,6 @@ button.danger:hover {
   background-color: #bb2d3b;
 }
 
-/* The 'No' button in delete modal uses default button styles, 
-   but let's ensure it looks like a secondary action */
 #cancel-delete {
   background: white;
   border: 1px solid #ddd;
@@ -456,10 +460,7 @@ button.danger:hover {
 
 /* Fix for Error Box Width */
 #journal-list .error {
-  /* Ensure it fills the flex container */
   width: 100%;
-  
-  /* Optional: Add a subtle shadow to make it pop like the cards */
   box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
@@ -517,7 +518,6 @@ button.danger:hover {
   transition: all 0.2s;
 }
 
-
 .sentiment-option input[type="radio"]:checked ~ .sentiment-label {
   font-weight: bold;
   color: #06c;
@@ -529,9 +529,9 @@ button.danger:hover {
   box-shadow: 0 2px 8px rgb(0 102 204 / 20%);
 }
 
-
 /* Sentiment entry display styles */
 .sentiment-entry {
+  position: relative;
   background: linear-gradient(135deg, #fff8e1 0%, #fff 100%);
   border-left: 4px solid #ffa726;
 }
@@ -566,7 +566,6 @@ button.danger:hover {
 }
 
 /* Sentiment entry action placement */
-.sentiment-entry { position: relative; }
 .sentiment-entry .journal-actions {
   position: absolute;
   top: 1rem;
@@ -575,6 +574,7 @@ button.danger:hover {
   gap: 0.5rem;
 }
 
+/* Shared sentiment buttons */
 .sentiment-edit-btn,
 .sentiment-delete-btn {
   padding: 4px 12px;
@@ -584,21 +584,25 @@ button.danger:hover {
   transition: all 0.2s;
   font-weight: 500;
 }
+
 .sentiment-edit-btn {
   background: white;
   border: 1px solid #ddd;
   color: #555;
 }
+
 .sentiment-edit-btn:hover {
   border-color: #06c;
   color: #06c;
   background: #f0f7ff;
 }
+
 .sentiment-delete-btn {
   background: white;
   border: 1px solid #ddd;
   color: #c62828;
 }
+
 .sentiment-delete-btn:hover {
   background: #fff5f5;
   border-color: #c62828;
