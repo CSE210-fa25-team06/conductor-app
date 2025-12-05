@@ -186,7 +186,7 @@ export async function initJournals() {
 async function showJournalModal(entryToEdit = null, currentUser = null) {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
-    modalOverlay.id = 'journalModal';
+    modalOverlay.id = 'journal-modal';
     
     try {
         const response = await fetch('journal_submission.html');
