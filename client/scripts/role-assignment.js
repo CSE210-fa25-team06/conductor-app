@@ -3,6 +3,7 @@
  * @description Controller for the Admin Control Panel.
  * Synchronized with settings.html.
  */
+/* global openDefaultsModal, openCreateGroupModal, openCreateRoleModal */
 
 import API from './services/admin-api.js';
 import { Notifications, escapeHtml } from './utils/ui-utils.js';
@@ -348,7 +349,10 @@ async function loadRolePermissions(roleId) {
             i.disabled = false;
         });
         btn.disabled = false;
-    } catch(err) { Notifications.error("Failed to fetch permissions"); }
+    } catch(err) { 
+        console.error(err)
+        Notifications.error("Failed to fetch permissions"); 
+    }
 }
 
 async function savePermissions() {

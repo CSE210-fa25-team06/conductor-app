@@ -62,7 +62,7 @@
     background: white;
     padding: 2.5rem;
     border-radius: 12px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 15px rgb(0 0 0 / 4%);
 }
 
 .profile-header {
@@ -73,7 +73,7 @@
 
 .profile-header h2 {
     font-size: 2rem;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     color: #222;
 }
 
@@ -137,7 +137,7 @@
 
 .resource-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
 }
 
 .resource-btn.repo {
@@ -184,7 +184,7 @@
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (width <= 900px) {
     .profile-wrapper {
         flex-direction: column;
         align-items: center;

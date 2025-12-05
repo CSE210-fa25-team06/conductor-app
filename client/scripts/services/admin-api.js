@@ -17,6 +17,7 @@ const API = {
                 if (errorData.error) errorMessage = errorData.error;
             } catch (e) {
                 // If parsing fails, it's likely HTML. We stick to the status text.
+                console.err(e)
                 console.warn("Non-JSON response received:", response.status);
             }
             throw new Error(errorMessage);
@@ -26,6 +27,7 @@ const API = {
         try {
             return await response.json();
         } catch (err) {
+            console.error(err)
             throw new Error("Received invalid JSON from server.");
         }
     },

@@ -300,7 +300,7 @@ async function assignUserToGroup(userId, groupId) {
 }
 
 /**
- * NEW: Retrieves all groups for the dropdown list.
+ * Retrieves all groups for the dropdown list.
  * @returns {Array<object>} List of {id, name}
  */
 async function getAllGroups() {
@@ -629,21 +629,6 @@ async function findRoleByName(name) {
     }
 }
 
-/**
- * Looks up a role's ID and privilege level by its name.
- * @param {string} name - Looks up all the group names
- */
-async function getAllGroups() {
-    const query = `
-        SELECT id, name
-        FROM groups
-        ORDER BY name;
-    `;
-    const result = await pool.query(query);
-    return result.rows; // [{id, name}, ...]
-}
-
-
 // =========================================================================
 // INSERT FUNCTIONS (Called by the Service Layer)
 // =========================================================================
@@ -730,6 +715,5 @@ module.exports = {
   
   // Lookup Functions
   findGroupByName,
-  findGroupIdByName,
-  getAllGroups
+  findGroupIdByName
 };

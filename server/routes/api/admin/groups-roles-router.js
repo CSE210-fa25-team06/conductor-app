@@ -171,7 +171,7 @@ router.put('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS')
  * SECURITY: Prevents setting a privileged role as default using UNPRIVILEGED_THRESHOLD.
  */
 router.put('/defaults', requirePermission('CREATE_ROLES'), async (req, res) => {
-    const { default_role_id, default_group_id } = req.body;
+    const { default_role_id } = req.body;
     
     if (!default_role_id || isNaN(parseInt(default_role_id))) {
         return res.status(400).json({ error: 'A valid default Role ID is required.' });
