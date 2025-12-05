@@ -17,17 +17,25 @@ const { requirePermission } = require('../../../middleware/role-checker');
 const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver');
 
 router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (req, res) => {
-    /**
-     * @swagger
-     * #swagger.tags = ['Admin - Users']
-     * #swagger.summary = 'Assign user to a group'
-     * #swagger.description = 'Requires ASSIGN_GROUPS permission.'
-     * #swagger.parameters['userId'] = { description: 'User ID' }
-     * #swagger.parameters['body'] = {
-     *    in: 'body',
-     *    schema: { groupId: 1 }
-     * }
-     */
+    /* 
+        #swagger.tags = ['Admin']
+        #swagger.summary = 'Assign user to a group'
+        #swagger.description = 'Requires ASSIGN_GROUPS permission.'
+        #swagger.parameters['userId'] = { 
+            in: 'path',
+            required: true,
+            description: 'User ID'
+        }
+        #swagger.parameters['body'] = {
+            in: 'body',
+            required: true,
+            description: 'Group assignment payload',
+            schema: { 
+                $groupId: 1 
+            }
+        }
+        #swagger.responses[200] = { description: "User assigned to group" }
+    */
 
     const userId = parseInt(req.params.userId, 10);
     const { groupId } = req.body; 
@@ -59,12 +67,24 @@ router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (re
 });
 
 router.put('/users/:userId/roles', requirePermission('ASSIGN_ROLES'), async (req, res) => {
-    /**
-     * @swagger
-     * #swagger.tags = ['Admin - Users']
-     * #swagger.summary = 'Assign roles to user'
-     * #swagger.description = 'Requires ASSIGN_ROLES permission.<br>Enforces privilege rules.'
-     */
+    /*
+        #swagger.tags = ['Admin']
+        #swagger.summary = 'Assign a user to a group'
+        #swagger.description = 'Requires assign group permission.'
+        #swagger.parameters['userId'] = {
+            in: 'path',
+            required: true,
+            description: 'User ID'
+        }
+        #swagger.parameters['body'] = {
+            in: 'body',
+            required: true,
+            description: 'Group assignment payload',
+            schema: {
+            }
+        }
+        #swagger.responses[200] = { description: "User assigned to group" }
+    */
     const userId = parseInt(req.params.userId, 10);
     const { roleIds } = req.body; 
 

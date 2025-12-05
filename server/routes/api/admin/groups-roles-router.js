@@ -9,17 +9,21 @@ const { createGroup, createRole, createPermission, setRolePermissions } = requir
 const { requirePermission } = require('../../../middleware/role-checker');
 
 router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
-    /**
-     * @swagger
-     * #swagger.tags = ['Admin - Groups & Roles']
-     * #swagger.summary = 'Create a group'
-     * #swagger.description = 'Requires CREATE_GROUPS permission.'
-     * #swagger.parameters['body'] = {
-     *    in: 'body',
-     *    schema: { name: "Team A", logoUrl: "", slackLink: "", repoLink: "" }
-     * }
-     * #swagger.responses[201] = { description: "Group created" }
-     */
+    /* 
+    #swagger.tags = ['Admin']
+    #swagger.summary = 'Create a group'
+    #swagger.description = 'Requires CREATE_GROUPS permission.'
+    #swagger.parameters['body'] = {
+        in: 'body',
+        schema: { 
+            $name: "Team A", 
+            logoUrl: "", 
+            slackLink: "", 
+            repoLink: "" 
+        }
+    }
+    #swagger.responses[201] = { description: "Group created" }
+    */
     const { name, logoUrl, slackLink, repoLink } = req.body;
 
     if (!name) {
