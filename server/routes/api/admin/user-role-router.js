@@ -9,12 +9,28 @@ const router = express.Router();
 const { 
     assignRolesToUser,
     assignUserToGroup,             
-    getRolePrivilegeLevel,  
+    getRolePrivilegeLevel,
+    getAllRoles
 } = require('../../../models/db');
 
 // 1. Import the generic permission checker
 const { requirePermission } = require('../../../middleware/role-checker'); 
 const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver');
+
+/**
+ * GET /api/admin/roles
+ * Returns a list of all available roles in the system.
+ * Requires Permission: 'ASSIGN_ROLES' (Using same permission as the page itself)
+ */
+router.get('/roles', requirePermission('ASSIGN_ROLES'), async (req, res) => {
+    try {
+        const roles = await getAllRoles();
+        res.status(200).json({ success: true, roles });
+    } catch (error) {
+        console.error('API Error fetching roles:', error);
+        res.status(500).json({ error: 'Failed to fetch roles.' });
+    }
+});
 
 /**
  * PUT /api/admin/users/:userId/group
