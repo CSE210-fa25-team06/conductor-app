@@ -205,7 +205,7 @@ async function loadJournals(currentUser) {
             .join("");
         
         attachEditHandlers(allEntries, currentUser);
-        attachDeleteHandlers(allEntries, currentUser); 
+        attachDeleteHandlers(currentUser); 
     } catch (error) {
         console.error('Error loading journals:', error);
         journalList.innerHTML = `
@@ -530,7 +530,7 @@ function initSentimentModalHandlers(modalOverlay, existingEntry = null, currentU
 }
 
 // Delete Functionality
-function attachDeleteHandlers(entries = [], currentUser = null) {
+function attachDeleteHandlers(currentUser = null) {
     const deleteButtons = document.querySelectorAll(".journal-delete-btn, .sentiment-delete-btn");
     deleteButtons.forEach(btn => {
         const id = btn.dataset.entryId || btn.dataset.journalId;
