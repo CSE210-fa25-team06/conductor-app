@@ -401,7 +401,7 @@ function initModalHandlers(modalOverlay, entryToEdit = null, currentUser) {
                 closeModal();
                 // FIX: Passing currentUser on reload
                 loadJournals(currentUser);
-                alert(isEdit ? "Journal updated successfully!" : "Journal submitted successfully!");
+                //alert(isEdit ? "Journal updated successfully!" : "Journal submitted successfully!");
             } catch (error) {
                 console.error('Network Error:', error);
                 alert('Failed to submit journal. Please check if the server is running.');
@@ -530,7 +530,7 @@ function initSentimentModalHandlers(modalOverlay, existingEntry = null, currentU
         }
         closeModal();
         loadJournals(currentUser);
-        alert(isEdit ? 'Emotional tracker updated successfully!' : 'Emotional tracker submitted successfully!');
+        //alert(isEdit ? 'Emotional tracker updated successfully!' : 'Emotional tracker submitted successfully!');
       } catch (err) {
         console.error('API Error:', err);
         alert(`Failed to submit emotional tracker: ${err.message || 'Unknown error'}`);
