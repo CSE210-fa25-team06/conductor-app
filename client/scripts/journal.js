@@ -31,7 +31,28 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-
+function createSentimentEntryHTML(entry, currentUser) {
+  const sentimentEmojis = { happy: '😊', neutral: '😐', sad: '😔' };
+  const emoji = sentimentEmojis[entry.sentiment] || '😐';
+  const label = entry.sentiment;
+  const commentHTML = entry.comment
+    ? `<div class="journal-section"><div class="journal-label">Comment</div><div class="journal-text">${escapeHtml(entry.comment)}</div></div>`
+    : '';
+  return `
+    <div class="journal-entry sentiment-entry">
+      <div class="journal-header">
+        <div class="sentiment-entry-header">
+          <span class="sentiment-badge">
+            <span class="sentiment-emoji">${emoji}</span>
+            <span class="sentiment-text">Emotional Tracker: ${label}</span>
+          </span>
+          <div class="journal-timestamp">${formatTimestamp(entry.timestamp)}</div>
+        </div>
+      </div>
+      ${commentHTML ? `<div class="journal-content">${commentHTML}</div>` : ''}
+    </div>
+  `;
+}
 // --- RENDERING ---
 
 // FIX: Added 'user' parameter so we can check permissions
@@ -89,6 +110,7 @@ function createJournalEntryHTML(entry, user) {
 // --- DATA LOADING ---
 
 // FIX: Added 'currentUser' parameter
+// Add sentiment entries to the journal list
 async function loadJournals(currentUser) {
     const journalList = document.getElementById('journal-list');
     
