@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Conductor - Course management dashboard">
@@ -15,52 +14,105 @@
     <link rel="stylesheet" href="styles/settings.css">
     <script type="module" src="scripts/profile.js"></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
-    <header>
-        <h1><a href="#" id="home-link">Conductor</a></h1>
-
-        <nav>
-            <ul>
-                <li>
-                    <a data-testid="directory-tab" id="directory" href="#" onclick="loadSection('directory', event)">Directory</a>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1><a href="#" id="home-link"><i class="fas fa-graduation-cap"></i> <span class="logo-text">Conductor</span></a></h1>
+            <button class="collapse-btn" id="collapse-btn" title="Collapse sidebar">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="directory">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span class="nav-text">Directory</span>
+                    </a>
                 </li>
-                <li>
-                    <a data-testid="attendance-tab" id="attendance" href="#" onclick="loadSection('attendance', event)">Attendance</a>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="attendance">
+                        <i class="fas fa-clipboard-check nav-icon"></i>
+                        <span class="nav-text">Attendance</span>
+                    </a>
                 </li>
-                <li>
-                    <a data-testid="journal-tab" id="journal" href="#" onclick="loadSection('journal', event)">Journal</a>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="journal">
+                        <i class="fas fa-book nav-icon"></i>
+                        <span class="nav-text">Journal</span>
+                    </a>
                 </li>
-                <li>
-                    <a data-testid="evaluation-tab" id="evaluation" href="#" onclick="loadSection('evaluation', event)">Evaluation</a>
+                
+                <li class="nav-item profile-section">
+                    <a href="#" class="nav-link" data-section="profile">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" id="sidebar-settings" data-section="settings">
+                        <i class="fas fa-cog nav-icon"></i>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" id="sidebar-logout">
+                        <i class="fas fa-sign-out-alt nav-icon"></i>
+                        <span class="nav-text">Logout</span>
+                    </a>
                 </li>
             </ul>
         </nav>
+    </aside>
 
-        <section class="profile-menu">
-            <button id="profile-btn" type="button" title="Profile">👤</button>
-            <ul id="dropdown" class="hidden">
-                <li><a href="#">Profile</a></li>
-                <li id="settings-option"><a href="#">Settings</a></li>
-                <li id="logout-option"><a href="#">Log out</a></li>
-            </ul>
-        </section>
+    <header>
+        <div class="header-left">
+            <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+        </div>
     </header>
 
     <main>
         <section class="welcome" id="welcome-section">
-            <h2>Welcome, <span id="user-name">&lt;Name&gt;</span></h2>
+            <h2>Welcome back, <span id="user-name-display">&lt;Name&gt;</span> 👋</h2>
+            <p class="welcome-subtitle">Here's what's happening today</p>
         </section>
 
         <section class="content" id="content-section">
-            <p>Dashboard content will appear here...</p>
+            <div class="dashboard-cards">
+                <div class="card" data-section="directory">
+                    <i class="fas fa-users card-icon"></i>
+                    <h3>Class Directory</h3>
+                    <p>View and manage all students and groups</p>
+                    <button class="card-btn" data-section="directory">Open Directory</button>
+                </div>
+                <div class="card" data-section="attendance">
+                    <i class="fas fa-clipboard-check card-icon"></i>
+                    <h3>Attendance</h3>
+                    <p>Track and manage class attendance</p>
+                    <button class="card-btn" data-section="attendance">Take Attendance</button>
+                </div>
+                <div class="card" data-section="journal">
+                    <i class="fas fa-book card-icon"></i>
+                    <h3>Journal</h3>
+                    <p>Review student journals and submissions</p>
+                    <button class="card-btn" data-section="journal">View Journals</button>
+                </div>
+            </div>
         </section>
     </main>
 
     <footer>
-        <small>© 2025 Conductor Portal</small>
+        <small>© 2025 Conductor Portal • v2.0</small>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a> • 
+            <a href="#">Terms of Service</a> • 
+            <a href="#">Help Center</a>
+        </div>
     </footer>
+    
     <script type="module" src="scripts/dashboard.js"></script>
-  </body>
+</body>
 </html>
