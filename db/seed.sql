@@ -112,6 +112,7 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES (4, 1004) ON CONFLI
 INSERT INTO role_permissions (role_id, permission_id) VALUES (4, 1005) ON CONFLICT DO NOTHING; -- MANAGE_ALL_ATTENDANCE
 
 -- Professor (ID 5) Permissions: (Gets ALL Admin Permissions)
+INSERT INTO role_permissions (role_id, permission_id) VALUES (5, 1001) ON CONFLICT DO NOTHING;
 INSERT INTO role_permissions (role_id, permission_id) VALUES (5, 1004) ON CONFLICT DO NOTHING; -- VIEW_ALL_JOURNALS
 INSERT INTO role_permissions (role_id, permission_id) VALUES (5, 1005) ON CONFLICT DO NOTHING; -- MANAGE_ALL_ATTENDANCE
 INSERT INTO role_permissions (role_id, permission_id) VALUES (5, 1006) ON CONFLICT DO NOTHING; -- ASSIGN_ROLES

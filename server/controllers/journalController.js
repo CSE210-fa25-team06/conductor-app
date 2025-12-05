@@ -5,10 +5,11 @@ const {
   getAllJournals,
   getJournalsByGroup, 
   getJournalsByUser,
-  getJournalById 
+  getJournalById,
+  getJournalsByUserId
 } = require("../models/journalModel");
 
-const { createJournalEntry, getJournalsByUserId } = require("../models/journalModel");
+// const { createJournalEntry, getJournalsByUserId } = require("../models/journalModel");
 // Adjust path to point to your existing permissions.js file
 const PERMISSIONS = require("../config/permissions/permissions");
 
