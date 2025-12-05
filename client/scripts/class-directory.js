@@ -18,11 +18,9 @@ export function renderClassDirectory(containerEl) {
     // 2. Render the UI Structure
     containerEl.innerHTML = `
       <main class="directory">
-        <!-- <h1>Class Directory</h1> -->
-        
         <form aria-label="Search class directory" id="search-form">
           <label for="search" class="sr-only">Search by first name</label>
-          <input type="text" id="search" name="search" placeholder="Search by first name">
+          <input type="text" id="search" name="search" placeholder="Search by name or email">
           <button type="submit" hidden>Search</button>
           <label for="role-filter" class="sr-only">Filter by role</label>
           <select id="role-filter" name="role">
@@ -103,8 +101,7 @@ async function loadDirectory(query, role, containerEl) {
 
     const response = await fetch(url);
 
-    // FIX 1: Handle 403 Forbidden by replacing the ENTIRE container
-    // This matches the Journal Page behavior (hiding the header/search).
+    // Handle 403 Forbidden by replacing the ENTIRE container
     if (response.status === 403) {
        containerEl.innerHTML = `
             <div class="error">
@@ -140,7 +137,7 @@ async function loadDirectory(query, role, containerEl) {
     users.forEach((user) => {
       const row = document.createElement('tr');
       
-      // FIX 2: Sort roles alphabetically and use the dot separator
+      // Sort roles alphabetically and use the dot separator
       const roleString = Array.isArray(user.roles) 
           ? user.roles.sort().join(' • ') 
           : '—';
@@ -158,7 +155,6 @@ async function loadDirectory(query, role, containerEl) {
 
   } catch (error) {
     console.error('Error in loadDirectory:', error);
-    // Optional: You could also wipe the container here on critical network failure
     const tbody = document.getElementById('directory-table-body');
     if (tbody) tbody.innerHTML = `<tr><td colspan="6">Network error loading directory.</td></tr>`;
   }

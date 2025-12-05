@@ -45,6 +45,10 @@
   margin: 0 0 1.5rem;
 }
 
+#journalModal h2.modal-title {
+  color: black;
+}
+
 /* Lists and cards */
 .journal-list {
   display: flex;
@@ -283,7 +287,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #666;
+  color: black !important;
   cursor: pointer;
   padding: 0;
   width: 32px;
