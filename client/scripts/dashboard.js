@@ -5,45 +5,46 @@ import { renderProfilePage } from './profile.js';
 // This block runs when the page loads to check if the user is logged in.
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    // Fetch user session data from the backend.
-    // 'cache: "no-store"' makes prevents a cached page to a logged-out user.
     const response = await fetch('/api/auth/session', {
       cache: 'no-store' 
     });
     
-    // server returns an error, the user is not logged in
     if (!response.ok) {
-        window.location.href = '/index.html'; // Send them to the login page instead.
-        return; // Stop running the rest of the script.
+        window.location.href = '/index.html'; 
+        return; 
     }
 
     const data = await response.json();
 
-    // server says the login was successful
     if (data.success && data.user) {
-      // Put the user's real name on the page.
       document.getElementById('user-name').textContent = data.user.name;
-
-      initializeDashboardUI();
+      
+      // FIX 1: Pass permissions to the UI initializer
+      initializeDashboardUI(data.user.permissions || []);
 
     } else {
-      // If something else went wrong, send them to the login page just in case.
       window.location.href = '/index.html';
     }
   } catch (error) {
-    // catch errors, they can't be logged in.
     console.error('Session check failed:', error);
     window.location.href = '/index.html';
   }
 });
 
 /**
- * This function sets up all the buttons and links on the dashboard.
- * It only runs *after* we have confirmed the user is logged in.
+ * Sets up buttons, links, and permission-based visibility.
+ * FIX 1: Accepts permissions array to hide restricted links.
  */
-function initializeDashboardUI() {
+function initializeDashboardUI(userPermissions = []) {
   const profileBtn = document.getElementById("profile-btn");
   const dropdown = document.getElementById("dropdown");
+  const settingsOption = document.getElementById("settings-option");
+
+  // SECURITY: Hide Settings link if user lacks permission
+  // We check for the basic Admin permission 'ASSIGN_ROLES'
+  if (settingsOption && !userPermissions.includes('ASSIGN_ROLES')) {
+      settingsOption.style.display = 'none';
+  }
 
   // Profile dropdown toggle
   profileBtn.addEventListener("click", (e) => {
@@ -63,10 +64,8 @@ function initializeDashboardUI() {
 
       if (section === "log out") {
         if (confirm("Do you want to log out?")) {
-          // update logout logic
           fetch('/api/auth/logout', { method: 'POST' })
             .then(() => {
-              // redirect to the login page.
               window.location.href = '/index.html';
             })
             .catch(error => console.error('Logout failed:', error));
@@ -155,7 +154,8 @@ function loadDropdownSection(section) {
 				renderSettings();
 				break
 		}
-		content.style.opacity = 1
+        // Note: opacity is handled inside renderSettings for that case
+        if (section !== 'settings') content.style.opacity = 1;
 	}, 250)
 }
 
@@ -178,9 +178,12 @@ function renderSettings() {
 			// Import and initialize the role assignment script
 			try {
 				const module = await import('./role-assignment.js');
-        module.initializeRoleAssignment();
+                // FIX 2: Await the initialization so AuthGuard finishes checking
+                // before we fade the content in.
+                await module.initializeRoleAssignment();
 			} catch (err) {
 				console.error('Error loading role assignment module:', err);
+                content.innerHTML = '<p class="error">Failed to load module.</p>';
 			}
 			
 			content.style.opacity = 1;
@@ -203,7 +206,6 @@ function renderJournal(){
     .then(async (html) => {
       content.innerHTML = html;
       
-      // Import and call initJournals after HTML is loaded
       try {
         const { initJournals } = await import('./journal.js');
         initJournals();
