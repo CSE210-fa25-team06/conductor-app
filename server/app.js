@@ -8,7 +8,7 @@
 // Core Libraries
 const express = require('express');
 const session = require('express-session');
-const passport = require('passport'); 
+const passport = require('passport');
 const path = require('path');
 
 // Routers
@@ -18,6 +18,9 @@ const sentimentRouter = require('./routes/sentiments');
 const groupsRouter = require('./routes/groups');
 const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
+const groupsRolesRouter = require('./routes/api/admin/groups-roles-router');
+const userRoleRouter = require('./routes/api/admin/user-role-router');
+const configRouter = require('./routes/api/config-router');
 
 // Configuration
 // Load environment variables from the project root .env file.
@@ -28,6 +31,28 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 //   override: false  // prevents overwriting existing env vars (important!)
 // });
 // --- End of tests ----
+
+// --- FIX START: GLOBAL PASSPORT SERIALIZATION ---
+// These must be defined regardless of the strategy (Google, Mock, etc.)
+// otherwise app.use(passport.session()) will fail if it tries to handle a user.
+
+/**
+ * Serializer: Stores only the user's database ID in the session.
+ */
+passport.serializeUser((userId, done) => {
+    done(null, userId);
+});
+
+/**
+ * Deserializer: Uses the ID from the session to retrieve the user object/ID.
+ */
+passport.deserializeUser(async (userId, done) => {
+    // Currently returns only the ID, relying on /session or separate API calls to fetch full data.
+    done(null, userId); 
+});
+// --- FIX END ---
+
+
 
 // Load the Google Authenticator module to initialize the Passport Strategy
 // This ensures passport.use(new GoogleStrategy(...)) runs.
@@ -85,7 +110,9 @@ app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
-app.use('/journal', journalRouter);
+app.use('/api/admin', groupsRolesRouter); 
+app.use('/api/admin', userRoleRouter); // <-- NEW MOUNT
+app.use('/api/config', configRouter);
 
 /**
  * GET /
@@ -102,6 +129,7 @@ app.get('/', (req, res) => {
 /**
  * Starts the Express server and listens on the configured port.
  */
+
 app.listen(port, () => {
   const host = process.env.SERVER_HOST || '127.0.0.1'; // Define host here, with a safe fallback
   console.log(`Conductor API Server listening at http://${host}:${port}`);
