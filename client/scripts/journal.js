@@ -481,12 +481,22 @@ async function showSentimentModal(existingEntry = null, currentUser = null) {
 
 function initSentimentModalHandlers(modalOverlay, existingEntry = null, currentUser = null) {
   const closeBtn = modalOverlay.querySelector('#closeSentimentModal');
+  const backBtn = modalOverlay.querySelector('#sentimentBackBtn');
   const closeModal = () => {
     modalOverlay.classList.remove('active');
     setTimeout(() => modalOverlay.remove(), 300);
   };
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (backBtn) backBtn.addEventListener('click', closeModal);
   modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
 
   const sentimentForm = modalOverlay.querySelector('#sentimentForm');
   if (sentimentForm) {

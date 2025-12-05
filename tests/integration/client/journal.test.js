@@ -41,3 +41,11 @@ test('Journal entry works', async ({ page }) => {
     await expect(page.getByText('nothing', {exact: true}).first()).toBeVisible();
 
 });
+
+test('Sentiment cancel closes modal', async ({ page }) => {
+    await page.getByRole('button', { name: '+ Emotional tracker' }).click();
+    await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+    await expect(page.locator('#sentimentModal')).toHaveCount(1);
+    await page.getByRole('button', { name: 'Cancel' }).click();
+    await expect(page.locator('#sentimentModal')).toHaveCount(0);
+});
