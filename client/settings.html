@@ -1,99 +1,198 @@
 <div class="settings-container">
     <header class="settings-header">
-        <h1>Role and Group Assignment</h1>
-        <div class="settings-actions">
-            <button id="create-group-btn" class="create-group-btn">
-                Create Group
-            </button>
-        </div>
+        <h1>Admin Control Panel</h1>
+        <div class="settings-subtitle" style="display: flex; gap: 10px; align-items: center;"></div>
     </header>
 
-    <div class="settings-controls">
-        <div class="search-box">
-            <input type="text" id="user-search" placeholder="Search by name or email..." />
+    <div id="admin-content-wrapper">
+        <div class="settings-controls">
+            <div class="search-box">
+                <input type="text" id="user-search" placeholder="Search by name or email..." />
+            </div>
+            <div class="filter-box">
+                <label for="role-filter">Filter by role:</label>
+                <select id="role-filter">
+                    <option value="">All Roles</option>
+                </select>
+            </div>
         </div>
-        <div class="filter-box">
-            <label for="role-filter">Filter by role:</label>
-            <select id="role-filter">
-                <option value="">All Roles</option>
-            </select>
+
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Current Role</th>
+                        <th>Group</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    </tbody>
+            </table>
         </div>
-    </div>
 
-    <div class="users-table-container">
-        <table class="users-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Current Role</th>
-                    <th>Group</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="users-table-body">
-                <!-- User rows will be populated by JavaScript -->
-            </tbody>
-        </table>
-    </div>
-
-    <div id="loading-indicator" class="loading-indicator">
-        <p>Loading users...</p>
-    </div>
-
-    <div id="error-message" class="error-message hidden">
-        <p></p>
+        <div id="loading-indicator" class="loading-indicator hidden">
+            <p>Loading data...</p>
+        </div>
     </div>
 </div>
 
-<!-- Role Assignment Modal -->
 <div id="role-modal" class="modal hidden">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>Assign Role and Group</h2>
-            <button class="modal-close" id="modal-close">&times;</button>
+            <h2>Assign Roles</h2>
+            <button class="modal-close" data-target="role-modal">&times;</button>
         </div>
         <div class="modal-body">
-            <p>Assign role and group for: <strong id="modal-user-name"></strong></p>
-            
-            <div class="role-selection">
-                <label for="role-select">Select Role:</label>
-                <select id="role-select" class="role-select">
-                    <!-- Role options will be populated by JavaScript -->
-                </select>
-                <div class="role-description">
-                    <p id="role-description-text"></p>
-                </div>
-            </div>
-            <div class="group-selection" style="margin-top: 1.5rem;">
-                <label for="group-select">Assign Group:</label>
-                <div style="display:flex; gap:0.5rem; align-items:center;">
-                    <select id="group-select" class="role-select">
+            <p>Assign roles for: <strong id="modal-user-name"></strong></p>
+            <div id="role-checkbox-container"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="button button-secondary" data-target="role-modal">Cancel</button>
+            <button class="button button-primary" style="background-color: #06c;" id="modal-assign">Save Roles</button>
+        </div>
+    </div>
+</div>
+
+<div id="group-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Assign Group</h2>
+            <button class="modal-close" data-target="group-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Assign group for: <strong id="group-user-name"></strong></p>
+            <div class="form-group">
+                <label for="group-select">Select Group:</label>
+                <select id="group-select" class="role-select">
                     </select>
-                </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" id="modal-cancel">Cancel</button>
-            <button class="button button-primary" id="modal-assign">Assign Role or Group</button>
+            <button class="button button-secondary" data-target="group-modal">Cancel</button>
+            <button class="button button-primary" style="background-color: #06c;" id="group-save">Save Group</button>
         </div>
     </div>
 </div>
 
-<!-- Create Group Form -->
-<div id="create-group-modal" class="hidden modal">
+<div id="permissions-modal" class="modal-overlay hidden">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3>Configure Role</h3>
+            <button class="modal-close" data-target="permissions-modal">&times;</button>
+        </div>
+        <div class="modal-body flex-body">
+            <div class="controls-row" style="display: flex; gap: 2rem; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label for="perm-role-select" style="display:block; margin-bottom:5px;">Select Role:</label>
+                    <select id="perm-role-select" style="width: 100%; padding: 8px;">
+                        </select>
+                </div>
+                <div style="width: 150px;">
+                    <label for="perm-role-level" style="display:block; margin-bottom:5px;">Privilege Level (0-100):</label>
+                    <input type="number" id="perm-role-level" min="0" max="100" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+            </div>
+            <div class="permissions-table-container">
+                <table class="permissions-table">
+                    <thead>
+                        <tr>
+                            <th class="col-check">Enable</th>
+                            <th>Permission</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="perm-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="button button-secondary" data-target="permissions-modal">Cancel</button>
+            <button class="button button-primary" style="background-color: #06c;" id="perm-save" disabled>Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<div id="create-group-modal" class="modal hidden">
     <div class="modal-content">
-        <h2>Create New Group</h2>
-
-        <label for="new-group-name">Group Name:</label>
-        <input id="new-group-name" type="text" placeholder="Enter group name">
-
-        <div class="modal-actions">
-            <button id="create-group-confirm">Create</button>
-            <button onclick="closeCreateGroupModal()">Cancel</button>
+        <div class="modal-header">
+            <h2>Create New Group</h2>
+            <button class="modal-close" data-target="create-group-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="new-group-name">Group Name</label>
+                <input type="text" id="new-group-name" placeholder="e.g. Team Omega">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="button button-secondary" data-target="create-group-modal">Cancel</button>
+            <button class="button button-primary" style="background-color: #06c;" id="create-group-save">Create Group</button>
         </div>
     </div>
 </div>
 
-<!-- Notification Popup -->
-<div id="toast-container" class="toast-container"></div>
+<div id="create-role-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Role</h2>
+                <button class="modal-close" data-target="create-role-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-role-name">Role Name</label>
+                    <input type="text" id="new-role-name" placeholder="e.g. Auditor">
+                </div>
+                <div class="form-group">
+                    <label for="new-role-desc">Description</label>
+                    <input type="text" id="new-role-desc" placeholder="e.g. Can view audits but not edit.">
+                </div>
+                <div class="form-group">
+                    <label for="new-role-level">Privilege Level (0-100)</label>
+                    <input type="number" id="new-role-level" min="0" max="100" step="1">
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                        0 = Guest, 1 = Student, 100 = Professor
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="button button-secondary" data-target="create-role-modal">Cancel</button>
+                <button class="button button-primary" style="background-color: #06c;" id="create-role-save">Create Role</button>
+            </div>
+        </div>
+    </div>
+
+<div id="defaults-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>System Defaults</h2>
+            <button class="modal-close" data-target="defaults-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Select the default assignments for new users when they first sign up.</p>
+            <div class="form-group">
+                <label for="default-role-select">Default Role:</label>
+                <select id="default-role-select" class="role-select"></select>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                    Users will automatically receive this role upon registration.
+                </p>
+            </div>
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="default-group-select">Default Group:</label>
+                <select id="default-group-select" class="role-select"></select>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                    Users will be placed in this group (usually "Unassigned").
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="button button-secondary" data-target="defaults-modal">Cancel</button>
+            <button class="button button-primary" style="background-color: #06c;" id="save-defaults-btn">Save Defaults</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>

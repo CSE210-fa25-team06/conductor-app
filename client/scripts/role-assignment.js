@@ -1,602 +1,484 @@
 /**
  * @file role-assignment.js
- * @description Handles the role assignment settings page
- * This page is only accessible to users with ASSIGN_ROLES permission
+ * @description Controller for the Admin Control Panel.
+ * Synchronized with settings.html.
  */
 
-// Available roles in the system with their details
-const SYSTEM_ROLES = [
-    {
-        id: 1,
-        name: "Guest",
-        privilege_level: 0,
-        description: "Unauthenticated or unassigned user. Has no system permissions."
-    },
-    {
-        id: 2,
-        name: "Student",
-        privilege_level: 1,
-        description: "Base role for all students."
-    },
-    {
-        id: 3,
-        name: "Group Leader",
-        privilege_level: 1,
-        description: "Can manage their group's metadata, attendance, and team dynamics."
-    },
-    {
-        id: 4,
-        name: "Tutor",
-        privilege_level: 10,
-        description: "Can view specific student journals and manage the lab assistance queue."
-    },
-    {
-        id: 5,
-        name: "TA",
-        privilege_level: 50,
-        description: "Can manage and grade all student groups and submissions."
-    },
-    {
-        id: 6,
-        name: "Professor",
-        privilege_level: 100,
-        description: "Full administrative access and system configuration."
-    }
-];
+import API from './services/admin-api.js';
+import { Notifications, escapeHtml } from './utils/ui-utils.js';
+import { protectComponent, PERMISSIONS } from './utils/auth-guard.js'; 
 
-// Store users data
-let usersData = [];
-let filteredUsers = [];
-let groupsData = [];
+let state = {
+    roles: [],
+    groups: [],
+    users: [],
+    permissions: [], 
+    currentUserPermissions: []
+};
 
-/**
- * Load groups for settings page
- */
-async function loadGroups() {
-    try {
-        const resp = await fetch('/api/admin/groups');
-        if (!resp.ok) throw new Error('Failed to fetch groups');
-        const data = await resp.json();
-        groupsData = data.groups || [];
-    } catch (err) {
-        console.error('Error loading groups:', err);
-        showError('Failed to load groups. Please refresh the page.');
-    }
-}
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
 
-/**
- * Initialize the role assignment page
- */
-async function initializeRoleAssignment() {
-    try {
-        // Check if user has permission to access this page
-        await checkPermission();
-        
-        // Load users and groups in parallel
-        await Promise.all([
-            loadUsers(),
-            loadGroups()
-        ]);
-        
-        // Setup UI components
-        setupRoleFilter();
-        setupSearchBox();
-        setupModal();
-        
-        // Render the users table
-        renderUsersTable(usersData);
-        
-        hideLoading();
-        
-    } catch (error) {
-        console.error('Error initializing role assignment page:', error);
-        
-        if (error.message.includes('Permission Denied')) {
-            showError('Access Denied: You do not have permission to access this page.');
-            setTimeout(() => {
-                window.location.href = '/dashboard.html';
-            }, 2000);
-        } else {
-            showError('Failed to load user data. Please try again.');
+export async function initializeRoleAssignment() {
+    // 1. Target the WRAPPER, not the whole container.
+    // This preserves the Header and Modals (which are outside this wrapper)
+    const wrapper = document.getElementById('admin-content-wrapper');
+    if (!wrapper) return console.error('Admin content wrapper not found');
+
+    const initialHTML = wrapper.innerHTML;
+
+    await protectComponent(
+        wrapper, 
+        PERMISSIONS.ASSIGN_ROLES, 
+        async () => {
+            wrapper.innerHTML = initialHTML;
+
+            await loadData();
+            
+            setupRoleFilter();
+            setupSearchBox();
+            renderUsersTable(state.users);
+            renderAdminButtons();
+            
+            bindModalEvents();
+            setupDefaultsModal();
+
+            const loader = document.getElementById('loading-indicator');
+            if(loader) loader.classList.add('hidden');
         }
+    );
+}
+
+async function loadData() {
+    try {
+        const session = await API.getSession();
+        state.currentUserPermissions = session.user.permissions || [];
+
+        const promises = [API.getRoles(), API.getUsers()];
         
-        hideLoading();
+        if (state.currentUserPermissions.includes(PERMISSIONS.ASSIGN_GROUPS) || 
+            state.currentUserPermissions.includes(PERMISSIONS.CREATE_GROUPS)) {
+            promises.push(API.getGroups());
+        }
+
+        const [rolesData, usersData, groupsData] = await Promise.all(promises);
+        
+        state.roles = rolesData.roles || [];
+        state.users = usersData.users || [];
+        state.groups = groupsData ? (groupsData.groups || []) : [];
+
+    } catch (err) {
+        console.error("Data Load Error", err);
+        Notifications.error("Failed to load system data.");
     }
 }
 
-/**
- * Check if current user has ASSIGN_ROLES permission
- */
-async function checkPermission() {
-    const response = await fetch('/api/auth/session', {
-        cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-        throw new Error('Not authenticated');
-    }
-    
-    const data = await response.json();
-    
-    if (!data.success || !data.user) {
-        throw new Error('Not authenticated');
-    }
-    
-    // Check if user has ASSIGN_ROLES permission
-    const permissions = data.user.permissions || [];
-    if (!permissions.includes('ASSIGN_ROLES')) {
-        throw new Error('Permission Denied: ASSIGN_ROLES required');
-    }
-    
-    return true;
-}
+// =============================================================================
+// UI COMPONENTS
+// =============================================================================
 
-/**
- * Load users from the backend
- */
-async function loadUsers() {
-    console.log('Fetching users data...');
-    const response = await fetch('/users');
-    console.log('Users fetch response:', response);
-    
-    if (!response.ok) {
-        throw new Error('Failed to fetch users');
-    }
-    
-    const data = await response.json();
-    usersData = data.users || [];
-    filteredUsers = [...usersData];
-}
-
-/**
- * Setup the role filter dropdown
- */
 function setupRoleFilter() {
-    const roleFilter = document.getElementById('role-filter');
-    
-    // Populate role options
-    SYSTEM_ROLES.forEach(role => {
-        const option = document.createElement('option');
-        option.value = role.name;
-        option.textContent = role.name;
-        roleFilter.appendChild(option);
+    const filter = document.getElementById('role-filter');
+    if (!filter) return;
+    filter.innerHTML = '<option value="">All Roles</option>';
+    state.roles.forEach(role => {
+        filter.add(new Option(role.name, role.name));
     });
-    
-    // Add change event listener
-    roleFilter.addEventListener('change', () => {
-        filterUsers();
-    });
+    filter.addEventListener('change', filterUsers);
 }
 
-/**
- * Setup the search box
- */
 function setupSearchBox() {
-    const searchBox = document.getElementById('user-search');
-    
-    searchBox.addEventListener('input', () => {
-        filterUsers();
-    });
+    const input = document.getElementById('user-search');
+    if (input) input.addEventListener('input', filterUsers);
 }
 
-/**
- * Filter users based on search and role filter
- */
 function filterUsers() {
-    const searchTerm = document.getElementById('user-search').value.toLowerCase();
+    const term = document.getElementById('user-search').value.toLowerCase();
     const roleFilter = document.getElementById('role-filter').value;
-    
-    filteredUsers = usersData.filter(user => {
-        // Search filter
-        const matchesSearch = !searchTerm || 
-            user.name.toLowerCase().includes(searchTerm) ||
-            user.email.toLowerCase().includes(searchTerm);
-        
-        // Role filter
-        const matchesRole = !roleFilter || 
-            (user.role_name && user.role_name === roleFilter);
-        
+
+    const filtered = state.users.filter(user => {
+        const matchesSearch = !term || user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
+        const matchesRole = !roleFilter || (user.role_name && user.role_name.includes(roleFilter));
         return matchesSearch && matchesRole;
     });
-    
-    renderUsersTable(filteredUsers);
+    renderUsersTable(filtered);
 }
 
-/**
- * Render the users table
- */
 function renderUsersTable(users) {
     const tbody = document.getElementById('users-table-body');
+    if (!tbody) return;
     tbody.innerHTML = '';
-    
+
     if (users.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 2rem;">
-                    No users found
-                </td>
-            </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem;">No users found</td></tr>`;
         return;
     }
-    
+
+    const canAssignGroup = state.currentUserPermissions.includes(PERMISSIONS.ASSIGN_GROUPS);
+
     users.forEach(user => {
         const row = document.createElement('tr');
+        
+        const roleNames = user.role_name ? user.role_name.split(',').map(r => r.trim()) : [];
+        const roleBadges = roleNames.length > 0 
+            ? roleNames.map(r => `<span class="role-badge role-${r.toLowerCase().replace(/\s+/g, '-') || 'none'}">${escapeHtml(r)}</span>`).join(' ')
+            : `<span class="role-badge role-none">No Role</span>`;
+
+        let actions = `<button class="button button-small" style="background-color: #06c; color: white;" onclick="window.openRoleModal(${user.id})">Assign Role</button>`;
+        if (canAssignGroup) {
+            actions += `<button class="button button-small" style="margin-left: 5px; background-color: #06c; color: white;" onclick="window.openGroupModal(${user.id})">Assign Group</button>`;
+        }
+
         row.innerHTML = `
             <td class="user-name">${escapeHtml(user.name)}</td>
             <td class="user-email">${escapeHtml(user.email)}</td>
-            <td class="user-role">
-                <span class="role-badge role-${getRoleClass(user.role_name)}">
-                    ${escapeHtml(user.role_name || 'No Role')}
-                </span>
-            </td>
-            <td class="user-group">${escapeHtml(user.group_name || 'No Group')}</td>
-            <td class="user-actions">
-                <button class="button button-small" data-user-id="${user.id}" onclick="openRoleModal(${user.id})">
-                    Change Role or Group
-                </button>
-            </td>
+            <td class="user-role">${roleBadges}</td>
+            <td class="user-group">${escapeHtml(user.group_name || 'Unassigned')}</td>
+            <td class="user-actions">${actions}</td>
         `;
         tbody.appendChild(row);
     });
 }
 
-/**
- * Get CSS class for role badge
- */
-function getRoleClass(roleName) {
-    if (!roleName) return 'none';
-    return roleName.toLowerCase().replace(/\s+/g, '-');
+function renderAdminButtons() {
+    const subtitle = document.querySelector('.settings-subtitle');
+    if (!subtitle) return;
+    subtitle.innerHTML = ''; 
+
+    const createBtn = (text, id, handler, extraStyle = '') => {
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.textContent = text;
+        btn.className = 'btn-admin-action'; 
+        if (extraStyle) btn.style.cssText += extraStyle;
+        btn.onclick = handler;
+        return btn;
+    };
+
+    if (state.currentUserPermissions.includes(PERMISSIONS.CREATE_ROLES)) {
+        subtitle.appendChild(createBtn('System Defaults', 'btn-sys-defaults', openDefaultsModal, 'margin-right: 15px;'));
+    }
+
+    if (state.currentUserPermissions.includes(PERMISSIONS.MANAGE_PERMISSIONS)) {
+        subtitle.appendChild(createBtn('Manage Role Permissions', 'btn-manage-permissions', openPermissionsModal));
+    }
+
+    if (state.currentUserPermissions.includes(PERMISSIONS.CREATE_GROUPS)) {
+        subtitle.appendChild(createBtn('+ Create New Group', 'btn-create-group', openCreateGroupModal));
+    }
+
+    if (state.currentUserPermissions.includes(PERMISSIONS.CREATE_ROLES)) {
+        subtitle.appendChild(createBtn('+ Create New Role', 'btn-create-role', openCreateRoleModal));
+    }
 }
 
-/**
- * Setup modal functionality
- */
-function setupModal() {
+// =============================================================================
+// MODAL LOGIC
+// =============================================================================
+
+function bindModalEvents() {
+    document.querySelectorAll('.modal-close, .button-secondary').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetId = e.target.dataset.target;
+            if (targetId) toggleModal(targetId, false);
+        });
+    });
+
+    const handlers = {
+        'modal-assign': saveRoles,
+        'group-save': saveGroup,
+        'perm-save': savePermissions,
+        'create-group-save': createNewGroup,
+        'create-role-save': createNewRole
+    };
+
+    for (const [id, fn] of Object.entries(handlers)) {
+        const el = document.getElementById(id);
+        if (el) el.onclick = fn;
+    }
+
+    const permSelect = document.getElementById('perm-role-select');
+    if(permSelect) permSelect.addEventListener('change', (e) => loadRolePermissions(e.target.value));
+}
+
+// --- 1. Assign Role ---
+window.openRoleModal = function(userId) {
+    const user = state.users.find(u => u.id === userId);
+    if (!user) return;
+    
+    document.getElementById('modal-user-name').textContent = user.name;
+    document.getElementById('role-modal').dataset.userId = userId;
+    
+    const container = document.getElementById('role-checkbox-container');
+    if(!container) return;
+    container.innerHTML = '';
+    const currentRoles = user.role_name ? user.role_name.split(',').map(r => r.trim()) : [];
+
+    state.roles.forEach(role => {
+        const div = document.createElement('div');
+        div.style.cssText = 'display:flex; align-items:center; gap:8px;';
+        div.innerHTML = `
+            <input type="checkbox" id="chk-${role.id}" value="${role.id}" ${currentRoles.includes(role.name) ? 'checked' : ''}>
+            <label for="chk-${role.id}" style="margin:0; font-weight:500; cursor:pointer;">${role.name}</label>
+        `;
+        container.appendChild(div);
+    });
+    toggleModal('role-modal', true);
+}
+
+async function saveRoles() {
     const modal = document.getElementById('role-modal');
-    const closeBtn = document.getElementById('modal-close');
-    const cancelBtn = document.getElementById('modal-cancel');
-    const assignBtn = document.getElementById('modal-assign');
-    const roleSelect = document.getElementById('role-select');
-    const groupSelect = document.getElementById('group-select');
-    const createGroupBtn = document.getElementById('create-group-btn');
+    const userId = parseInt(modal.dataset.userId);
+    const checked = modal.querySelectorAll('input:checked');
+    const roleIds = Array.from(checked).map(cb => parseInt(cb.value));
 
-    // Populate group options
-    function populateGroupOptions() {
-        groupSelect.innerHTML = '';
-        // unassigned option
-        const noneOption = document.createElement('option');
-        noneOption.value = '';
-        noneOption.textContent = 'No Group';
-        groupSelect.appendChild(noneOption);
+    if (!userId || roleIds.length === 0) return alert('Select at least one role.');
 
-        groupsData.forEach(group => {
+    try {
+        await API.updateUserRole(userId, roleIds);
+        const user = state.users.find(u => u.id === userId);
+        user.role_name = roleIds.map(id => state.roles.find(r => r.id === id).name).join(', ');
+        filterUsers();
+        Notifications.success(`Roles updated for ${user.name}`);
+        toggleModal('role-modal', false);
+    } catch (err) { Notifications.error(err.message); }
+}
+
+// --- 2. Assign Group ---
+window.openGroupModal = function(userId) {
+    const user = state.users.find(u => u.id === userId);
+    if (!user) return;
+    
+    document.getElementById('group-user-name').textContent = user.name;
+    document.getElementById('group-modal').dataset.userId = userId;
+    
+    const select = document.getElementById('group-select');
+    select.innerHTML = ''; 
+    
+    if (state.groups.length === 0) {
+        select.add(new Option("No groups available", "", true, true));
+        select.disabled = true;
+    } else {
+        select.disabled = false;
+        state.groups.forEach(g => select.add(new Option(g.name, g.id)));
+        
+        if (user.group_id) select.value = user.group_id;
+        else if (user.group_name && user.group_name !== 'Unassigned') {
+            const g = state.groups.find(x => x.name === user.group_name);
+            select.value = g ? g.id : state.groups[0].id;
+        } else {
+            select.value = state.groups[0].id;
+        }
+    }
+    toggleModal('group-modal', true);
+}
+
+async function saveGroup() {
+    const modal = document.getElementById('group-modal');
+    const userId = parseInt(modal.dataset.userId);
+    const select = document.getElementById('group-select');
+    const groupId = parseInt(select.value);
+
+    try {
+        await API.updateUserGroup(userId, groupId);
+        const user = state.users.find(u => u.id === userId);
+        const grp = state.groups.find(g => g.id === groupId);
+        user.group_id = groupId;
+        user.group_name = grp ? grp.name : 'Unassigned';
+        filterUsers();
+        Notifications.success(`Group updated for ${user.name}`);
+        toggleModal('group-modal', false);
+    } catch (err) { Notifications.error(err.message); }
+}
+
+// --- 3. Manage Permissions ---
+async function openPermissionsModal() {
+    const select = document.getElementById('perm-role-select');
+    // Clear selections and inputs on open
+    select.innerHTML = '<option value="" disabled selected>-- Choose a Role --</option>';
+    document.getElementById('perm-role-level').value = ''; // RESET LEVEL INPUT
+
+    state.roles.forEach(r => select.add(new Option(r.name, r.id)));
+
+    if (state.permissions.length === 0) {
+        const data = await API.getAllPermissions();
+        state.permissions = data.permissions || [];
+    }
+
+    const tbody = document.getElementById('perm-table-body');
+    tbody.innerHTML = '';
+    state.permissions.forEach(perm => {
+        const row = document.createElement('tr');
+        row.style.borderBottom = '1px solid #eee';
+        row.innerHTML = `
+            <td style="text-align:center;"><input type="checkbox" class="perm-checkbox" value="${perm.name}" disabled></td>
+            <td style="font-family:monospace; font-weight:bold;">${perm.name}</td>
+            <td style="color:#666;">${perm.description || ''}</td>
+        `;
+        row.addEventListener('click', e => {
+            if(e.target.type !== 'checkbox') {
+                const cb = row.querySelector('input');
+                if(!cb.disabled) cb.checked = !cb.checked;
+            }
+        });
+        tbody.appendChild(row);
+    });
+
+    toggleModal('permissions-modal', true);
+}
+
+async function loadRolePermissions(roleId) {
+    const inputs = document.querySelectorAll('.perm-checkbox');
+    const levelInput = document.getElementById('perm-role-level');
+    const btn = document.getElementById('perm-save');
+    
+    btn.disabled = true;
+    
+    // Pre-fill level from local state
+    const role = state.roles.find(r => r.id == roleId);
+    if(role) levelInput.value = role.privilege_level;
+
+    try {
+        const data = await API.getRolePermissions(roleId);
+        const active = new Set(data.permissionNames || []);
+        
+        inputs.forEach(i => {
+            i.checked = active.has(i.value);
+            i.disabled = false;
+        });
+        btn.disabled = false;
+    } catch(err) { Notifications.error("Failed to fetch permissions"); }
+}
+
+async function savePermissions() {
+    const roleId = document.getElementById('perm-role-select').value;
+    const levelVal = document.getElementById('perm-role-level').value;
+    const checked = Array.from(document.querySelectorAll('.perm-checkbox:checked')).map(cb => cb.value);
+    
+    if (levelVal === '' || levelVal < 0 || levelVal > 100) {
+        return Notifications.error("Privilege level must be 0-100.");
+    }
+
+    try {
+        await API.updateRolePermissions(roleId, checked, parseInt(levelVal));
+        Notifications.success('Role configuration saved.');
+        await loadData();
+        toggleModal('permissions-modal', false);
+    } catch (err) { Notifications.error(err.message); }
+}
+
+// --- 4. Create Group ---
+window.openCreateGroupModal = function() {
+    document.getElementById('new-group-name').value = '';
+    toggleModal('create-group-modal', true);
+    setTimeout(() => document.getElementById('new-group-name').focus(), 100);
+}
+
+async function createNewGroup() {
+    const name = document.getElementById('new-group-name').value.trim();
+    if(!name) return Notifications.error('Name required');
+    try {
+        await API.createGroup(name);
+        Notifications.success(`Group "${name}" created.`);
+        const data = await API.getGroups();
+        state.groups = data.groups || [];
+        toggleModal('create-group-modal', false);
+    } catch(err) { Notifications.error(err.message); }
+}
+
+// --- 5. Create Role ---
+window.openCreateRoleModal = function() {
+    document.getElementById('new-role-name').value = '';
+    document.getElementById('new-role-desc').value = ''; // Reset description
+    document.getElementById('new-role-level').value = '';
+    toggleModal('create-role-modal', true);
+    setTimeout(() => document.getElementById('new-role-name').focus(), 100);
+}
+
+async function createNewRole() {
+    const name = document.getElementById('new-role-name').value.trim();
+    const desc = document.getElementById('new-role-desc').value.trim(); // Get Value
+    const level = document.getElementById('new-role-level').value;
+
+    if (!name) return Notifications.error('Role name required');
+    if (level === '' || level < 0 || level > 100) return Notifications.error('Level must be 0-100');
+
+    try {
+        // Pass desc to API
+        await API.createRole(name, level, desc);
+        Notifications.success(`Role "${name}" created.`);
+        const data = await API.getRoles();
+        state.roles = data.roles || [];
+        setupRoleFilter();
+        toggleModal('create-role-modal', false);
+    } catch(err) { Notifications.error(err.message); }
+}
+
+// --- 6. System Defaults ---
+function setupDefaultsModal() {
+    const btn = document.getElementById('save-defaults-btn');
+    if (btn) btn.onclick = saveSystemDefaults;
+}
+
+window.openDefaultsModal = function() {
+    const roleSelect = document.getElementById('default-role-select');
+    const groupSelect = document.getElementById('default-group-select');
+    
+    roleSelect.innerHTML = '';
+    state.roles.forEach(role => {
+        const opt = document.createElement('option');
+        opt.value = role.id;
+        opt.textContent = role.name;
+        if (role.is_default) opt.selected = true; 
+        roleSelect.appendChild(opt);
+    });
+
+    groupSelect.innerHTML = '';
+    if (state.groups.length > 0) {
+        state.groups.forEach(group => {
             const opt = document.createElement('option');
             opt.value = group.id;
             opt.textContent = group.name;
             groupSelect.appendChild(opt);
         });
+    } else {
+        const opt = document.createElement('option');
+        opt.text = "No groups available";
+        opt.disabled = true;
+        groupSelect.appendChild(opt);
     }
-    populateGroupOptions();
 
-    // Create Group button handler
-    createGroupBtn.addEventListener('click', async () => {
-        const name = window.prompt('Enter new group name:');
-        if (!name || !name.trim()) return;
-
-        try {
-            const resp = await fetch('/api/admin/groups', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name.trim() })
-            });
-
-            const data = await resp.json();
-            if (!resp.ok) {
-                showError(data.error || 'Failed to create group.');
-                return;
-            }
-
-            // Add new group to local list and repopulate dropdown
-            groupsData.push({ id: data.id, name: name.trim() });
-            populateGroupOptions();
-
-            // Select the newly created group
-            groupSelect.value = String(data.id);
-            showSuccessMessage(data.message);
-
-        } catch (err) {
-            console.error('Error creating group:', err);
-            showError('Failed to create group. Please try again.');
-        }
-    });
-
-    // Populate role select options
-    SYSTEM_ROLES.forEach(role => {
-        const option = document.createElement('option');
-        option.value = role.name;
-        option.textContent = role.name;
-        option.dataset.description = role.description;
-        roleSelect.appendChild(option);
-    });
-    
-    // Show role description on select change
-    roleSelect.addEventListener('change', (e) => {
-        const selectedOption = e.target.selectedOptions[0];
-        const description = selectedOption.dataset.description || '';
-        document.getElementById('role-description-text').textContent = description;
-    });
-    
-    // Close modal handlers
-    closeBtn.addEventListener('click', () => closeModal());
-    cancelBtn.addEventListener('click', () => closeModal());
-    
-    // Assign role handler
-    assignBtn.addEventListener('click', () => assignRole());
-    
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
+    toggleModal('defaults-modal', true);
 }
 
-/**
- * Open the role assignment modal
- */
-window.openRoleModal = function(userId) {
-    const user = usersData.find(u => u.id === userId);
-    if (!user) return;
-    
-    const modal = document.getElementById('role-modal');
-    const userNameEl = document.getElementById('modal-user-name');
-    const roleSelect = document.getElementById('role-select');
-    const groupSelect = document.getElementById('group-select');
-
-    // Set user information
-    userNameEl.textContent = user.name;
-    modal.dataset.userId = userId;
-    
-    // Set current role as selected
-    if (user.role_name) {
-        roleSelect.value = user.role_name;
-        // Trigger change event to show description
-        roleSelect.dispatchEvent(new Event('change'));
-    } else {
-        roleSelect.value = 'Guest';
-        roleSelect.dispatchEvent(new Event('change'));
-    }
-
-    // Set group selection
-    if (user.group_id !== null && user.group_id !== undefined) {
-        groupSelect.value = String(user.group_id);   // Matches option values
-    } else {
-        groupSelect.value = '';  // No group assigned
-    }
-
-    // Show modal
-    modal.classList.remove('hidden');
-};
-
-/**
- * Close the modal
- */
-function closeModal() {
-    const modal = document.getElementById('role-modal');
-    modal.classList.add('hidden');
-    modal.dataset.userId = '';
-}
-
-/**
- * Assign role (frontend only - not persisted to backend)
- */
-async function assignRole() {
-    const modal = document.getElementById('role-modal');
-    const userId = parseInt(modal.dataset.userId);
-    const roleSelect = document.getElementById('role-select');
-    const newRole = roleSelect.value;
-    const groupSelect = document.getElementById('group-select');
-    const newGroupId = groupSelect.value === "" ? null : Number(groupSelect.value);
-
-    if (!userId || !newRole) {
-        alert('Invalid role selection');
-        return;
-    }
+async function saveSystemDefaults() {
+    const roleId = document.getElementById('default-role-select').value;
+    const groupVal = document.getElementById('default-group-select').value;
+    const groupId = groupVal ? parseInt(groupVal) : null;
+    const btn = document.getElementById('save-defaults-btn');
 
     try {
-        const saveButton = document.getElementById('modal-assign');
-        saveButton.disabled = true;
-        const role = SYSTEM_ROLES.find(r => r.name === newRole);
-        if (!role) {
-            throw new Error('Selected role not found');
-        }
-
-        // Update Group
-        const groupRes = await fetch(`/api/admin/users/${userId}/group`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ groupId: newGroupId })
-        });
-
-        if (!groupRes.ok) {
-            const data = await groupRes.json();
-            throw new Error(data.error || 'Failed to update group');
-        }
-
-        // Update Role
-        const response = await fetch(`/api/admin/users/${userId}/roles`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                roleIds: [role.id]
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update role');
-        }
-
-        // Find the user and update their role locally
-        const user = usersData.find(u => u.id === userId);
-        if (user) {
-            const oldRole = user.role_name;
-            user.role_name = newRole;
-            user.group_id = newGroupId;
-            if (newGroupId === null) {
-                user.group_name = "No Group";
-            } else {
-                const selectedGroup = groupsData.find(g => g.id === newGroupId);
-                user.group_name = selectedGroup ? selectedGroup.name : "Unknown";
-            }
-            // Update the display
-            filterUsers();
-            
-            // Show success message
-            showSuccessMessage(`Updated: ${user.name} → Role: "${newRole}", Group: ${user.group_name || 'None'}`);
-        }
-        
-        closeModal();
-    } catch (error) {
-        console.error('Error updating role:', error);
-        showError(error.message || 'Failed to update role. Please try again.');
-    } finally {
-        const saveButton = document.getElementById('modal-assign');
-        if (saveButton) {
-            saveButton.disabled = false;
-        }
-    }
-}
-
-/**
- * Show a success notification toast.
- */
-function showSuccessMessage(message) {
-    showToast(message, false);
-}
-
-/**
- * Show an error notification toast.
- */
-function showError(message) {
-    showToast(message, true);
-}
-
-/**
- * Core toast renderer. Creates a notification pop-up that:
- * - slides in from the right
- * - stays for 3 seconds
- * - fades out and removes itself
- */
-function showToast(message, isError = false) {
-    // Get the toast container
-    const container = document.getElementById('toast-container');
-    if (!container) return; // prevents errors if container isn't mounted
-
-    // Create the toast element
-    const toast = document.createElement('div');
-    toast.classList.add('toast'); // Base toast styling
-
-    // If error → apply red styling
-    if (isError) toast.classList.add('error');
-
-    toast.textContent = message;
-
-    // Add toast to the container so it becomes visible
-    container.appendChild(toast);
-
-    // After 3 seconds, fade out and remove the toast
-    setTimeout(() => {
-        // Trigger fade-out animation
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(30px)';
-
-        // Remove from DOM after animation finishes
-        setTimeout(() => toast.remove(), 600);
-    }, 3000);
-}
-
-/**
- * Hide loading indicator
- */
-function hideLoading() {
-    const loadingDiv = document.getElementById('loading-indicator');
-    loadingDiv.classList.add('hidden');
-}
-
-/**
- * Escape HTML to prevent XSS
- */
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-/**
- * Open and close the form
- */
-function openCreateGroupModal() {
-    document.getElementById('create-group-modal').classList.remove('hidden');
-}
-
-function closeCreateGroupModal() {
-    document.getElementById('create-group-modal').classList.add('hidden');
-}
-
-/**
- * Create Group functionality
- */
-async function createNewGroup() {
-    const name = document.getElementById('new-group-name').value.trim();
-
-    if (!name) {
-        showError("Group name cannot be empty");
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/admin/groups', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            showError(data.error || "Failed to create group");
-            return;
-        }
-
-        showSuccessMessage(`Group "${name}" created successfully`);
-
-        // Refresh the groups list so modal dropdown updates immediately
-        await loadGroups();
-
-        closeCreateGroupModal();
-
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+        await API.setSystemDefaults(roleId, groupId);
+        Notifications.success("System defaults updated.");
+        await loadData();
+        toggleModal('defaults-modal', false);
     } catch (err) {
-        console.error(err);
-        showError("Server error while creating group");
+        Notifications.error(err.message || "Failed to save defaults.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Defaults";
     }
 }
 
-/* For the DOM content */
-document.addEventListener("DOMContentLoaded", () => {
-    const createBtn = document.getElementById('create-group-btn');
-    const confirmBtn = document.getElementById('create-group-confirm');
-
-    if (createBtn) {
-        createBtn.addEventListener('click', openCreateGroupModal);
+// --- Helpers ---
+function toggleModal(id, show) {
+    const el = document.getElementById(id);
+    if(el) {
+        if(show) { el.classList.remove('hidden'); el.classList.add('active'); }
+        else { el.classList.add('hidden'); el.classList.remove('active'); }
     }
-
-    if (confirmBtn) {
-        confirmBtn.addEventListener('click', createNewGroup);
-    }
-});
-
-export { initializeRoleAssignment };
+}
+window.closeModal = (id) => toggleModal(id, false);
