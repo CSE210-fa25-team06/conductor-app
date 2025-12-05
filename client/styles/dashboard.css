@@ -9,12 +9,7 @@ body {
   margin: 0;
   color: #2c3e50;
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
-  grid-template-rows: 60px 1fr 35px;
-  grid-template-areas: 
-    "sidebar header"
-    "sidebar main"
-    "sidebar footer";
+  grid-template: "sidebar header" 60px "sidebar main" 1fr "sidebar footer" 35px / var(--sidebar-width) 1fr;
   transition: grid-template-columns 0.3s ease;
   height: 100vh; 
   overflow: hidden; 
@@ -324,7 +319,7 @@ footer {
   grid-area: footer;
   background: white;
   border-top: 1px solid #e9ecef;
-  padding: 1rem 1rem;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -332,15 +327,4 @@ footer {
   font-size: 0.8rem;
   position: sticky; 
   bottom: 0;
-}
-
-.footer-links a {
-  color: #036;
-  text-decoration: none;
-  margin: 0 0.5rem;
-  font-size: 0.7rem;
-}
-
-.footer-links a:hover {
-  text-decoration: underline;
 }
