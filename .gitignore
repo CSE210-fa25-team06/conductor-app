@@ -4,6 +4,7 @@ node_modules/
 coverage/
 pgdata/
 postgres.log
+server/swagger-output.json
 
 # Playwright
 /test-results/

@@ -21,11 +21,15 @@ if (rawData.permissions && Array.isArray(rawData.permissions)) {
     });
 }
 
-/**
- * GET /api/config/js/permissions.js
- * Serves the FLATTENED map to the frontend
- */
+
 router.get('/js/permissions.js', (req, res) => {
+    /**
+     * @swagger
+     * #swagger.tags = ['Configuration']
+     * #swagger.summary = 'Return flattened permissions map'
+     * #swagger.description = 'Used by frontend to dynamically load permission constants.'
+     * #swagger.responses[200] = { description: "JavaScript permissions file." }
+     */
     const fileContent = `
         /**
          * AUTO-GENERATED PERMISSION CONSTANTS
