@@ -1,63 +1,148 @@
 // scripts/attendance.js
 export function renderAttendance(containerEl) {
-	containerEl.innerHTML = `
-    <main class="attendance-container">
-      <div class="controls">
-        <div class="controls-row">
-          <div class="controls-left">
-            <div class="form-group">
-              <label for="meetingDate">Meeting date:</label>
-              <input type="text" id="meetingDate" class="date-input" placeholder="____/__/____">
-            </div>
-            <div class="form-group">
-              <label>Meeting type:</label>
-              <div class="checkbox-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="lecture" name="meetingType">
-                  <span>Lecture</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="informal" name="meetingType">
-                  <span>Informal</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
+  //same code as in dashboard.js
+  fetch("../attendance.html")
+    .then((resp) => {
+      if (!resp.ok) throw new Error(resp.statusText || "Network error");
+      return resp.text();
+    })
+    .then((html) => {
+      containerEl.innerHTML = html;
+      initAttendanceLogic()
+    })
+    .catch((err) => {
+      containerEl.innerHTML = `<p>Failed to load attendance: ${err.message}</p>`;
+      containerEl.style.opacity = 1;
+    });
+}
 
-        <div class="bottom-row">
-          <button type="button" class="sort-btn">Sort ⋯</button>
-          <button type="button" class="submit-btn">Submit</button>
-        </div>
-      </div>
+async function createQRAndStartMeeting() {
+	//get session info (from dashboard page - should redirect if not logged in)
+	const resp = await fetch('/api/auth/session', {
+		cache: 'no-store'
+	})
 
-      <div class="student-list">
-        <div class="student-row">
-          <div class="student-avatar"></div>
-          <div class="student-info">
-            <div class="student-name">FName LName</div>
-            <div class="student-group">Group N</div>
-          </div>
-        </div>
-        <div class="student-row selected">
-          <div class="student-avatar"></div>
-          <div class="student-info">
-            <div class="student-name">FName LName</div>
-            <div class="student-group">Group N</div>
-          </div>
-        </div>
-        <div class="student-row">
-          <div class="student-avatar"></div>
-          <div class="student-info">
-            <div class="student-name">FName LName</div>
-            <div class="student-group">Group N</div>
-          </div>
-        </div>
-      </div>
-    </main>
-  `
+	if (!resp.ok) {
+		window.location.href = '/index.html';
+		return;
+	}
 
-	initAttendanceLogic()
+	const data = await resp.json();
+	//successful login
+	if (data.success && data.user) {
+		//create modal QR
+		const qrModal = createQRModal();
+		//start meeting
+		const meetingData = await startMeeting(data.user.id);
+		if (meetingData == null) {
+			//temp fix - maybe we should have a placeholder img to display when
+			//network failure?
+			qrModal.classList.remove('active');
+			setTimeout(() => {qrModal.remove()}, 300);
+			alert("Error starting attendance session. Please try again.");
+			return;
+		}
+		//initialize QR modal
+		initQRModal(qrModal, meetingData.session_id, meetingData.qrImageDataUrl);
+	}
+}
+
+function createQRModal() {
+	//find QR code template
+	const qrTemplate = document.getElementById("QRModal");
+	const qrModalContent = qrTemplate.content;
+	//have to make a deep copy of the content
+	const qrModal = document.importNode(qrModalContent, true)
+
+	//add element to DOM
+	document.body.appendChild(qrModal);
+
+	//return reference to modal
+	const modalRoot = document.getElementById("modalRoot");
+	modalRoot.classList.add("active");
+
+	//TODO: Re-open modal if closed but session is not ended
+	//this will need to be done once I can work with Isheta's changes (right now just a button)
+	const removeModal = () => {
+		modalRoot.classList.remove('active');
+		setTimeout(() => {modalRoot.remove()}, 300);
+	}
+	//setup modal close functionality here
+	const closeBtn = document.getElementById("closeModal");
+	closeBtn.addEventListener("click", removeModal);
+
+	return modalRoot;
+}
+
+async function startMeeting(uid) {
+	try {
+		const payload = {user_id: uid};
+		const resp = await fetch('attendance/start', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		});
+
+		if (!resp.ok) {
+			throw new Error(`Fetch error. Status: ${resp.status}`)
+		}
+
+		const data = await resp.json();
+
+		return data;
+	}
+	catch (error) {
+    	console.error('Error starting attendance session:', error);
+		return null;
+  	}
+}
+
+function initQRModal(qrModal, session_id, qr_code_img) {
+	//initialize content of qrModal. needs to:
+	//1. update QR code image to relevant meeting QR
+	//2. create end meeting button listener to end current meeting
+
+	//1. update QR image
+	const img = qrModal.querySelector("#qr-image");
+	img.src = qr_code_img;
+
+	//2. end meeting event listener
+	const endMeetingBtn = qrModal.querySelector("#endMeeting");
+	endMeetingBtn.addEventListener("click", () => endMeeting(session_id, qrModal));
+}
+
+async function endMeeting(meetingID, qrModal) {
+	//end meeting - need to ensure user is authorized to end
+	//the meeting they are trying to end
+	try {
+		const payload = {session_id: meetingID};
+		const resp = await fetch("attendance/end", {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		})
+
+		if (!resp.ok) {
+			throw new Error(`Fetch error. Status: ${resp.status}`);
+		}
+
+		const data = await resp.json();
+
+		if (data.success && !data.is_active) {
+			//success ending session, can safely destroy modal
+			qrModal.classList.remove('active');
+			setTimeout(() => {qrModal.remove()}, 300);
+			alert(`Session ${meetingID} successfully ended.`)
+		} else {
+			throw new Error(`Session ${meetingID} still active.`)
+		}
+	} catch (error) {
+		console.error(`Failed to end session: ${error}`);
+	}
 }
 
 function initAttendanceLogic() {
@@ -68,6 +153,10 @@ function initAttendanceLogic() {
 			row.classList.toggle('selected')
 		})
 	})
+
+	// Start meeting button
+	const meetingBtn = document.getElementById("startMeetingBtn");
+	meetingBtn.addEventListener("click", createQRAndStartMeeting)
 
 	// Date input formatting
 	const dateInput = document.getElementById('meetingDate')
