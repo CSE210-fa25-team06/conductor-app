@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FullCalendar Test</title>
+
+  <!-- FULLCALENDAR CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+
+  <style>
+    body { font-family: sans-serif; padding: 30px; }
+    #calendar { max-width: 800px; margin: 40px auto; }
+  </style>
+</head>
+
+<body>
+  <h2>FullCalendar Test Page</h2>
+
+  <div id="calendar"></div>
+
+  <!-- FULLCALENDAR JS -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+  <script>
+    console.log("FullCalendar global:", window.FullCalendar);
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const calendarEl = document.getElementById("calendar");
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+      });
+
+      calendar.render();
+    });
+  </script>
+
+</body>
+</html>

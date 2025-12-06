@@ -2,20 +2,21 @@
   This file defines the base routes for the Conductor API.
   It handles requests made to the root endpoint ("/").
 */
-import express from "express";
-import { router as usersRouter } from "./users.js";
-import { router as groupsRouter } from "./groups.js";
-import { router as journalsRouter } from "./journals.js";
+const express = require("express");
+const usersRouter = require("./users");
+const groupsRouter = require("./groups");
+const journalsRouter = require("./journals");
+const attendanceRouter = require("./attendance");
 
-export const router = express.Router();
-import {router as attendanceRouter} from "./attendance.js";
+const router = express.Router();
 
 router.get("/", (req, res) => {
   res.send("Welcome to the Conductor API");
 });
 
-// Mount sub-routers
 router.use("/users", usersRouter);
 router.use("/groups", groupsRouter);
 router.use("/journal", journalsRouter);
 router.use("/attendance", attendanceRouter);
+
+module.exports = router;
