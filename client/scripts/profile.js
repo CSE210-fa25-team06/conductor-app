@@ -1,36 +1,29 @@
+/**
+ * @file profile.js
+ * @description Renders the user profile page with enriched metadata.
+ */
+
 export function renderProfilePage(contentElement) {
     fetch('/api/auth/session', { cache: 'no-store' })
         .then(res => res.json())
         .then(sessionData => {
             if (!sessionData.user) return;
-
-            const sessionUser = sessionData.user;
-            const currentUserId = sessionUser.id;
+            const user = sessionData.user;
             
-            fetch('/users')
-                .then(res => res.json())
-                .then(directoryData => {
-                    const directoryUser = directoryData.users?.find(user => user.id === currentUserId);
-                    
-                    const role = sessionUser.effectiveRoleName || "No role assigned";
-                    const photoUrl = sessionUser.photo_url || directoryUser?.photo_url || 'No image available';
-                    const contactInfo = sessionUser.contact_info || directoryUser?.contact_info || 'Not provided';
-                    const availability = sessionUser.availability || directoryUser?.availability;
-                    const formattedAvailability = availability ? formatAvailability(availability) : 'Not set';
-                    const groupName = sessionUser.groupName || directoryUser?.group_name || 'No group assigned';
+            // Format Data
+            const joinedDate = new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const lastActive = user.last_active_at ? new Date(user.last_active_at).toLocaleDateString() : 'Never';
+            const lastJournal = user.last_journal_date ? new Date(user.last_journal_date).toLocaleDateString() : 'No submissions';
+            
+            const rawDesc = user.roles && user.roles.length > 0 ? user.roles[0].description : null;
+            const roleDesc = rawDesc || 'No description available.';
 
-                    renderProfileContent(contentElement, sessionUser, role, photoUrl, contactInfo, formattedAvailability, groupName);
-                })
-                .catch(error => {
-                    console.error('Error loading directory data:', error);
-                    const role = sessionUser.effectiveRoleName || "No role assigned";
-                    const photoUrl = sessionUser.photo_url || 'No image available';
-                    const contactInfo = sessionUser.contact_info || 'Not provided';
-                    const formattedAvailability = sessionUser.availability ? formatAvailability(sessionUser.availability) : 'Not set';
-                    const groupName = sessionUser.groupName || 'No group assigned';
-                    
-                    renderProfileContent(contentElement, sessionUser, role, photoUrl, contactInfo, formattedAvailability, groupName);
-                });
+            let providerLabel = 'Local';
+            if (user.provider) {
+                providerLabel = user.provider.charAt(0).toUpperCase() + user.provider.slice(1);
+            }
+
+            renderProfileContent(contentElement, user, joinedDate, lastActive, lastJournal, roleDesc, providerLabel);
         })
         .catch(error => {
             console.error('Error loading session data:', error);
@@ -38,46 +31,76 @@ export function renderProfilePage(contentElement) {
         });
 }
 
-function renderProfileContent(contentElement, user, role, photoUrl, contactInfo, availability, groupName) {
+function renderProfileContent(contentElement, user, joinedDate, lastActive, lastJournal, roleDesc, providerLabel) {
+    const formattedAvailability = formatAvailability(user.availability);
+    
+    const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" class="resource-btn repo">GitHub Repo</a>` : '';
+    const slackBtn = user.slack_link ? `<a href="${user.slack_link}" target="_blank" class="resource-btn slack">Slack Channel</a>` : '';
+    
+    const resourcesSection = (repoBtn || slackBtn) ? `
+        <div class="detail-group">
+            <h3>Team Resources</h3>
+            <div class="resources-wrapper">
+                ${repoBtn}
+                ${slackBtn}
+            </div>
+        </div>
+    ` : '';
+
     contentElement.innerHTML = `
         <h2 class="profile-title">Profile</h2>
 
         <section class="profile-wrapper">
             <section class="profile-photo-section">
-                <img src="${photoUrl}" alt="Profile Photo" class="profile-photo">
+                <img src="${user.photo_url || 'https://via.placeholder.com/250'}" alt="Profile Photo" class="profile-photo">
+                <div class="profile-meta-badges">
+                    <span class="meta-badge">${providerLabel} Account</span>
+                    <span class="meta-badge">Joined ${joinedDate}</span>
+                </div>
             </section>
 
             <section class="profile-info">
                 <div class="profile-header">
                     <h2>${user.name}</h2>
+                    <div class="role-container">
+                        <span class="current-role">${user.effectiveRoleName}</span>
+                        <span class="role-desc">${roleDesc}</span>
+                    </div>
                 </div>
                 
                 <div class="profile-details">
                     <div class="detail-group">
-                        <h3>Account Information</h3>
+                        <h3>Contact & Availability</h3>
                         <p><strong>Email:</strong> ${user.email}</p>
-                        <p><strong>Role:</strong> ${role}</p>
-                        <p><strong>Group:</strong> ${groupName}</p>
-                        <p><strong>User ID:</strong> ${user.id}</p>
+                        <p><strong>Contact:</strong> ${user.contact_info || 'Not provided'}</p>
+                        <p><strong>Availability:</strong> ${formattedAvailability}</p>
                     </div>
 
                     <div class="detail-group">
-                        <h3>Contact Information</h3>
-                        <p><strong>Contact:</strong> ${contactInfo}</p>
-                        <p><strong>Availability:</strong> ${availability}</p>
+                        <h3>Group Assignment</h3>
+                        <div class="group-info">
+                            <span class="group-name">${user.groupName}</span>
+                        </div>
+                        ${resourcesSection}
                     </div>
-                </div>
 
-                <div class="profile-actions">
-                    <button class="permissions-btn" id="view-permissions-btn">View Permissions</button>
+                    <div class="detail-group">
+                        <h3>Activity Stats</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Last Active</span>
+                                <span class="stat-value">${lastActive}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Last Journal</span>
+                                <span class="stat-value">${lastJournal}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </section>
     `;
-
-    document.getElementById('view-permissions-btn').addEventListener('click', () => {
-        renderPermissionsTable(contentElement, user, role);
-    });
 }
 
 function formatAvailability(availability) {
@@ -90,72 +113,4 @@ function formatAvailability(availability) {
     } catch {
         return availability;
     }
-}
-
-function renderPermissionsTable(contentElement, user, userRole) {
-    fetch('/api/auth/session', { cache: 'no-store' })
-        .then(res => {
-            if (!res.ok) throw new Error('Failed to load user session');
-            return res.json();
-        })
-        .then(sessionData => {
-            const userData = sessionData.user;
-            
-            const allPermissions = new Set();
-            
-            userData.permissions?.forEach(perm => allPermissions.add(perm));
-            
-            userData.roles?.forEach(role => {
-                role.permissions?.forEach(perm => allPermissions.add(perm.name));
-            });
-
-            const sortedPermissions = Array.from(allPermissions).sort();
-            
-            contentElement.innerHTML = `
-                <h2 class="profile-title">Permissions</h2>
-                
-                <section class="permissions-section">
-                    <section class="permissions-header">
-                        <div class="permissions-header-content">
-                            <h3>Your role - ${userRole}</h3>
-                            <p class="permissions-count">You have ${userData.permissions?.length || 0} active permissions</p>
-                        </div>
-                        <button class="back-to-profile-btn" id="back-to-profile">← Back to Profile</button>
-                    </section>
-                    
-                    <table class="permissions-table">
-                        <thead>
-                            <tr>
-                                <th>Permission</th>
-                                <th>Access</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${sortedPermissions.map(permission => `
-                                <tr>
-                                    <td class="permission-name">${permission}</td>
-                                    <td class="permission-access">
-                                        <span class="access-badge ${userData.permissions?.includes(permission) ? 'has-access' : 'no-access'}">
-                                            ${userData.permissions?.includes(permission) ? 'Yes' : 'No'}
-                                        </span>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </section>
-            `;
-
-            document.getElementById('back-to-profile').addEventListener('click', () => {
-                renderProfilePage(contentElement);
-            });
-
-        }).catch(error => {
-            console.error('Error loading permissions:', error);
-            contentElement.innerHTML = `
-                <p>Error loading permissions data: ${error.message}</p>
-                <p>Check browser console for details.</p>
-                <button class="back-to-profile-btn" onclick="renderProfilePage(this.parentElement)">← Back to Profile</button>
-            `;
-        });
 }

@@ -44,10 +44,10 @@
         "click element #journal",
         "wait for element .journal-overview-container to be visible",
         "click element #createJournalBtn",
-        "wait for element #journalModal to be visible"
+        "wait for element #journal-modal to be visible"
       ],
       "_comment": "Test journal submission page."
-    },
+    }, 
     {
       "url": "http://localhost:3000/api/auth/login",
       "actions": [

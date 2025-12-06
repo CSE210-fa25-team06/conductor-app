@@ -1,0 +1,519 @@
+/*
+  settings.css
+  Styles for the Admin Control Panel (Role & Group Assignment)
+*/
+
+/* --- Main Layout --- */
+.settings-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #063970;
+    color: white;
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.settings-header h1 {
+    margin: 0;
+    color: white;
+    font-weight: 600;
+    font-size: 1.6rem;
+}
+
+/* Admin Action Bar (Header Buttons) */
+.settings-subtitle {
+    display: flex;    
+    align-items: center;
+    gap: 10px;
+    margin-top: 0;
+    min-height: 40px;
+}
+
+/* Controls Area (Search/Filter) */
+.settings-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-box input {
+    width: 95%;
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #06c;
+    box-shadow: 0 0 0 2px rgb(0 102 204 / 10%);
+}
+
+.filter-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-box label {
+    font-weight: 500;
+    color: #555;
+}
+
+.filter-box select {
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    min-width: 150px;
+}
+
+/* --- Table Styling --- */
+.users-table-container {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+    overflow: hidden;
+    background: white;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.users-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.user-email {
+    color: #666;
+}
+
+/* Role Badges */
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background-color: #e9ecef; /* Neutral Gray */
+    color: #495057;
+    border: 1px solid #ced4da;
+}
+
+.role-guest { 
+    background: #f0f0f0; 
+    color: #666; 
+}
+
+.role-student { 
+    background: #e3f2fd; 
+    color: #1976d2; 
+}
+
+.role-group-leader { 
+    background: #fff3e0; 
+    color: #f57c00; 
+}
+
+.role-tutor { 
+    background: #f3e5f5; 
+    color: #7b1fa2; 
+}
+
+.role-ta { 
+    background: #e8f5e9; 
+    color: #388e3c; 
+}
+
+.role-professor { 
+    background: #fce4ec; 
+    color: #c2185b; 
+}
+
+.role-none { 
+    background: #f5f5f5; 
+    color: #999; 
+}
+
+/* Buttons */
+.button-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.button-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.button-secondary:hover { background: #5a6268; }
+
+.button-primary {
+    background: #06c;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.button-primary:hover { background: #0059b3; }
+
+/* Primary Admin Buttons (Header) */
+.btn-admin-action {
+    background-color: #06c; 
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-admin-action:hover {
+    background-color: #0059b3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgb(0 0 0 / 30%);
+}
+
+.btn-admin-action:active {
+    background-color: #004d99;
+    transform: translateY(0);
+}
+
+/* --- Modal Styles --- */
+.modal-overlay, .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(0 0 0 / 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden, .modal-overlay.hidden {
+    display: none;
+}
+
+.modal.active, .modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgb(0 0 0 / 30%);
+    text-align: left !important; /* Force left alignment */
+}
+
+/* Large Modal variant for Permissions Table */
+.modal-large {
+    max-width: 900px;
+    height: 80vh; /* Fixed height to allow scrolling */
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h2, .modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+}
+
+.modal-close:hover { color: #333; }
+
+.modal-body {
+    padding: 1.5rem;
+    text-align: left !important;
+}
+
+.flex-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* --- Specific Modal Controls --- */
+
+/* Role Checkbox List */
+#role-checkbox-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Permissions Config */
+.controls-row {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.controls-row label {
+    font-weight: bold;
+}
+
+.controls-row select {
+    padding: 8px;
+    min-width: 250px;
+    font-size: 1rem;
+}
+
+.permissions-table-container {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.permissions-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.permissions-table thead {
+    background: #f5f5f5;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.permissions-table th {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    font-weight: 600;
+    color: #333;
+}
+
+.permissions-table th.col-check {
+    width: 60px;
+    text-align: center;
+}
+
+.permissions-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.permissions-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* --- Toast Notifications --- */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+    font-size: 0.95rem;
+    min-width: 250px;
+    border-left: 4px solid #2e7d32;
+    animation: toast-slide-in 0.3s ease-out;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.toast.error {
+    background: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #c62828;
+}
+
+@keyframes toast-slide-in {
+    from { 
+        opacity: 0; 
+        transform: translateX(30px); 
+    }
+
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+/* Utilities */
+.hidden {
+    display: none !important;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+/* AuthGuard Error State Styling */
+.settings-container .error {
+    text-align: center;
+    margin-top: 4rem;
+    padding: 2rem;
+    background-color: white;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    color: #721c24;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 5%);
+}
+
+.settings-container .error h2 {
+    margin-top: 0;
+    color: #c62828;
+}
+
+/* Responsive Design */
+@media (width <= 768px) {
+    .settings-container {
+        padding: 0 1rem;
+    }
+
+    .settings-header {
+        text-align: center;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .settings-subtitle {
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .btn-admin-action {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .settings-controls {
+        flex-direction: column;
+    }
+
+    .search-box, .filter-box {
+        width: 100%;
+    }
+
+    .users-table th, .users-table td {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+}

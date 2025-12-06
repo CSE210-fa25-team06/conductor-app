@@ -3,10 +3,6 @@
  * @description Programmatically seeds the database with initial roles, permissions, 
  * and their default associations based on configuration files.
  * To run: node db/db-seeder.js
- * UPDATED FEATURES:
- * - Skips creating Groups/Roles if they already exist (prevents duplicates).
- * - Syncs Permissions: Wipes existing links and re-applies them from config (allows editing config).
- * - Provisions Demo Users if they don't exist.
  */
 
 const { 
@@ -66,13 +62,10 @@ async function seedRolesAndPermissions() {
         // 1. Seed Permissions (Master List)
         // =====================================================================
         console.log('\n1. Syncing master list of permissions...');
-        // We assume createPermission handles ON CONFLICT DO NOTHING internally.
-        // If not, this loop could be wrapped in a check similar to Groups below.
         for (const perm of permissionsConfig) {
             try {
                 await createPermission(perm.name, perm.description);
             } catch (err) {
-                // Ignore unique constraint errors if they exist
                 if (err.code !== '23505') throw err; 
             }
         }
@@ -103,18 +96,13 @@ async function seedRolesAndPermissions() {
             
             if (checkRes.rows.length > 0) {
                 console.log(`   - Skipped creation: '${group.name}' already exists.`);
+                if (group.isDefault) defaultGroupId = checkRes.rows[0].id;
             } else {
                 // CREATE
-                await createGroup(group.name, group.isDefault, group.description);
+                const newId = await createGroup(group.name, null, null, null);
                 console.log(`   - Created group: ${group.name}`);
+                if (group.isDefault) defaultGroupId = newId;
             }
-        }
-
-        // Retreive Default Group ID for User Seeding
-        const defaultGroupConfig = groupsConfig.find(g => g.isDefault);
-        if (defaultGroupConfig) {
-            const groupRes = await client.query('SELECT id FROM groups WHERE name = $1', [defaultGroupConfig.name]);
-            if (groupRes.rows.length > 0) defaultGroupId = groupRes.rows[0].id;
         }
 
         // =====================================================================
@@ -131,11 +119,19 @@ async function seedRolesAndPermissions() {
             if (checkRes.rows.length > 0) {
                 roleId = checkRes.rows[0].id;
                 console.log(`   - Found existing role: '${role.name}' (ID: ${roleId})`);
-            } else {
-                // CREATE
-                roleId = await createRole(role.name, role.privilege_level, role.isDefault);
-                console.log(`   - Created role: ${role.name} (ID: ${roleId})`);
-            }
+            } 
+            
+            // FIX: Ensure we call createRole with the correct arguments to update/create
+            // Arg Order: (name, privilege_level, description, is_default)
+            // This runs an UPSERT, so it will fix the "false" descriptions in your DB.
+            roleId = await createRole(
+                role.name, 
+                role.privilege_level, 
+                role.description, // <--- Correctly passing description here
+                role.isDefault
+            );
+            console.log(`   - Synced role: ${role.name} (ID: ${roleId})`);
+            
             roleIdMap[role.name] = roleId;
         }
 
@@ -149,8 +145,7 @@ async function seedRolesAndPermissions() {
             const roleId = roleIdMap[role.name];
             
             if (roleId) {
-                // A. WIPE EXISTING PERMISSIONS FOR THIS ROLE
-                // This allows you to remove permissions in the JSON and have them removed in the DB.
+                // A. WIPE EXISTING PERMISSIONS
                 await client.query('DELETE FROM role_permissions WHERE role_id = $1', [roleId]);
 
                 // B. ADD NEW PERMISSIONS

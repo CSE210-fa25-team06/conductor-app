@@ -10,7 +10,7 @@
 
 // Define the threshold where a role is considered "Unprivileged" (e.g., Student).
 // Any level > this number is considered "Privileged" (e.g., Admin, Professor).
-const UNPRIVILEGED_THRESHOLD = 1; 
+const UNPRIVILEGED_THRESHOLD = 1;
 
 /**
  * Resolves the user's effective permissions based on their roles.
