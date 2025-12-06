@@ -14,6 +14,7 @@ const path = require('path');
 // Routers
 const usersRouter = require('./routes/users');
 const journalRouter = require('./routes/journals');
+const sentimentRouter = require('./routes/sentiments');
 const groupsRouter = require('./routes/groups');
 const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
@@ -104,6 +105,7 @@ app.use(passport.session());
 // =========================================================================
 app.use('/users', usersRouter);            // enables class directory
 app.use('/journals', journalRouter);      // enables journal posting
+app.use('/sentiments', sentimentRouter);  // enables sentiment tracking
 app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.

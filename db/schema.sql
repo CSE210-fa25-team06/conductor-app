@@ -191,3 +191,18 @@ CREATE TABLE messages (
     sent_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     thread_id    INT NOT NULL REFERENCES message_threads(id) ON DELETE CASCADE -- Links message to its thread
 );
+
+-- sentiments table for emotional tracking
+CREATE TABLE IF NOT EXISTS sentiments (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    sentiment VARCHAR(20) NOT NULL CHECK (sentiment IN ('happy', 'neutral', 'sad')),
+    comment TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Helpful index for querying a user's sentiments by recency
+CREATE INDEX IF NOT EXISTS sentiments_user_created_idx
+  ON sentiments (user_id, created_at DESC);
