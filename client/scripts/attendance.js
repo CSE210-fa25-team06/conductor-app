@@ -34,27 +34,7 @@ export async function renderAttendance(containerEl) {
 }
 
 function buildAttendanceLayout(canManage) {
-  // add template id
   return `
-    <template id="QRModal">
-        <div class="modal-overlay" id="modalRoot">
-            <article class="modal-content">
-                <section class="modal-header">
-                    <h2 class="modal-title">Scan for Attendance</h2>
-                    <button type="button" class="modal-close" id="closeModal">&times;</button>
-                </section>
-
-                <!-- using image to display the QR code, will update when I know what the endpoint returns -->
-                <section class="centered-modal-body">
-                    <!-- placeholder image to appease htmlhint -->
-                    <img id="qr-image" src="https://icon-library.com/images/no-connection-icon/no-connection-icon-16.jpg" alt="QR code for meeting">
-
-                    <button type="button" class="button" id="endMeeting">End Meeting</button>
-                </section>
-            </article>
-        </div>
-    </template>
-    
     <section class="attendance-page">
       <div class="attendance-kpis">
         <div class="kpi-card">
@@ -95,6 +75,25 @@ function buildAttendanceLayout(canManage) {
           : ""
       }
     </section>
+
+	<template id="QRModal">
+        <div class="modal-overlay" id="modalRoot">
+            <article class="modal-content">
+                <section class="modal-header">
+                    <h2 class="modal-title">Scan for Attendance</h2>
+                    <button type="button" class="modal-close" id="closeModal">&times;</button>
+                </section>
+
+                <!-- using image to display the QR code, will update when I know what the endpoint returns -->
+                <section class="centered-modal-body">
+                    <!-- placeholder image to appease htmlhint -->
+                    <img id="qr-image" src="https://icon-library.com/images/no-connection-icon/no-connection-icon-16.jpg" alt="QR code for meeting">
+
+                    <button type="button" class="button" id="endMeeting">End Meeting</button>
+                </section>
+            </article>
+        </div>
+    </template>
   `;
 }
 
