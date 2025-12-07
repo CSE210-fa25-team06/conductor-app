@@ -164,6 +164,22 @@ async function fetchBasicEvent(client, eventId) {
   return event;
 }
 
+async function isUserInvitedToEvent(eventId, userId) {
+  const res = await pool.query(
+    `SELECT 1 FROM attendance WHERE event_id = $1 AND user_id = $2`,
+    [eventId, userId]
+  );
+  return res.rowCount > 0;
+}
+
+async function isEventCreator(eventId, userId) {
+  const res = await pool.query(
+    `SELECT 1 FROM events WHERE id = $1 AND created_by = $2`,
+    [eventId, userId]
+  );
+  return res.rowCount > 0;
+}
+
 async function markMissedEventsAsAbsentForUser(userId) {
   if (!userId) return;
   const query = `
@@ -190,17 +206,29 @@ async function markMissedEventsAsAbsentForUser(userId) {
 
 async function listUpcomingWeekEventsForUser(userId) {
   const query = `
+    WITH me AS (
+      SELECT id, COALESCE(group_id, 1) AS group_id
+      FROM users
+      WHERE id = $1
+    )
     SELECT e.id,
            e.title,
            e.location,
            e.start_time,
            e.end_time,
            COALESCE(a.status, NULL) AS status
-    FROM events e
+    FROM me
+    JOIN events e ON TRUE
     LEFT JOIN attendance a
-      ON a.event_id = e.id AND a.user_id = $1
-    WHERE e.start_time >= NOW()
-      AND e.start_time < NOW() + INTERVAL '7 days'
+      ON a.event_id = e.id AND a.user_id = me.id
+    WHERE e.start_time::date >= CURRENT_DATE
+      AND e.start_time::date <= CURRENT_DATE + INTERVAL '6 days'
+      AND (
+        e.visibility = 'class'
+        OR e.created_by = me.id
+        OR (e.visibility LIKE 'group:%' AND e.course_id = me.group_id)
+        OR a.user_id IS NOT NULL
+      )
     ORDER BY e.start_time;
   `;
   const { rows } = await pool.query(query, [userId]);
@@ -270,9 +298,7 @@ async function updateEvent(eventId, userId, updates) {
     const { rows } = await client.query(updateQuery, values);
     const event = rows[0];
 
-    if (Array.isArray(updates.attendeeIds) && updates.attendeeIds.length > 0) {
-      await insertInitialInvites(client, event, updates.attendeeIds, userId);
-    }
+    await syncEventAttendees(client, event, updates.attendeeIds || [], userId);
 
     await client.query("COMMIT");
     return { event };
@@ -292,10 +318,32 @@ module.exports = {
   markMissedEventsAsAbsentForUser,
   listUpcomingWeekEventsForUser,
   getAttendanceStatsForUser,
-  updateEvent
+  updateEvent,
+  isUserInvitedToEvent,
+  isEventCreator
 };
 
 function normalizeGroupId(value) {
   const numeric = Number(value);
   return Number.isFinite(numeric) && numeric > 0 ? numeric : 1;
+}
+
+async function syncEventAttendees(client, event, attendeeIds, recordedBy) {
+  const normalizedIds = Array.isArray(attendeeIds)
+    ? attendeeIds.map(Number).filter(id => Number.isFinite(id))
+    : [];
+
+  const keepArray =
+    normalizedIds.length > 0 ? normalizedIds : [-1];
+
+  await client.query(
+    `
+      DELETE FROM attendance
+      WHERE event_id = $1
+        AND NOT (user_id = ANY($2::int[]));
+    `,
+    [event.id, keepArray]
+  );
+
+  await insertInitialInvites(client, event, normalizedIds, recordedBy);
 }

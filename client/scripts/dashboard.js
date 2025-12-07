@@ -1,7 +1,6 @@
 import { renderAttendance } from './attendance.js';
 import { renderClassDirectory } from './class-directory.js';
 import { renderProfilePage } from './profile.js';
-import { initCalendarSection } from "./widgets/calendar.js";
 
 const VALID_SECTIONS = ['dashboard', 'directory', 'attendance', 'journal', 'profile', 'settings'];
 const SECTION_NAMES = {

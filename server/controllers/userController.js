@@ -11,8 +11,12 @@ async function getUsers(req, res) {
     const query = String(raw).trim();
     const rawRole = req.query.role ?? "";
     const role = String(rawRole).trim() || null;
+    const rawGroup = req.query.group ?? "";
+    const group = String(rawGroup).trim() || null;
+    const rawGroupId = req.query.groupId ?? "";
+    const groupId = rawGroupId !== "" ? Number(rawGroupId) : null;
 
-    const users = await searchDirectory(query, role);
+    const users = await searchDirectory(query, role, group, groupId);
     return res.status(200).json({ users });
   } catch (err) {
     console.error("Error in getUsers:", err);

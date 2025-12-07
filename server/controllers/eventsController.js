@@ -6,7 +6,9 @@ const {
   markMissedEventsAsAbsentForUser,
   listUpcomingWeekEventsForUser,
   getAttendanceStatsForUser,
-  updateEvent
+  updateEvent,
+  isUserInvitedToEvent,
+  isEventCreator
 } = require("../models/eventsModel");
 
 function resolveUserId(req) {
@@ -92,10 +94,17 @@ async function getEventById(req, res) {
       ? details.attendees.find((a) => a.user_id === Number(userId))
       : null;
 
+    const canAttend = Boolean(
+      (userId && details.event.created_by === userId) ||
+        (userId &&
+          details.attendees.some(a => a.user_id === Number(userId)))
+    );
+
     return res.json({
       event: details.event,
       attendees: details.attendees,
       myAttendance: myAttendance ? { status: myAttendance.status } : null,
+      canAttend,
       canEdit: Boolean(
         userId && details.event.created_by && details.event.created_by === userId
       )
@@ -118,6 +127,15 @@ async function markEventAttendance(req, res) {
 
     if (!userId) {
       return res.status(401).json({ error: "User must be authenticated" });
+    }
+
+    const [invited, creator] = await Promise.all([
+      isUserInvitedToEvent(eventId, userId),
+      isEventCreator(eventId, userId)
+    ]);
+
+    if (!invited && !creator) {
+      return res.status(403).json({ error: "You are not an attendee for this event." });
     }
 
     await upsertAttendance(eventId, userId, status);

@@ -8,7 +8,7 @@ const { pool } = require("../models/db");
     - Optionally filters by group name when a group is provided.
 */
 
-async function searchDirectory(query, role, group) {
+async function searchDirectory(query, role, group, groupId) {
     // 1. Break the user's search input into individual tokens (e.g. "John Smith" -> ["John", "Smith"])
     const tokens = query.trim().split(/\s+/).filter(t => t.length > 0);
     
@@ -39,6 +39,9 @@ async function searchDirectory(query, role, group) {
     const groupParamIndex = values.length + 1;
     values.push(group || null);
 
+    const groupIdParamIndex = values.length + 1;
+    values.push(groupId || null);
+
     const baseQuery = `
         SELECT u.id, u.photo_url, u.name, u.email, u.group_id, array_agg(r.name) AS roles, g.name AS group_name, contact_info, 
             (
@@ -62,9 +65,10 @@ async function searchDirectory(query, role, group) {
         
         WHERE ${whereClause}
         
-        GROUP BY u.id, u.photo_url, u.name, u.email, g.name, contact_info, availability
+        GROUP BY u.id, u.photo_url, u.name, u.email, g.id, g.name, contact_info, availability
         HAVING ($${roleParamIndex}::text IS NULL OR $${roleParamIndex} = ANY(array_agg(r.name)))
            AND ($${groupParamIndex}::text IS NULL OR g.name = $${groupParamIndex})
+           AND ($${groupIdParamIndex}::int IS NULL OR g.id = $${groupIdParamIndex})
         ;
     `;
 

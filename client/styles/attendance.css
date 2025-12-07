@@ -232,6 +232,253 @@
 }
 
 
+/* Attendance dashboard layout */
+
+.attendance-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.attendance-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 35px rgba(10, 83, 139, 0.1);
+  padding: 20px;
+}
+
+.kpi-label {
+  font-size: 0.9rem;
+  color: #4d6683;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #002b55;
+}
+
+.attendance-week {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 35px rgba(10, 83, 139, 0.08);
+}
+
+.attendance-week-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.attendance-week-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #002b55;
+}
+
+.btn-primary {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  background: #1b5ed7;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #144dab;
+}
+
+.attendance-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-row {
+  border: 1px solid #e6edf7;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.event-row h4 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  color: #002b55;
+}
+
+.event-time,
+.event-location {
+  margin: 0;
+  color: #5a6f87;
+  font-size: 0.9rem;
+}
+
+.event-manage-btn {
+  border: 1px solid #1b5ed7;
+  color: #1b5ed7;
+  background: transparent;
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.event-manage-btn:hover {
+  background: rgba(27, 94, 215, 0.08);
+}
+
+.attendance-loading,
+.attendance-empty,
+.attendance-error {
+  margin: 0;
+  color: #5a6f87;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.attendance-error {
+  color: #b42318;
+}
+
+.attendance-roster {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 16px 45px rgba(9, 30, 66, 0.12);
+  position: fixed;
+  right: 32px;
+  top: 120px;
+  width: min(380px, 85vw);
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  z-index: 30;
+}
+
+.attendance-roster.hidden {
+  display: none;
+}
+
+.roster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.roster-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #002b55;
+}
+
+#closeRosterBtn {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #5a6f87;
+}
+
+.roster-time,
+.roster-location {
+  margin: 4px 0 0;
+  color: #5a6f87;
+  font-size: 0.9rem;
+}
+
+.roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roster-row {
+  border: 1px solid #e6edf7;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.roster-name {
+  margin: 0;
+  font-weight: 600;
+  color: #002b55;
+}
+
+.roster-email {
+  margin: 4px 0 0;
+  color: #5a6f87;
+  font-size: 0.85rem;
+}
+
+.status-pill {
+  align-self: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-present {
+  background: #e7f5e9;
+  color: #1b7a3a;
+}
+
+.status-absent {
+  background: #fde8e7;
+  color: #b42318;
+}
+
+.status-invited {
+  background: #eef2ff;
+  color: #1b5ed7;
+}
+
+@media (max-width: 960px) {
+  .attendance-roster {
+    position: static;
+    width: 100%;
+    max-height: none;
+  }
+
+  .attendance-week {
+    padding: 20px;
+  }
+
+  .event-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .event-manage-btn {
+    align-self: flex-end;
+  }
+}
+
+/* QR modal adjustments kept from previous implementation */
 #qr-image {
     max-width: 300px;
     width: 100%;

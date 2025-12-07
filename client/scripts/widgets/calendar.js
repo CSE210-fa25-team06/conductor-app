@@ -12,12 +12,21 @@ export function initCalendarSection() {
   const closeDetailsBtn = document.getElementById("closeDetailsBtn");
   const editEventBtn = document.getElementById("editEventBtn");
   const markAttendanceBtn = document.getElementById("markAttendanceBtn");
+  const attendeeSearchInput = document.getElementById("attendeeSearch");
+  const attendeeSuggestions = document.getElementById("attendeeSuggestions");
+  const attendeeChips = document.getElementById("attendeeChips");
+  const attendeeHiddenInput = document.getElementById("attendeeIds");
+  const visibilitySelect = document.getElementById("eventVisibility");
 
   let selectedEventId = null;
   const cachedCourseId = getCachedCourseId();
-  let courseId = cachedCourseId ?? 1;
+  let courseId = normalizeCourseId(cachedCourseId);
+  const defaultCourseId = courseId;
   let editingEventId = null;
   let currentEventDetails = null;
+  let allUsers = [];
+  let groupsList = [];
+  let selectedAttendees = [];
 
   function openModal(modal) {
     modal.classList.remove("hidden");
@@ -38,7 +47,12 @@ export function initCalendarSection() {
       try {
         const res = await fetch(`/api/events?courseId=${courseId}`);
         const data = await res.json();
-        success(data);
+        success(
+          data.map(event => ({
+            ...event,
+            display: "block"
+          }))
+        );
       } catch (err) {
         console.error(err);
         fail(err);
@@ -63,20 +77,49 @@ export function initCalendarSection() {
     persistCourseId(cachedCourseId);
   }
 
+  loadDirectoryUsers();
+  loadGroups();
+
+  attendeeSearchInput?.addEventListener("input", handleAttendeeSearch);
+  attendeeSearchInput?.addEventListener("focus", handleAttendeeSearch);
+  attendeeSuggestions?.addEventListener("mousedown", handleSuggestionClick);
+  attendeeChips?.addEventListener("click", handleChipClick);
+  visibilitySelect?.addEventListener("change", handleVisibilityChange);
+
+  eventForm.addEventListener("reset", () => {
+    setSelectedAttendees([]);
+    if (visibilitySelect) visibilitySelect.value = "class";
+    courseId = defaultCourseId;
+  });
+
+  document.addEventListener("click", e => {
+    if (attendeeSuggestions && !attendeeSuggestions.contains(e.target) && e.target !== attendeeSearchInput) {
+      attendeeSuggestions.classList.add("hidden");
+    }
+  });
+
   addEventBtn.addEventListener("click", () => {
     eventForm.reset();
     editingEventId = null;
+    setSelectedAttendees([]);
+    if (visibilitySelect) visibilitySelect.value = "class";
+    courseId = defaultCourseId;
     openModal(eventModal);
   });
   cancelEventBtn.addEventListener("click", () => {
     eventForm.reset();
     editingEventId = null;
+    setSelectedAttendees([]);
+    if (visibilitySelect) visibilitySelect.value = "class";
+    courseId = defaultCourseId;
     closeModal(eventModal);
   });
 
   eventForm.addEventListener("submit", async e => {
     e.preventDefault();
     const fd = new FormData(eventForm);
+
+    const attendeeField = fd.get("attendees") || "";
 
     const payload = {
       title: fd.get("title"),
@@ -85,13 +128,14 @@ export function initCalendarSection() {
       start: fd.get("start"),
       end: fd.get("end"),
       visibility: fd.get("visibility"),
-      attendeeIds: fd.get("attendees")
+      attendeeIds: attendeeField
         .split(",")
         .map(s => s.trim())
         .filter(Boolean)
         .map(Number),
       courseId
     };
+    payload.visibility = visibilitySelect ? visibilitySelect.value : "class";
 
     const targetUrl = editingEventId ? `/api/events/${editingEventId}` : "/api/events";
     const method = editingEventId ? "PUT" : "POST";
@@ -126,6 +170,8 @@ export function initCalendarSection() {
     }
 
     eventForm.reset();
+    selectedAttendees = [];
+    renderSelectedAttendees();
     closeModal(eventModal);
   });
 
@@ -152,9 +198,10 @@ export function initCalendarSection() {
     const myStatus = data.myAttendance
       ? formatStatus(data.myAttendance.status)
       : null;
-    document.getElementById("eventDetailsMyStatus").textContent = myStatus
+    const myStatusText = myStatus
       ? `Your Attendance: ${myStatus}`
       : "You have not marked attendance yet.";
+    document.getElementById("eventDetailsMyStatus").textContent = myStatusText;
 
     const startDate = new Date(data.event.start_time);
     const endDate = new Date(data.event.end_time);
@@ -166,10 +213,14 @@ export function initCalendarSection() {
       data.myAttendance.status &&
       data.myAttendance.status.toLowerCase() !== "invited";
 
-    const shouldDisable = !isToday || hasEnded;
+    const canAttend = Boolean(data.canAttend);
+    const shouldDisable = !isToday || hasEnded || !canAttend;
     markAttendanceBtn.disabled = shouldDisable;
+    markAttendanceBtn.dataset.allowed = canAttend ? "true" : "false";
     markAttendanceBtn.dataset.reason = shouldDisable
-      ? hasEnded
+      ? !canAttend
+        ? "You are not listed as an attendee for this event."
+        : hasEnded
         ? "The attendance window for this event has closed."
         : "Attendance can only be marked on the day of the event."
       : "";
@@ -198,20 +249,23 @@ export function initCalendarSection() {
     eventForm.start.value = toLocalInputValue(event.start_time);
     eventForm.end.value = toLocalInputValue(event.end_time);
     eventForm.visibility.value = event.visibility || "class";
-    eventForm.attendees.value = attendees
-      .map(a => a.user_id)
-      .filter(Boolean)
-      .join(", ");
+    const attendeeIds = attendees.map(a => a.user_id).filter(Boolean);
+    setSelectedAttendees(attendeeIds);
     openModal(eventModal);
   });
 
   markAttendanceBtn.addEventListener("click", async () => {
     if (!selectedEventId) return;
     const alreadyMarked = markAttendanceBtn.dataset.marked === "true";
+    const allowed = markAttendanceBtn.dataset.allowed !== "false";
     if (markAttendanceBtn.disabled) {
       if (markAttendanceBtn.dataset.reason) {
         alert(markAttendanceBtn.dataset.reason);
       }
+      return;
+    }
+    if (!allowed) {
+      alert("You are not listed as an attendee for this event.");
       return;
     }
     if (alreadyMarked) {
@@ -234,13 +288,15 @@ export function initCalendarSection() {
       window.currentUser?.course_id ??
       window.currentUser?.group_id ??
       window.currentUser?.groupId;
-    if (Number.isFinite(Number(fromWindow))) {
-      return Number(fromWindow);
+    if (fromWindow !== undefined && fromWindow !== null && fromWindow !== "") {
+      const normalized = normalizeCourseId(fromWindow);
+      if (normalized) return normalized;
     }
 
     const fromDataset = document.body?.dataset?.courseId;
-    if (Number.isFinite(Number(fromDataset))) {
-      return Number(fromDataset);
+    if (fromDataset) {
+      const normalized = normalizeCourseId(fromDataset);
+      if (normalized) return normalized;
     }
 
     const stored =
@@ -248,15 +304,16 @@ export function initCalendarSection() {
         sessionStorage.getItem("courseId")) ||
       (typeof localStorage !== "undefined" &&
         localStorage.getItem("courseId"));
-    if (Number.isFinite(Number(stored))) {
-      return Number(stored);
+    if (stored) {
+      const normalized = normalizeCourseId(stored);
+      if (normalized) return normalized;
     }
 
     return null;
   }
 
   function persistCourseId(id) {
-    const numericId = Number(id);
+    const numericId = normalizeCourseId(id);
     if (!Number.isFinite(numericId)) return;
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.setItem("courseId", String(numericId));
@@ -288,8 +345,8 @@ export function initCalendarSection() {
         data?.user?.group_id ??
         data?.user?.groupId ??
         null;
-      const numericId = Number(resolved);
-      return Number.isFinite(numericId) ? numericId : null;
+      const numericId = normalizeCourseId(resolved);
+      return numericId;
     } catch (err) {
       console.error("Failed to resolve course ID from session", err);
       return null;
@@ -308,5 +365,162 @@ export function initCalendarSection() {
     const offset = date.getTimezoneOffset();
     const local = new Date(date.getTime() - offset * 60000);
     return local.toISOString().slice(0, 16);
+  }
+
+  async function loadDirectoryUsers() {
+    try {
+      const res = await fetch("/users");
+      if (!res.ok) return;
+      const data = await res.json();
+      allUsers = Array.isArray(data.users) ? data.users : [];
+    } catch (err) {
+      console.error("Failed to load users for attendee search:", err);
+    }
+  }
+
+  async function loadGroups() {
+    try {
+      const res = await fetch("/groups");
+      if (!res.ok) return;
+      const data = await res.json();
+      groupsList = Array.isArray(data.groups) ? data.groups : [];
+      populateVisibilityOptions();
+    } catch (err) {
+      console.error("Failed to load groups:", err);
+    }
+  }
+
+  function populateVisibilityOptions() {
+    if (!visibilitySelect || groupsList.length === 0) return;
+    Array.from(visibilitySelect.options)
+      .filter(opt => opt.dataset.dynamic === "true")
+      .forEach(opt => opt.remove());
+
+    groupsList.forEach(group => {
+      const option = document.createElement("option");
+      option.value = `group:${group.id}`;
+      option.textContent = `Group: ${group.name}`;
+      option.dataset.dynamic = "true";
+      visibilitySelect.appendChild(option);
+    });
+  }
+
+  function handleVisibilityChange() {
+    if (!visibilitySelect) return;
+    const value = visibilitySelect.value;
+    if (value.startsWith("group:")) {
+      const id = Number(value.split(":")[1]);
+      const group = groupsList.find(g => g.id === id);
+      if (group) {
+        courseId = normalizeCourseId(group.id);
+        loadGroupMembers(group);
+      }
+    } else {
+      courseId = defaultCourseId;
+      if (value === "class") {
+        setSelectedAttendees([]);
+      }
+    }
+  }
+
+  async function loadGroupMembers(group) {
+    try {
+    const res = await fetch(`/users?groupId=${group.id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const ids = (data.users || []).map(u => u.id);
+      setSelectedAttendees(ids);
+    } catch (err) {
+      console.error("Failed to load group members:", err);
+    }
+  }
+
+  function handleAttendeeSearch() {
+    if (!attendeeSearchInput || !attendeeSuggestions) return;
+    const query = attendeeSearchInput.value.trim().toLowerCase();
+    if (!query) {
+      attendeeSuggestions.classList.add("hidden");
+      attendeeSuggestions.innerHTML = "";
+      return;
+    }
+
+    const matches = allUsers
+      .filter(user => !selectedAttendees.includes(user.id))
+      .filter(user =>
+        user.name.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
+      )
+      .slice(0, 5);
+
+    if (matches.length === 0) {
+      attendeeSuggestions.classList.add("hidden");
+      attendeeSuggestions.innerHTML = "";
+      return;
+    }
+
+    attendeeSuggestions.innerHTML = matches
+      .map(
+        user =>
+          `<li data-id="${user.id}">${user.name} <span>${user.email}</span></li>`
+      )
+      .join("");
+    attendeeSuggestions.classList.remove("hidden");
+  }
+
+  function handleSuggestionClick(e) {
+    const item = e.target.closest("li");
+    if (!item) return;
+    const id = Number(item.dataset.id);
+    if (!Number.isFinite(id)) return;
+    setSelectedAttendees([id], false);
+    if (attendeeSearchInput) {
+      attendeeSearchInput.value = "";
+    }
+    attendeeSuggestions?.classList.add("hidden");
+  }
+
+  function handleChipClick(e) {
+    if (!e.target.matches(".remove-chip")) return;
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    const id = Number(chip.dataset.id);
+    selectedAttendees = selectedAttendees.filter(att => att !== id);
+    renderSelectedAttendees();
+  }
+
+  function renderSelectedAttendees() {
+    if (!attendeeChips) return;
+    attendeeChips.innerHTML = selectedAttendees
+      .map(id => {
+        const user = allUsers.find(u => u.id === id);
+        const label = user ? user.name : `User ${id}`;
+        return `<span class="chip" data-id="${id}">${label}<button type="button" class="remove-chip" aria-label="Remove">×</button></span>`;
+      })
+      .join("");
+    updateHiddenAttendees();
+  }
+
+  function updateHiddenAttendees() {
+    if (attendeeHiddenInput) {
+      attendeeHiddenInput.value = selectedAttendees.join(",");
+    }
+  }
+
+  function setSelectedAttendees(ids, replace = true) {
+    const normalized = ids
+      .map(Number)
+      .filter(id => Number.isFinite(id));
+    if (replace) {
+      selectedAttendees = Array.from(new Set(normalized));
+    } else {
+      const merged = new Set([...selectedAttendees, ...normalized]);
+      selectedAttendees = Array.from(merged);
+    }
+    renderSelectedAttendees();
+  }
+
+  function normalizeCourseId(value) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 ? numeric : 1;
   }
 }

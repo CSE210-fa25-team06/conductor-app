@@ -12,10 +12,13 @@
   padding: 20px;
   border-radius: 12px;
   border: 1px solid #ddd;
-  flex: 0 0 55%;
-  min-width: 320px;
+  flex: 0 0 65%;
+  max-width: 960px;
+  min-width: 360px;
   position: relative;
   box-shadow: 0 15px 35px rgb(15 23 42 / 6%);
+  width: 65%;
+  margin-left: 40px;
 }
 
 #calendar {
@@ -170,6 +173,77 @@
   background: #f1f5f9;
   color: #1f2937;
   border: 1px solid #d1d5db;
+}
+
+.attendee-select {
+  position: relative;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.attendee-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.attendee-chips .chip {
+  background: #e0f2fe;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attendee-chips .chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  color: #0f172a;
+}
+
+#attendeeSearch {
+  border: none;
+  outline: none;
+  padding: 4px 0;
+  font-size: 0.95rem;
+}
+
+.attendee-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 10;
+  margin: 4px 0 0;
+  list-style: none;
+  padding: 4px 0;
+}
+
+.attendee-suggestions.hidden {
+  display: none;
+}
+
+.attendee-suggestions li {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.attendee-suggestions li:hover {
+  background: #eff6ff;
 }
 @media (max-width: 900px) {
   .calendar-layout {

@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS message_threads CASCADE;
 DROP TABLE IF EXISTS journals CASCADE;
 DROP TABLE IF EXISTS attendance CASCADE;
 DROP TABLE IF EXISTS attendance_sessions CASCADE;
+DROP TABLE IF EXISTS events CASCADE;
 DROP TABLE IF EXISTS user_auth CASCADE;
 DROP TABLE IF EXISTS activity_log CASCADE;
 DROP TABLE IF EXISTS activity CASCADE;
@@ -129,6 +130,22 @@ CREATE TABLE user_auth (
 -- APPLICATION DATA
 -- =========================================================================
 
+-- Table: events
+-- Stores calendar events (classes, meetings, etc.)
+CREATE TABLE events (
+    id             SERIAL PRIMARY KEY,
+    course_id      INT REFERENCES groups(id) ON DELETE SET NULL,
+    title          VARCHAR(200) NOT NULL,
+    description    TEXT,
+    location       TEXT,
+    start_time     TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_time       TIMESTAMP WITH TIME ZONE NOT NULL,
+    visibility     VARCHAR(50) NOT NULL DEFAULT 'class',
+    created_by     INT REFERENCES users(id) ON DELETE SET NULL,
+    created_at     TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Table: attendance
 -- Tracks student attendance for meetings and lectures.
 
@@ -146,6 +163,7 @@ CREATE TABLE attendance (
     user_id        INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     group_id       INT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     session_id     VARCHAR(255) REFERENCES attendance_sessions(session_code),
+    event_id       INT REFERENCES events(id) ON DELETE CASCADE,
     date           DATE NOT NULL,
     status         VARCHAR(50) NOT NULL, -- e.g., 'Present', 'Absent', 'Late'
     recorded_by    INT REFERENCES users(id), -- Self-referencing FK to record which user took attendance
@@ -153,7 +171,8 @@ CREATE TABLE attendance (
     is_excused     BOOLEAN NOT NULL DEFAULT FALSE,
     reason         TEXT,
     meeting_type   VARCHAR(50) NOT NULL, -- e.g., 'Standup', 'Lecture'
-    UNIQUE (user_id, session_id)
+    UNIQUE (user_id, session_id),
+    UNIQUE (user_id, event_id)
 );
 
 -- Table: journals

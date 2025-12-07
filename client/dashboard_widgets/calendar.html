@@ -16,16 +16,21 @@
           <label>Start <input type="datetime-local" name="start" required /></label>
           <label>End <input type="datetime-local" name="end" required /></label>
 
-          <label>Visibility
-            <select name="visibility">
-              <option value="class">Class-wide</option>
-              <option value="private">Private</option>
-            </select>
-          </label>
+        <label>Visibility
+          <select name="visibility" id="eventVisibility">
+            <option value="class" data-static="true">Class-wide</option>
+            <option value="private" data-static="true">Private</option>
+          </select>
+        </label>
 
-          <label>Attendees (comma-separated user IDs)
-            <input type="text" name="attendees" />
-          </label>
+        <label>Attendees
+          <div class="attendee-select">
+            <div id="attendeeChips" class="attendee-chips"></div>
+            <input type="text" id="attendeeSearch" placeholder="Search by name or email" autocomplete="off" />
+            <ul id="attendeeSuggestions" class="attendee-suggestions hidden"></ul>
+            <input type="hidden" name="attendees" id="attendeeIds" />
+          </div>
+        </label>
 
           <div class="modal-actions">
             <button type="button" id="cancelEventBtn">Cancel</button>

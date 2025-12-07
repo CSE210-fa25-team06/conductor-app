@@ -1,19 +1,205 @@
 // scripts/attendance.js
-export function renderAttendance(containerEl) {
-  //same code as in dashboard.js
-  fetch("../attendance.html")
-    .then((resp) => {
-      if (!resp.ok) throw new Error(resp.statusText || "Network error");
-      return resp.text();
-    })
-    .then((html) => {
-      containerEl.innerHTML = html;
-      initAttendanceLogic()
-    })
-    .catch((err) => {
-      containerEl.innerHTML = `<p>Failed to load attendance: ${err.message}</p>`;
-      containerEl.style.opacity = 1;
+export async function renderAttendance(containerEl) {
+  containerEl.innerHTML = `<div class="attendance-loading">Loading attendance...</div>`;
+
+  try {
+    const sessionRes = await fetch("/api/auth/session", { cache: "no-store" });
+    if (!sessionRes.ok) {
+      window.location.href = "/index.html";
+      return;
+    }
+    const sessionData = await sessionRes.json();
+    if (!sessionData.success || !sessionData.user) {
+      window.location.href = "/index.html";
+      return;
+    }
+
+    const canManage = hasAttendancePermission(sessionData.user.permissions || []);
+    containerEl.innerHTML = buildAttendanceLayout(canManage);
+
+    if (canManage) {
+      const startBtn = document.getElementById("startSessionBtn");
+      startBtn?.addEventListener("click", createQRAndStartMeeting);
+      document
+        .getElementById("closeRosterBtn")
+        ?.addEventListener("click", () =>
+          document.getElementById("attendanceRoster").classList.add("hidden")
+        );
+    }
+
+    await loadAttendanceSummary(canManage);
+  } catch (err) {
+    containerEl.innerHTML = `<p class="attendance-error">${err.message || "Failed to load attendance"}</p>`;
+  }
+}
+
+function buildAttendanceLayout(canManage) {
+  return `
+    <section class="attendance-page">
+      <div class="attendance-kpis">
+        <div class="kpi-card">
+          <p class="kpi-label">Events Attended</p>
+          <p id="kpi-attended" class="kpi-value">--</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-label">Events Missed</p>
+          <p id="kpi-missed" class="kpi-value">--</p>
+        </div>
+      </div>
+      <div class="attendance-week">
+        <div class="attendance-week-header">
+          <h3>Upcoming Week</h3>
+          ${
+            canManage
+              ? `<button id="startSessionBtn" class="btn-primary">Start Attendance Session</button>`
+              : ""
+          }
+        </div>
+        <div id="attendanceEventList" class="attendance-event-list">
+          <p class="attendance-loading">Loading events...</p>
+        </div>
+      </div>
+      ${
+        canManage
+          ? `<div id="attendanceRoster" class="attendance-roster hidden">
+              <div class="roster-header">
+                <div>
+                  <h3 id="rosterTitle">Event Details</h3>
+                  <p id="rosterTime" class="roster-time"></p>
+                  <p id="rosterLocation" class="roster-location"></p>
+                </div>
+                <button id="closeRosterBtn" aria-label="Close roster">×</button>
+              </div>
+              <div id="rosterAttendees" class="roster-list"></div>
+            </div>`
+          : ""
+      }
+    </section>
+  `;
+}
+
+function hasAttendancePermission(perms = []) {
+  const allowed = [
+    "MANAGE_ALL_ATTENDANCE",
+    "GROUP_MANAGE_ATTENDANCE",
+    "MANAGE_MEETING_MANAGER",
+    "GROUP_MANAGE_METADATA"
+  ];
+  return perms.some(p => allowed.includes(p));
+}
+
+async function loadAttendanceSummary(canManage) {
+  const listEl = document.getElementById("attendanceEventList");
+  try {
+    const res = await fetch("/api/events/summary/week");
+    if (!res.ok) throw new Error("Unable to load events");
+    const data = await res.json();
+    updateKpis(data.stats || {});
+    renderUpcomingEvents(data.upcoming || [], canManage);
+  } catch (err) {
+    listEl.innerHTML = `<p class="attendance-error">${err.message}</p>`;
+  }
+}
+
+function updateKpis(stats) {
+  const attendedEl = document.getElementById("kpi-attended");
+  const missedEl = document.getElementById("kpi-missed");
+  if (attendedEl) attendedEl.textContent = Number(stats.attended || 0);
+  if (missedEl) missedEl.textContent = Number(stats.missed || 0);
+}
+
+function renderUpcomingEvents(events, canManage) {
+  const listEl = document.getElementById("attendanceEventList");
+  if (!listEl) return;
+
+  if (!events.length) {
+    listEl.innerHTML = `<p class="attendance-empty">No events scheduled for the upcoming week.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = events
+    .map(
+      event => `
+        <article class="event-row">
+          <div>
+            <h4>${event.title}</h4>
+            <p class="event-time">${formatRange(event.start_time, event.end_time)}</p>
+            <p class="event-location">${event.location || "Location TBD"}</p>
+          </div>
+          ${
+            canManage
+              ? `<button class="event-manage-btn" data-event="${event.id}">View Roster</button>`
+              : ""
+          }
+        </article>
+      `
+    )
+    .join("");
+
+  if (canManage) {
+    listEl.querySelectorAll(".event-manage-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const eventId = Number(btn.dataset.event);
+        if (Number.isFinite(eventId)) {
+          openRoster(eventId);
+        }
+      });
     });
+  }
+}
+
+async function openRoster(eventId) {
+  const roster = document.getElementById("attendanceRoster");
+  const rosterList = document.getElementById("rosterAttendees");
+  if (!roster || !rosterList) return;
+
+  rosterList.innerHTML = `<p class="attendance-loading">Loading roster...</p>`;
+  roster.classList.remove("hidden");
+
+  try {
+    const res = await fetch(`/api/events/${eventId}`);
+    if (!res.ok) throw new Error("Failed to load event");
+    const data = await res.json();
+
+    document.getElementById("rosterTitle").textContent = data.event.title;
+    document.getElementById("rosterTime").textContent = formatRange(
+      data.event.start_time,
+      data.event.end_time
+    );
+    document.getElementById("rosterLocation").textContent =
+      data.event.location || "Location TBD";
+
+    if (!data.attendees.length) {
+      rosterList.innerHTML = `<p class="attendance-empty">No attendees have been added for this event.</p>`;
+      return;
+    }
+
+    rosterList.innerHTML = data.attendees
+      .map(att => {
+        const status = formatStatus(att.status || "Invited");
+        return `
+          <div class="roster-row">
+            <div>
+              <p class="roster-name">${att.name || att.email}</p>
+              <p class="roster-email">${att.email || ""}</p>
+            </div>
+            <span class="status-pill status-${status.toLowerCase()}">${status}</span>
+          </div>
+        `;
+      })
+      .join("");
+  } catch (err) {
+    rosterList.innerHTML = `<p class="attendance-error">${err.message}</p>`;
+  }
+}
+
+function formatRange(start, end) {
+  return `${new Date(start).toLocaleString()} - ${new Date(end).toLocaleString()}`;
+}
+
+function formatStatus(status) {
+  if (!status) return "";
+  return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 async function createQRAndStartMeeting() {
