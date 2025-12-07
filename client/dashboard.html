@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Conductor - Course management dashboard">
@@ -13,53 +14,62 @@
     <link rel="stylesheet" href="styles/profile.css">
     <link rel="stylesheet" href="styles/settings.css">
     <script type="module" src="scripts/profile.js"></script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h1><a href="#" id="home-link"><i class="fas fa-graduation-cap"></i> <span class="logo-text">Conductor</span></a></h1>
-            <button class="collapse-btn" id="collapse-btn" title="Collapse sidebar" type="button">
+            <h1>
+                <a href="#" id="home-link" title="Dashboard">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span class="logo-text">Conductor</span>
+                </a>
+            </h1>
+            <button class="collapse-btn" id="collapse-btn" title="Collapse sidebar" type="button"
+                aria-label="Toggle sidebar">
                 <i class="fas fa-chevron-left"></i>
             </button>
         </div>
-        
-        <nav class="sidebar-nav">
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a data-testid="directory-tab" id="directory" href="#" class="nav-link" data-section="directory">
+                    <a data-testid="directory-tab" id="directory" href="#" class="nav-link" data-section="directory"
+                        title="Class Directory">
                         <i class="fas fa-users nav-icon"></i>
                         <span class="nav-text">Directory</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a data-testid="attendance-tab" id="attendance" href="#" class="nav-link" data-section="attendance">
+                    <a data-testid="attendance-tab" id="attendance" href="#" class="nav-link" data-section="attendance"
+                        title="Attendance">
                         <i class="fas fa-clipboard-check nav-icon"></i>
                         <span class="nav-text">Attendance</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a data-testid="journal-tab" id="journal" href="#" class="nav-link" data-section="journal">
+                    <a data-testid="journal-tab" id="journal" href="#" class="nav-link" data-section="journal"
+                        title="Journal">
                         <i class="fas fa-book nav-icon"></i>
                         <span class="nav-text">Journal</span>
                     </a>
                 </li>
-                
+
                 <li class="nav-item profile-section">
-                    <a href="#" class="nav-link" id="profile-btn" data-section="profile" style="display: flex;">
+                    <a href="#" class="nav-link" id="profile-btn" data-section="profile" title="Profile">
                         <i class="fas fa-user nav-icon"></i>
                         <span class="nav-text">Profile</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" id="sidebar-settings" data-section="settings">
+                    <a href="#" class="nav-link" id="sidebar-settings" data-section="settings" title="Settings">
                         <i class="fas fa-cog nav-icon"></i>
                         <span class="nav-text">Settings</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" id="sidebar-logout">
+                    <a href="#" class="nav-link" id="sidebar-logout" title="Logout">
                         <i class="fas fa-sign-out-alt nav-icon"></i>
                         <span class="nav-text">Logout</span>
                     </a>
@@ -80,39 +90,20 @@
             <p class="welcome-subtitle">Here's what's happening today</p>
         </section>
 
-        <section class="content" id="content-section">
-            <div class="dashboard-cards">
-                <div class="card" data-section="directory">
-                    <i class="fas fa-users card-icon"></i>
-                    <h3>Class Directory</h3>
-                    <p>View and manage all students and groups</p>
-                    <button class="card-btn" data-section="directory" type="button">Open Directory</button>
-                </div>
-                <div class="card" data-section="attendance">
-                    <i class="fas fa-clipboard-check card-icon"></i>
-                    <h3>Attendance</h3>
-                    <p>Track and manage class attendance</p>
-                    <button class="card-btn" data-section="attendance" type="button">Take Attendance</button>
-                </div>
-                <div class="card" data-section="journal">
-                    <i class="fas fa-book card-icon"></i>
-                    <h3>Journal</h3>
-                    <p>Review student journals and submissions</p>
-                    <button class="card-btn" data-section="journal" type="button">View Journals</button>
-                </div>
-            </div>
+        <section class="content" id="content-section" aria-live="polite">
         </section>
     </main>
 
     <footer>
         <small>© 2025 Conductor Portal • v2.0</small>
         <div class="footer-links">
-            <a href="#">Privacy Policy</a> • 
-            <a href="#">Terms of Service</a> • 
-            <a href="#">Help Center</a>
+            <a href="#" title="Privacy Policy">Privacy Policy</a> •
+            <a href="#" title="Terms of Service">Terms of Service</a> •
+            <a href="#" title="Help Center">Help Center</a>
         </div>
     </footer>
-    
+
     <script type="module" src="scripts/dashboard.js"></script>
 </body>
+
 </html>
