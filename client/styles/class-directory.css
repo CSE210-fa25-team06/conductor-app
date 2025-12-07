@@ -43,7 +43,7 @@
 #search:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(3, 54, 255, 0.1);
+    box-shadow: 0 0 0 3px rgb(3 54 255 / 10%);
 }
 
 #search::placeholder {
@@ -65,7 +65,7 @@
 #role-filter:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(3, 54, 255, 0.1);
+    box-shadow: 0 0 0 3px rgb(3 54 255 / 10%);
 }
 
 .directory table {
@@ -89,7 +89,7 @@
     font-weight: 600;
     font-size: 0.875rem;
     color: white;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgb(255 255 255 / 10%);
 }
 
 .directory thead th:first-child {
@@ -111,14 +111,6 @@
 
 .directory tbody tr:last-child {
     border-bottom: none;
-}
-
-.directory tbody tr:last-child td:first-child {
-    border-bottom-left-radius: var(--border-radius-lg);
-}
-
-.directory tbody tr:last-child td:last-child {
-    border-bottom-right-radius: var(--border-radius-lg);
 }
 
 .directory tbody td {
@@ -188,6 +180,14 @@
     white-space: nowrap;
 }
 
+.directory tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--border-radius-lg);
+}
+
+.directory tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--border-radius-lg);
+}
+
 .directory tbody tr td[colspan="6"] {
     text-align: center;
     padding: var(--space-8);
@@ -219,7 +219,7 @@
     font-size: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .directory {
         padding: var(--space-4);
     }
@@ -256,14 +256,9 @@
     }
 }
 
-@media (max-width: 480px) {
-    /* Hide contact column on very small screens */
-    .directory thead th:nth-child(5),
-    .directory tbody td:nth-child(5) {
-        display: none;
-    }
-    
-    .directory theach th,
+@media (width <= 480px) {
+    /* GENERAL selectors FIRST (moved from lines 282-287) */
+    .directory thead th,
     .directory tbody td {
         padding: var(--space-2);
         font-size: 0.75rem;
@@ -272,6 +267,12 @@
     .directory tbody td img {
         width: 32px;
         height: 32px;
+    }
+    
+    /* SPECIFIC selectors LAST (moved from lines 277-280) */
+    .directory thead th:nth-child(5),
+    .directory tbody td:nth-child(5) {
+        display: none;
     }
 }
 
@@ -283,7 +284,7 @@
     padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
 }

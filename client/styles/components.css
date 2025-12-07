@@ -3,34 +3,28 @@
   --primary-dark: #024;
   --primary-light: #4dabf7;
   --primary-bg: #f0f4ff;
-  
   --secondary-color: #667eea;
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
   --info-color: #3b82f6;
-  
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
   --text-light: #9ca3af;
   --border-color: #e9ecef;
   --bg-light: #f8fafc;
-  --bg-white: #ffffff;
-  
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-  
+  --bg-white: #fff;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 10%);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 10%);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 10%);
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
   --border-radius-xl: 16px;
-  
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
-  
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -158,7 +152,7 @@
 .form-control:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(3, 54, 255, 0.1);
+  box-shadow: 0 0 0 3px rgb(3 54 255 / 10%);
 }
 
 .form-control::placeholder {
@@ -228,7 +222,7 @@
   display: inline-block;
   width: 1em;
   height: 1em;
-  border: 2px solid currentColor;
+  border: 2px solid currentcolor;
   border-right-color: transparent;
   border-radius: 50%;
   animation: spin 0.75s linear infinite;
@@ -273,7 +267,7 @@
 .justify-between { justify-content: space-between; }
 .flex-wrap { flex-wrap: wrap; }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .card-header,
   .card-body,
   .card-footer {

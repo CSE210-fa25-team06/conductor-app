@@ -155,7 +155,7 @@ function initAttendanceLogic() {
 	})
 
 	// Start meeting button
-	const meetingBtn = document.getElementById("startMeetingBtn");
+	const meetingBtn = document.getElementById("start-meeting-btn"); 
 	meetingBtn.addEventListener("click", createQRAndStartMeeting)
 
 	// Date input formatting
