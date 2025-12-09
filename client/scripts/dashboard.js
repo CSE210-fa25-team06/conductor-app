@@ -51,7 +51,7 @@ const utils = {
 
 async function initializeDashboard() {
     try {
-        console.log('🔍 Checking session...');
+        console.log('Checking session...');
         
         // Check authentication
         const userData = await checkAuthentication();
@@ -69,9 +69,9 @@ async function initializeDashboard() {
         // Load appropriate section based on URL
         loadInitialSection();
         
-        console.log('✅ Dashboard initialized successfully');
+        console.log('Dashboard initialized successfully');
     } catch (error) {
-        console.error('❌ Dashboard initialization failed:', error);
+        console.error('Dashboard initialization failed:', error);
         redirectToLogin();
     }
 }
@@ -184,7 +184,7 @@ function navigateToSection(section, isInitialLoad = false) {
         return;
     }
     
-    console.log(`📂 Navigating to: ${section}`);
+    console.log(`Navigating to: ${section}`);
     
     // Update URL hash
     if (!isInitialLoad) {
