@@ -636,7 +636,7 @@ async function findRoleByName(name) {
 async function insertUser(client, email, name, groupId) {
     const userInsertQuery = `
         INSERT INTO users (email, name, group_id, photo_url)
-        VALUES ($1, $2, $3, 'https://example.com/default-photo.png') 
+        VALUES ($1, $2, $3, '/assets/images/avatar.png') 
         RETURNING id;
     `;
     // If groupId is null, PostgreSQL will handle it based on your schema's group_id column definition

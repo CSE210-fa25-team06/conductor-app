@@ -52,7 +52,7 @@ function renderProfileContent(contentElement, user, joinedDate, lastActive, last
 
         <section class="profile-wrapper">
             <section class="profile-photo-section">
-                <img src="${user.photo_url || 'https://via.placeholder.com/250'}" alt="Profile Photo" class="profile-photo">
+                <img src="${user.photo_url || '/assets/images/avatar.png'}" alt="Profile Photo" class="profile-photo">
                 <div class="profile-meta-badges">
                     <span class="meta-badge">${providerLabel} Account</span>
                     <span class="meta-badge">Joined ${joinedDate}</span>
