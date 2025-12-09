@@ -410,6 +410,86 @@ footer {
   text-decoration: underline;
 }
 
+/* Mobile Hamburger Menu */
+
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+@media (width <= 768px) {
+    .mobile-menu-btn {
+        display: inline-flex;
+        margin-right: 1rem;
+    }
+}
+
+/* Overlay behind drawer */
+.mobile-nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 50%);
+    z-index: 2000;
+    display: flex;
+    justify-content: flex-start;
+    transition: opacity 0.25s ease;
+}
+
+.mobile-nav-overlay.hidden {
+    display: none;
+}
+
+/* Slide-in navigation */
+.mobile-nav-panel {
+    width: 70%;
+    max-width: 280px;
+    height: 100vh;
+    background: var(--primary-dark);
+    color: white;
+    padding-top: 2rem;
+    position: relative;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.mobile-nav-overlay.show .mobile-nav-panel {
+    transform: translateX(0);
+}
+
+/* Close button */
+.mobile-nav-close {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    border: none;
+    background: none;
+    color: white;
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+/* Menu items */
+.mobile-nav-list {
+    list-style: none;
+    padding: 2rem 0 0;
+    margin: 0;
+}
+
+.mobile-nav-list li {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    cursor: pointer;
+}
+
+.mobile-nav-list li:hover {
+    background: rgb(255 255 255 / 10%);
+}
+
 @media (width <= 1024px) {
   .dashboard-cards {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

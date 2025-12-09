@@ -79,6 +79,9 @@
     </aside>
 
     <header>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+        </button>
         <div class="header-left">
             <div class="breadcrumb" id="breadcrumb">Dashboard</div>
         </div>
@@ -93,6 +96,24 @@
         <section class="content" id="content-section" aria-live="polite">
         </section>
     </main>
+
+    <!-- Mobile Hamburger -->
+    <div id="mobile-nav-overlay" class="mobile-nav-overlay hidden">
+        <div class="mobile-nav-panel">
+            <button id="mobile-nav-close" class="mobile-nav-close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <ul class="mobile-nav-list">
+                <li data-section="directory">Directory</li>
+                <li data-section="attendance">Attendance</li>
+                <li data-section="journal">Journal</li>
+                <li data-section="profile">Profile</li>
+                <li data-section="settings">Settings</li>
+                <li id="mobile-logout">Logout</li>
+            </ul>
+        </div>
+    </div>
 
     <footer>
         <small>© 2025 Conductor Portal • v2.0</small>

@@ -400,6 +400,57 @@ function redirectToLogin() {
     window.location.href = '/index.html';
 }
 
+/** Mobile Nav Menu */
+
+if (typeof window !== 'undefined') {
+    document.addEventListener("DOMContentLoaded", () => {
+        const mobileBtn = document.getElementById("mobile-menu-btn");
+        const overlay = document.getElementById("mobile-nav-overlay");
+        const closeBtn = document.getElementById("mobile-nav-close");
+        const logoutMobile = document.getElementById("mobile-logout");
+
+        if (!mobileBtn || !overlay) return;
+
+        // Open menu
+        mobileBtn.addEventListener("click", () => {
+            overlay.classList.remove("hidden");
+            overlay.classList.add("show");
+        });
+
+        // Close menu
+        closeBtn.addEventListener("click", () => {
+            overlay.classList.remove("show");
+            setTimeout(() => overlay.classList.add("hidden"), 250);
+        });
+
+        // Clicking outside panel closes it
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove("show");
+                setTimeout(() => overlay.classList.add("hidden"), 250);
+            }
+        });
+
+        // Navigation clicks
+        document.querySelectorAll(".mobile-nav-list li[data-section]")
+            .forEach(item => {
+                item.addEventListener("click", () => {
+                    const section = item.dataset.section;
+                    navigateToSection(section);
+                    overlay.classList.remove("show");
+                    setTimeout(() => overlay.classList.add("hidden"), 250);
+                });
+            });
+
+        // Logout button
+        if (logoutMobile) {
+            logoutMobile.addEventListener("click", () => {
+                handleLogout(new Event("click"));
+            });
+        }
+    });
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeDashboard);
 } else {
