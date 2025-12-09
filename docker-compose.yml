@@ -87,6 +87,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  redis:
+    image: redis:7
+    container_name: conductor_redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+
 
   app:
     build: .
@@ -107,6 +116,8 @@ services:
       DB_USER: ${PGUSER}
       DB_PASSWORD: ${PGPASSWORD}
       DB_NAME: ${PGDATABASE}
+
+      REDIS_URL: ${REDIS_URL}
       
       AUTH_STRATEGY: ${AUTH_STRATEGY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
