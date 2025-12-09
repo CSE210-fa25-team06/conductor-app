@@ -558,6 +558,34 @@
 }
 
 /* Responsive Design */
+/* Actions column */
+.users-table th:last-child {
+    width: 190px;
+    text-align: center;
+}
+
+.users-table td:last-child {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.users-table td:last-child .button-small {
+    display: inline-block;
+}
+
+.admin-actions-wrapper {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-actions-wrapper .settings-subtitle {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Mobile layout */
 @media (width <= 768px) {
   button.button.button-small {
     margin-left: 0 !important;
@@ -575,7 +603,45 @@
     width: 100%;
   }
 
-    .settings-header {
+  .users-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+  }
+
+  .users-table td {
+    padding: 0.25rem 0;
+  }
+
+  .users-table td:last-child {
+    margin-top: 0.5rem;
+  }
+
+  .users-table td:last-child .button-small {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .users-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #444;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+    .admin-actions-wrapper .settings-subtitle {
+        flex-direction: column;
+        width: 100%;
+        align-items: stretch;
+        gap: 0.6rem;
+    }
+
+    .admin-actions-wrapper .btn-admin-action {
+        width: 100%;
         text-align: center;
         flex-direction: column;
         gap: 2rem;
