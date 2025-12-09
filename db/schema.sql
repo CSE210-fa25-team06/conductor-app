@@ -170,6 +170,10 @@ CREATE TABLE journals (
     edited_at     TIMESTAMP WITH TIME ZONE
 );
 
+CREATE INDEX idx_journals_user_id ON journals(user_id)
+
+-- Optimizes SQL queries for retrieving journals based on the associated user_id (very common condition on this query in the app's logic)
+
 -- Table: message_threads
 -- Parent table for organizing conversations between users.
 CREATE TABLE message_threads (
