@@ -272,6 +272,9 @@ export async function initJournals() {
 
 // FIX: Added currentUser parameter so we can use it in submission
 async function showJournalModal(entryToEdit = null, currentUser = null) {
+    const existingModal = document.getElementById('journal-modal');
+    if (existingModal) existingModal.remove();
+
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
     modalOverlay.id = 'journal-modal';

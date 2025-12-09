@@ -143,7 +143,7 @@ function setupNavigation() {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const section = e.currentTarget.getAttribute('data-section');
-            navigateToSection(section);
+            window.location.hash = section;
         });
     });
     
@@ -345,7 +345,7 @@ async function renderJournalSection(container) {
         const html = await response.text();
         container.innerHTML = html;
         container.classList.remove('centered');
-        
+        console.log('renderJournalSection called');
         // Initialize journal module
         const { initJournals } = await import('./journal.js');
         initJournals();
