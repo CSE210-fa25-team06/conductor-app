@@ -53,6 +53,10 @@
   color: black;
 }
 
+#sentiment-modal main {
+  overflow-y: visible !important;
+}
+
 /* Lists and cards */
 .journal-list {
   display: flex;
@@ -680,5 +684,17 @@ button.danger:hover {
   .sentiment-delete-btn {
     font-size: 0.8rem;
     padding: 4px 10px;
+  }
+
+  .sentiment-icon {
+    font-size: 2rem;
+  }
+
+  .sentiment-option {
+    padding: 0.75rem;
+  }
+
+  .sentiment-label {
+    font-size: 0.85rem;
   }
 }
