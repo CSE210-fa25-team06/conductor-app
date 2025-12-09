@@ -10,6 +10,8 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const path = require('path');
+const { RedisStore } = require("connect-redis");
+const { createClient } = require("redis");
 
 // Routers
 const usersRouter = require('./routes/users');
@@ -72,11 +74,18 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'client')));
 
+
+const redisClient = createClient({
+  url: process.env.REDIS_URL,
+});
+redisClient.connect().catch(console.error);
 /**
  * Express-Session Middleware Configuration.
  */
 app.use(session({
-  // Secret used to sign the session ID cookie. MUST be secure.
+  store: new RedisStore({
+    client: redisClient,
+  }),
   secret: process.env.SESSION_SECRET, 
   resave: false,
   saveUninitialized: false, 
