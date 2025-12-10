@@ -15,6 +15,7 @@ test.beforeEach(async ({ page }) => {
     await expect(page.getByText('My Journals')).toBeVisible();
 });
 
+
 test('Journals title properly renders', async ({ page }) => {
     await expect(page.getByText('My Journals')).toBeVisible();
 });
@@ -25,9 +26,10 @@ test('New Journal button properly renders', async ({ page }) => {
 
 test('Journal entry works', async ({ page }) => {
     await page.getByRole('button', {name: '+ New Journal'}).click();
-    await expect(page.getByPlaceholder('Describe what you accomplished since the last meeting...')).toBeVisible();
-    await expect(page.getByPlaceholder('Describe what you plan to work on next...')).toBeVisible();
-    await expect(page.getByPlaceholder("Describe any obstacles or issues you're facing (leave blank if none)...")).toBeVisible();
+    await page.waitForTimeout(1000);
+    await expect(page.locator('textarea#whatIDid')).toBeVisible();
+    await expect(page.locator('textarea#whatIWillDo')).toBeVisible();
+    await expect(page.locator('textarea#blockers')).toBeVisible();
     const accomplishedField = page.getByPlaceholder('Describe what you accomplished since the last meeting...');
     const nextField = page.getByPlaceholder('Describe what you plan to work on next...');
     const blockersField = page.getByPlaceholder("Describe any obstacles or issues you're facing (leave blank if none)...");
@@ -42,10 +44,12 @@ test('Journal entry works', async ({ page }) => {
 
 });
 
+
 test('Sentiment cancel closes modal', async ({ page }) => {
-    await page.getByRole('button', { name: '+ Emotional tracker' }).click();
-    await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
-    await expect(page.locator('#sentimentModal')).toHaveCount(1);
-    await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect(page.locator('#sentimentModal')).toHaveCount(0);
+    await page.getByRole('button', { name: '+ Emotional tracker' }).first().click();
+    await expect(page.locator('button#closeSentimentModal')).toBeVisible();
+    const closeBtn = page.locator('button#closeSentimentModal');
+    await closeBtn.click();
+    await page.waitForTimeout(1000);
+    await expect(page.getByRole('button', { name: 'Submit' })).not.toBeVisible();
 });

@@ -31,7 +31,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
 }
 
 /* Typography */
@@ -47,6 +47,14 @@
 
 #journal-modal h2.modal-title {
   color: black;
+}
+
+#sentiment-modal h2.modal-title {
+  color: black;
+}
+
+#sentiment-modal main {
+  overflow-y: visible !important;
 }
 
 /* Lists and cards */
@@ -153,9 +161,22 @@
 
 /* Form elements */
 .journal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.journal-form input,
+.journal-form select,
+.journal-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  font-size: 1rem;
 }
 
 .form-group {
@@ -259,7 +280,6 @@
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
-  overflow-y: auto;
   position: relative;
   animation: modal-slide-in 0.3s ease-out;
 }
@@ -533,6 +553,13 @@ button.danger:hover {
   box-shadow: 0 2px 8px rgb(0 102 204 / 20%);
 }
 
+#sentiment-form {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 /* Sentiment entry display styles */
 .sentiment-entry {
   position: relative;
@@ -610,4 +637,64 @@ button.danger:hover {
 .sentiment-delete-btn:hover {
   background: #fff5f5;
   border-color: #c62828;
+}
+
+/* Mobile styling */
+@media (width <= 600px) {
+  .header-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  /* Stack buttons vertically */
+  .header-top > button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .header-top > button + button {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Mobile layout for sentiment entries */
+@media (width <= 600px) {
+  .sentiment-entry-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sentiment-entry .journal-actions {
+    position: static;
+    top: auto;
+    right: auto;
+    width: 100%;
+    margin-top: 0.25rem;
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sentiment-edit-btn,
+  .sentiment-delete-btn {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+
+  .sentiment-icon {
+    font-size: 2rem;
+  }
+
+  .sentiment-option {
+    padding: 0.75rem;
+  }
+
+  .sentiment-label {
+    font-size: 0.85rem;
+  }
 }

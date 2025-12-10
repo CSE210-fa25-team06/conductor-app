@@ -2,31 +2,66 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content="Conductor - Course management platform">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | Conductor</title>
-    <link rel="stylesheet" href="styles/login.css" />
+  <meta charset="UTF-8" />
+  <meta name="description" content="Conductor - Course Management System for Academic Institutions" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Conductor - Course Management System</title>
+  <link rel="stylesheet" href="styles/login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="image" href="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" />
+  <link rel="icon" type="image/x-icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>" />
 </head>
 
 <body>
-    <header>
-        <h1>Conductor</h1>
-    </header>
-
-    <main>
-      <section class="login-section">
-        <h2>Welcome Back</h2>
-        <p>Sign in to continue</p>
-        <a href="/api/auth/login" id="google-login" class="google-login-button">🔒 Sign in with Google</a>
-        <p id="status"></p>
+  <header role="banner">
+    <h1>
+      <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+      <span>Conductor</span>
+    </h1>
+    <p>Course Management System</p>
+  </header>
+  <main role="main">
+    <section class="login-section" aria-labelledby="login-title">
+      <h2 id="login-title">Welcome to Conductor</h2>
+      <p>Course Management System for Academic Institutions</p>
+      <a href="/api/auth/login" id="google-login" class="google-login-button" role="button"
+        aria-label="Sign in with Google">
         <div id="toast-container"></div>
-      </section>
-    </main>
+        <div class="google-button-content">
+          <div class="google-icon-wrapper" aria-hidden="true">
+            <img class="google-icon" src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt=""
+              loading="lazy" />
+          </div>
+          <span class="google-button-text">Sign in with Google</span>
+        </div>
+      </a>
+      <div class="login-info">
+        <small>
+          <i class="fas fa-shield-alt" aria-hidden="true"></i>
+          Your institutional Google account is required for secure access.
+          <br />
+          <a href="#" class="help-link">Need help signing in?</a>
+        </small>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <footer role="contentinfo">
+    <div class="footer-content">
+      <small>&copy; 2025 Conductor Portal</small>
+      <div class="footer-links">
+        <a href="#" aria-label="Privacy Policy">Privacy</a>
+        <span aria-hidden="true">•</span>
+        <a href="#" aria-label="Terms of Service">Terms</a>
+        <span aria-hidden="true">•</span>
+        <a href="#" aria-label="Help Center">Help</a>
+      </div>
+    </div>
+  </footer>
 
-    <footer>
-        <small>© 2025 Conductor Portal</small>
-    </footer>
-    <script src="scripts/login.js"></script>
-  </body>
+  <script src="scripts/login.js" defer></script>
+</body>
+
 </html>

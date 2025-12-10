@@ -2,7 +2,7 @@
  * @file db/db-seeder.js
  * @description Programmatically seeds the database with initial roles, permissions, 
  * and their default associations based on configuration files.
- * To run: node db/db-seeder.js
+ * To run: node server/utils/db-seeder.js
  */
 
 const { 

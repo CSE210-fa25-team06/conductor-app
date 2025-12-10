@@ -179,12 +179,19 @@ function renderUsersTable(users) {
             }
         }
 
+        actions += `
+            <button class="button button-small" 
+                style="margin-left: 0.2rem; background-color: #d9534f; color: white;" 
+                onclick="window.openRemoveUserModal(${user.id})">
+                Remove User
+            </button>`;
+
         row.innerHTML = `
-            <td class="user-name">${escapeHtml(user.name)}</td>
-            <td class="user-email">${escapeHtml(user.email)}</td>
-            <td class="user-role">${roleBadges}</td>
-            <td class="user-group">${escapeHtml(user.group_name || 'Unassigned')}</td>
-            <td class="user-actions">${actions}</td>
+            <td data-label="Name" class="user-name">${escapeHtml(user.name)}</td>
+            <td data-label="Email" class="user-email">${escapeHtml(user.email)}</td>
+            <td data-label="Current Role" class="user-role">${roleBadges}</td>
+            <td data-label="Group" class="user-group">${escapeHtml(user.group_name || 'Unassigned')}</td>
+            <td data-label="Actions" class="user-actions">${actions}</td>
         `;
         tbody.appendChild(row);
     });
@@ -211,7 +218,7 @@ function renderAdminButtons() {
     }
 
     if (state.currentUserPermissions.includes(PERMISSIONS.CREATE_ROLES)) {
-        subtitle.appendChild(createBtn('System Defaults', 'btn-sys-defaults', openDefaultsModal, 'margin-right: 15px;'));
+        subtitle.appendChild(createBtn('System Defaults', 'btn-sys-defaults', openDefaultsModal));
     }
 
     if (state.currentUserPermissions.includes(PERMISSIONS.MANAGE_PERMISSIONS)) {

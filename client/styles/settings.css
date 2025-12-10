@@ -26,16 +26,7 @@
     margin: 0;
     color: white;
     font-weight: 600;
-    font-size: 1.6rem;
-}
-
-/* Admin Action Bar (Header Buttons) */
-.settings-subtitle {
-    display: flex;    
-    align-items: center;
-    gap: 10px;
-    margin-top: 0;
-    min-height: 40px;
+    font-size: 1rem;
 }
 
 /* Controls Area (Search/Filter) */
@@ -215,7 +206,6 @@
     padding: 0.6rem 1.2rem;
     font-weight: 500;
     border-radius: 6px;
-    font-size: 0.95rem;
     box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -231,6 +221,17 @@
 .btn-admin-action:active {
     background-color: #004d99;
     transform: translateY(0);
+}
+
+.remove-user-btn {
+    background-color: #d9534f !important;
+    border-color: #d9534f !important;
+    color: white !important;
+}
+
+.remove-user-btn:hover {
+    background-color: #c9302c !important;
+    border-color: #ac2925 !important;
 }
 
 /* --- Modal Styles --- */
@@ -558,9 +559,21 @@
 
 /* Responsive Design */
 @media (width <= 768px) {
-    .settings-container {
-        padding: 0 1rem;
-    }
+  button.button.button-small {
+    margin-left: 0 !important;
+  }
+
+  .users-table thead {
+    display: none; /* Hide column headers */
+  }
+
+  .users-table,
+  .users-table tbody,
+  .users-table tr,
+  .users-table td {
+    display: block;
+    width: 100%;
+  }
 
     .settings-header {
         text-align: center;
@@ -579,21 +592,41 @@
         max-width: 300px;
     }
 
-    .settings-controls {
+  .users-table td {
+    padding: 0.25rem 0;
+  }
+
+  .users-table td:last-child {
+    margin-top: 0.5rem;
+  }
+
+  .users-table td:last-child .button-small {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .users-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #444;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+    .admin-actions-wrapper .settings-subtitle {
         flex-direction: column;
-    }
-
-    .search-box, .filter-box {
         width: 100%;
+        align-items: stretch;
+        gap: 0.6rem;
     }
 
-    .users-table th, .users-table td {
-        padding: 0.5rem;
-        font-size: 0.9rem;
+    .admin-actions-wrapper .btn-admin-action {
+        width: 100%;
+        text-align: center;
     }
 
-    .modal-content {
-        width: 95%;
-        margin: 1rem;
+    .settings-controls {
+        margin-top: 1rem;
     }
 }
