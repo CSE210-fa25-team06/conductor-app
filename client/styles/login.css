@@ -201,6 +201,7 @@ main::before {
         opacity: 0; 
         transform: translateX(30px); 
     }
+
     to { 
         opacity: 1; 
         transform: translateX(0); 
@@ -209,7 +210,6 @@ main::before {
 
 #google-login {
   display: inline-block;
-  text-decoration: none;
   background-color: #036;
   color: white;
   border: none;
