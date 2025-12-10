@@ -410,7 +410,7 @@ async function loadRolePermissions(roleId) {
             i.disabled = false;
         });
         btn.disabled = false;
-    } catch(err) { Notifications.error("Failed to fetch permissions"); }
+    } catch(err) { Notifications.error(err.message || "Failed to fetch permissions"); }
 }
 
 async function savePermissions() {
