@@ -173,7 +173,6 @@ async function showScanPage(req, res) {
     try {
         const session_id = req.query.session;
 
-
         //construct scan endpoint payload
         const payload = {
             user_id: user_data.user.id,
