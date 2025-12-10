@@ -1,16 +1,18 @@
 import { renderAttendance } from './attendance.js';
+import { renderStatistics } from './statistics.js';
 import { renderClassDirectory } from './class-directory.js';
 import { renderProfilePage } from './profile.js';
 import { initCalendarSection } from "./widgets/calendar.js";
 
-const VALID_SECTIONS = ['dashboard', 'directory', 'attendance', 'journal', 'profile', 'settings'];
+const VALID_SECTIONS = ['dashboard', 'directory', 'attendance', 'journal', 'profile', 'settings', 'statistics'];
 const SECTION_NAMES = {
     'dashboard': 'Dashboard',
     'directory': 'Class Directory',
     'attendance': 'Attendance',
     'journal': 'Journal',
     'profile': 'Profile',
-    'settings': 'Settings'
+    'settings': 'Settings',
+    'statistics': 'Statistics'
 };
 
 let currentUser = null;
@@ -261,6 +263,8 @@ function loadSectionContent(section, isInitialLoad = false) {
                 case 'journal':
                     renderJournalSection(content);
                     break;
+                case 'statistics':
+                    renderStatistics(content);
                 default:
                     content.innerHTML = `<p>Section "${section}" not found.</p>`;
             }
