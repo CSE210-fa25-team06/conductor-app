@@ -1,0 +1,47 @@
+<section class="stats-page">
+  <h1>Attendance Statistics</h1>
+
+  <div class="stats-container">
+
+      <div class="chart-card">
+          <h2 class="chart-title">Presence over time</h2>
+          <div id="presenceRateChart" class="chart"></div>
+      </div>
+
+      <div class="chart-card">
+          <h2 class="chart-title">Attendance by meeting type</h2>
+          <div id="meetingTypeChart" class="chart"></div>
+      </div>
+
+  </div>
+</section>
+
+<style>
+  .stats-page {
+      padding: 20px;
+  }
+
+  .stats-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+  }
+
+  .chart-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .chart-title {
+      margin-bottom: 15px;
+      font-size: 20px;
+      font-weight: 600;
+  }
+
+  .chart {
+      width: 100%;
+      height: 350px;
+  }
+</style>
