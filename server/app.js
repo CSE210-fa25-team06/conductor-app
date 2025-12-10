@@ -1,4 +1,8 @@
 /**
+ * OpenTelemetry Instrumentation MUST be the first thing to be imported.
+ */
+require('./tracing');
+/**
  * @file server/app.js
  * @description Main entry point for the Conductor Express API server.
  * Initializes Express, configures middleware (JSON parsing, session, Passport),
@@ -120,6 +124,12 @@ app.use('/api/config', configRouter);
  */
 app.get('/', (req, res) => {
   res.send('Conductor API is running.');
+});
+
+
+// New endpoint to generate a 500 error for testing
+app.get('/error-test', (req, res, next) => {
+  next(new Error('This is a simulated 500 error!'));
 });
 
 // =========================================================================

@@ -1,7 +1,48 @@
+networks:
+  monitoring:
+    driver: bridge
+
 services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: conductor_grafana
+    networks: [monitoring]
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./otel/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/main.yml
+      - ./otel/dashboards:/var/lib/grafana/dashboards
+      - ./otel/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    depends_on:
+      - tempo
+      - prometheus
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: conductor_tempo
+    networks: [monitoring]
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./otel/tempo.yml:/etc/tempo.yaml
+      - tempo_data:/var/tempo/traces
+    ports:
+      - "3200:3200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3200/ready || exit 1"]
+      start_period: 30s 
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    user: "10001:10001"
+
   db:
     image: postgres:16
     container_name: conductor_db
+    networks: [monitoring]
     ports:
       - "5432:5432"
     environment:
@@ -19,9 +60,39 @@ services:
       timeout: 5s
       retries: 5
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: conductor_prometheus
+    networks: [monitoring]
+    command: --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./otel/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: conductor_otel_collector
+    networks: [monitoring]
+    command: ["--config=/etc/otel-collector-config.yml", "--set=service.telemetry.logs.level=warn"]
+    volumes:
+      - ./otel/otel-collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "8889:8889" # Prometheus exporter
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:13133/ || exit 1"]
+      start_period: 20s
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   app:
     build: .
     container_name: conductor_app
+    networks: [monitoring]
     ports:
       - "3000:3000"
     depends_on:
@@ -46,6 +117,13 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:-dev_secret}
       AUTH_SECRET: ${AUTH_SECRET:-dev_secret}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      
+      # OpenTelemetry Configuration
+      OTEL_SERVICE_NAME: conductor-app
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
 
 volumes:
   postgres_data:
+  grafana_data:
+  prometheus_data:
+  tempo_data:
