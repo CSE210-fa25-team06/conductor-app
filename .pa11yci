@@ -33,6 +33,10 @@
     {
       "url": "http://localhost:3000/dashboard.html#settings",
       "_comment": "Settings page"
+    },
+    {
+      "url": "http://localhost:3000/dashboard.html#statistics",
+      "_comment": "Statistics page"
     }
   ]
 }
