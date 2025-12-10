@@ -81,7 +81,7 @@ async function getAttendanceByDate(req, res) {
 // Create QR Code:
 async function createQRCode(sessionId){
     const BASE_URL = process.env.BASE_URL // Fixed issue, BASE_URL is stored in .env file
-    const qrPayload = `${BASE_URL}/attend?session=${sessionId}`;
+    const qrPayload = `${BASE_URL}/attendance/attend?session=${sessionId}`;
 
     const qrImageDataUrl = await QRCode.toDataURL(qrPayload);
 
@@ -160,6 +160,95 @@ async function scanAttendance(req, res){
     }
 }
 
+// Handle user scan
+async function showScanPage(req, res) {
+    //grab user and session info
+    let user_data = null;
+    try {
+        user_data = await getUserInfo(req);
+    } catch (error) {
+        //unauthorized access
+        console.error("Unauthorized, please login first.", error)
+        res.redirect('/index.html');
+    }
+
+    try {
+        const session_id = req.query.session;
+
+        //construct scan endpoint payload
+        const payload = {
+            user_id: user_data.user.id,
+            group_id: user_data.user.group_id,
+            session_id,
+            date: new Date().toISOString(),
+            meeting_type: "Lecture", //this is hardcoded :(
+            recorded_by: user_data.user.id,
+            is_excused: false,
+            reason: ""
+        };
+
+        //post to scan endpoint
+        const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+        const resp = await fetch(`${BASE_URL}/attendance/scan`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "cookie": req.headers.cookie //pass auth cookie through
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await resp.json();
+        if (!resp.ok) {
+            return res.status(resp.status).json(result);
+        }
+
+        return res.redirect("/scan-success.html");
+
+    } catch (error) {
+        console.error("Error in showScanPage:", error);
+        res.redirect("/index.html");
+    }
+}
+
+// Fetch attendance stats
+async function getAttendanceStats(req, res) {
+  try {
+    const stats = await fetchAttendanceStats();
+    res.json(stats);
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+    res.status(500).json({ error: "Failed to fetch attendance statistics" });
+  }
+}
+
+async function getUserInfo(req) {
+    try {
+        const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+        const resp = await fetch(`${BASE_URL}/api/auth/session`, {
+            cache: 'no-store',
+            headers: {
+                'cookie': req.headers.cookie
+            }
+        });
+
+        if (!resp.ok) {
+            throw new Error("Unauthorized access to user info", { cause: resp })
+        }
+
+        const user_data = await resp.json();
+
+        if (!user_data.success) {
+            throw new Error("Unauthorized access to user info", { cause: user_data })
+        }
+
+        return user_data;
+    } catch (error) {
+        console.error("Error caught in getUserInfo:", error.message);
+        throw new Error("Failed to get user information", { cause: error});
+    }
+}
+
 // Fetch attendance stats
 async function getAttendanceStats(req, res) {
   try {
@@ -177,6 +266,7 @@ module.exports = {
   markAttendance,
   getStudentAttendanceHistory,
   getAttendanceByDate,
+  showScanPage,
   startAttendance,
   endAttendance,
   scanAttendance,

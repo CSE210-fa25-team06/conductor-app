@@ -38,10 +38,12 @@ async function createQRAndStartMeeting() {
 			//temp fix - maybe we should have a placeholder img to display when
 			//network failure?
 			qrModal.classList.remove('active');
-			setTimeout(() => {qrModal.remove()}, 300);
+			qrModal.remove()
 			alert("Error starting attendance session. Please try again.");
 			return;
 		}
+		//log link for testing
+		console.log(meetingData.qrPayload)
 		//initialize QR modal
 		initQRModal(qrModal, meetingData.session_id, meetingData.qrImageDataUrl);
 	}
@@ -65,7 +67,7 @@ function createQRModal() {
 	//this will need to be done once I can work with Isheta's changes (right now just a button)
 	const removeModal = () => {
 		modalRoot.classList.remove('active');
-		setTimeout(() => {modalRoot.remove()}, 300);
+		modalRoot.remove();
 	}
 	//setup modal close functionality here
 	const closeBtn = document.getElementById("closeModal");
