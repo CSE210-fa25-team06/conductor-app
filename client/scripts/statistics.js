@@ -1,3 +1,5 @@
+/* global zingchart */
+
 export async function renderStatistics(content) {
     content.innerHTML = await fetch("statistics.html").then(r => r.text());
 

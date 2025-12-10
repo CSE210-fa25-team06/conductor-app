@@ -250,6 +250,7 @@ function loadSectionContent(section, isInitialLoad = false) {
                     break;
                 case 'statistics':
                     renderStatistics(content);
+                    break;
                 default:
                     content.innerHTML = `<p>Section "${section}" not found.</p>`;
             }
