@@ -272,6 +272,7 @@ function createQRModal() {
 	//this will need to be done once I can work with Isheta's changes (right now just a button)
 	const removeModal = () => {
 		modalRoot.classList.remove('active');
+		modalRoot.remove();
 	}
 	//setup modal close functionality here
 	const closeBtn = document.getElementById("closeModal");
