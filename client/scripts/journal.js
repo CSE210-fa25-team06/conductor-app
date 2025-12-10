@@ -335,8 +335,7 @@ function initModalHandlers(modalOverlay, entryToEdit = null, currentUser) {
     const backBtn = modalOverlay.querySelector('#backBtn');
     
     const closeModal = () => {
-        modalOverlay.classList.remove('active');
-        setTimeout(() => modalOverlay.remove(), 300);
+        modalOverlay.remove();
     };
     
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
@@ -486,8 +485,7 @@ function initSentimentModalHandlers(modalOverlay, existingEntry = null, currentU
   const closeBtn = modalOverlay.querySelector('#closeSentimentModal');
   const backBtn = modalOverlay.querySelector('#sentimentBackBtn');
   const closeModal = () => {
-    modalOverlay.classList.remove('active');
-    setTimeout(() => modalOverlay.remove(), 300);
+    modalOverlay.remove();
   };
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (backBtn) backBtn.addEventListener('click', closeModal);
@@ -571,8 +569,7 @@ function showDeleteConfirmation(id, type = 'journal', currentUser = null) {
     modal.classList.add("active");
 
     const closeModal = () => {
-        modal.classList.remove("active");
-        setTimeout(() => modal.remove(), 300);
+        modelOverlay.remove()
     };
 
     document.getElementById("cancel-delete").onclick = closeModal;
