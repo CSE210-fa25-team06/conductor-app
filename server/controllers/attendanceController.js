@@ -13,7 +13,8 @@ const {
   createSession,
   getSession,
   endSession,
-  updateStudents
+  updateStudents,
+  fetchAttendanceStats
 } = require("../models/attendanceModel");
 
 const QRCode = require("qrcode")
@@ -172,6 +173,7 @@ async function showScanPage(req, res) {
     try {
         const session_id = req.query.session;
 
+
         //construct scan endpoint payload
         const payload = {
             user_id: user_data.user.id,
@@ -206,6 +208,17 @@ async function showScanPage(req, res) {
         console.error("Error in showScanPage:", error);
         res.redirect("/index.html");
     }
+}
+
+// Fetch attendance stats
+async function getAttendanceStats(req, res) {
+  try {
+    const stats = await fetchAttendanceStats();
+    res.json(stats);
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+    res.status(500).json({ error: "Failed to fetch attendance statistics" });
+  }
 }
 
 async function getUserInfo(req) {
@@ -243,5 +256,6 @@ module.exports = {
   showScanPage,
   startAttendance,
   endAttendance,
-  scanAttendance
+  scanAttendance,
+  getAttendanceStats
 };

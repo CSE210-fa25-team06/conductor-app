@@ -15,6 +15,7 @@ const {
   startAttendance,
   endAttendance,
   scanAttendance,
+  getAttendanceStats
 } = require("../controllers/attendanceController");
 
 const router = express.Router();
@@ -45,6 +46,9 @@ router.post("/end", requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), endAtt
 
 //Scan students for who attended
 router.post("/scan", scanAttendance)
+
+router.get('/stats', getAttendanceStats);
+
 
 // Show which students attended class (Professor view)
 //router.get("/session/:session_id/students", professorView)
