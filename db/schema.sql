@@ -7,6 +7,7 @@
 --
 
 -- =========================================================================
+<<<<<<< HEAD
 -- DEVELOPMENT CLEANUP (FOR DEBUGGING PURPOSES ONLY. REMOVE BEFORE DEPLOYING.)
 -- =========================================================================
 DROP TABLE IF EXISTS messages CASCADE;
@@ -26,6 +27,8 @@ DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
 
 -- =========================================================================
+=======
+>>>>>>> b388bd6 (chore(db): Removed delete statements from schema.sql.)
 -- CORE ENTITIES (PARENTS)
 -- =========================================================================
 
