@@ -558,6 +558,7 @@
 }
 
 /* Responsive Design */
+
 /* Actions column */
 .users-table th:last-child {
     width: 190px;
@@ -603,14 +604,6 @@
     width: 100%;
   }
 
-  .users-table tr {
-    margin-bottom: 1rem;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 1rem;
-    background: #fff;
-  }
-
   .users-table td {
     padding: 0.25rem 0;
   }
@@ -632,6 +625,12 @@
     display: block;
     margin-bottom: 2px;
   }
+
+    .settings-subtitle {
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+    }
 
     .admin-actions-wrapper .settings-subtitle {
         flex-direction: column;
@@ -640,23 +639,18 @@
         gap: 0.6rem;
     }
 
+    .btn-admin-action {
+        width: 100%;
+        max-width: 300px;
+    }
+    
     .admin-actions-wrapper .btn-admin-action {
         width: 100%;
         text-align: center;
         flex-direction: column;
         gap: 2rem;
     }
-    
-    .settings-subtitle {
-        width: 100%;
-        justify-content: center;
-        flex-direction: column;
-    }
-    
-    .btn-admin-action {
-        width: 100%;
-        max-width: 300px;
-    }
+
   .users-table tr {
     margin-bottom: 1rem;
     border: 1px solid #ccc;
@@ -664,47 +658,6 @@
     padding: 1rem;
     background: #fff;
   }
-
-  .users-table td {
-    padding: 0.25rem 0;
-  }
-
-  .users-table td:last-child {
-    margin-top: 0.5rem;
-  }
-
-  .users-table td:last-child .button-small {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-
-  .users-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #444;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-
-    .admin-actions-wrapper .btn-admin-action {
-        width: 100%;
-        text-align: center;
-        flex-direction: column;
-        gap: 2rem;
-    }
-    
-    .settings-subtitle {
-        width: 100%;
-        justify-content: center;
-        flex-direction: column;
-    }
-    
-    .btn-admin-action {
-        width: 100%;
-        max-width: 300px;
-    }
 
     .settings-controls {
         margin-top: 1rem;

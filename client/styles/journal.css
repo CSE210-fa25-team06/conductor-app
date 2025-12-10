@@ -46,11 +46,11 @@
 }
 
 #journal-modal h2.modal-title {
-  color: black;
+  color: white;
 }
 
 #sentiment-modal h2.modal-title {
-  color: black;
+  color: white;
 }
 
 #sentiment-modal main {
@@ -314,7 +314,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: black !important;
+  color: white;
   cursor: pointer;
   padding: 0;
   width: 32px;

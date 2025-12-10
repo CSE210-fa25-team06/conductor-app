@@ -647,6 +647,7 @@ window.confirmRemoveUser = async function (userId, userName) {
         await window.deleteUser(userId);
         Notifications.success(`User ${userName} deleted successfully.`);
     } catch (err) {
+        console.err(err);
         Notifications.error("Failed to remove user.");
     }
 
