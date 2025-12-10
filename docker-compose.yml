@@ -60,6 +60,17 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7
+    container_name: conductor_redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   prometheus:
     image: prom/prometheus:latest
     container_name: conductor_prometheus
@@ -108,6 +119,8 @@ services:
       DB_USER: ${PGUSER}
       DB_PASSWORD: ${PGPASSWORD}
       DB_NAME: ${PGDATABASE}
+
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       
       AUTH_STRATEGY: ${AUTH_STRATEGY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
@@ -124,6 +137,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
   grafana_data:
   prometheus_data:
   tempo_data:
