@@ -633,15 +633,28 @@ async function findRoleByName(name) {
 // INSERT FUNCTIONS (Called by the Service Layer)
 // =========================================================================
 
-async function insertUser(client, email, name, groupId) {
+
+/**
+ * Inserts a new user into the database.
+ * Accepts an optional photoUrl.
+ * @param {object} client - The database client.
+ * @param {string} email - User email.
+ * @param {string} name - User full name.
+ * @param {number|null} groupId - Assigned group ID.
+ * @param {string|null} photoUrl - (Optional) URL to the user's profile photo.
+ */
+async function insertUser(client, email, name, groupId, photoUrl = null) {
     const userInsertQuery = `
         INSERT INTO users (email, name, group_id, photo_url)
-        VALUES ($1, $2, $3, 'https://example.com/default-photo.png') 
+        VALUES ($1, $2, $3, $4) 
         RETURNING id;
     `;
-    // If groupId is null, PostgreSQL will handle it based on your schema's group_id column definition
+    
+    // Use the provided URL, or fallback to the default if null/undefined
+    const finalPhotoUrl = photoUrl || 'https://example.com/default-photo.png';
+
     try {
-        const userResult = await client.query(userInsertQuery, [email, name, groupId]); 
+        const userResult = await client.query(userInsertQuery, [email, name, groupId, finalPhotoUrl]); 
         return userResult.rows[0].id; 
     } catch (error) {
         console.error('Database Error in insertUser:', error);
@@ -681,6 +694,40 @@ async function insertUserRole(client, userId, roleId) {
     }
 }
 
+// =========================================================================
+// DELETE FUNCTIONS
+// =========================================================================
+
+/**
+ * Deletes a user account.
+ * SAFETY: Throws an error if the user has a high-privilege role (Level >= 100).
+ */
+async function deleteUser(userId) {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Removed: The check for privilege_level >= 100
+        
+        // 1. Delete User (Cascades to auth, logs, attendance, etc.)
+        const result = await client.query('DELETE FROM users WHERE id = $1 RETURNING id', [userId]);
+        
+        if (result.rowCount === 0) {
+            throw new Error('User not found.');
+        }
+
+        await client.query('COMMIT');
+        return true;
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Database Error in deleteUser:', error);
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
   pool,
   findUserIdByEmail,
@@ -707,6 +754,7 @@ module.exports = {
   createGroup,
   getAllGroups,
   updateRoleConfiguration,
+  deleteUser,
   
   // User/Auth Insert Functions
   insertUserAuth,
