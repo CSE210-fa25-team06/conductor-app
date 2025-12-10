@@ -110,9 +110,11 @@ app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
 app.use('/api/auth', authRouter);
-app.use('/api/admin', groupsRolesRouter); 
-app.use('/api/admin', userRoleRouter); // <-- NEW MOUNT
+app.use('/api/admin', groupsRolesRouter);
+app.use('/api/admin', userRoleRouter);
 app.use('/api/config', configRouter);
+app.use('/journal', journalRouter);
+app.use("/api", require("./routes/index"));
 
 /**
  * GET /
