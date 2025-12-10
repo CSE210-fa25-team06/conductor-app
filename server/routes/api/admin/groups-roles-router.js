@@ -11,12 +11,76 @@ const {
     getAllPermissions,
     getPermissionsForRole,
     updateRoleConfiguration,
-    getAllGroups
+    deleteUser,
+    getAllGroups,
 } = require('../../../models/db');
+
+const { bulkProvisionUsers } = require('../../../services/user-provisioning')
 const { requirePermission } = require('../../../middleware/role-checker');
 
-// NEW: Import the threshold constant
+// Import the threshold constant
 const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver');
+
+
+/**
+ * POST /api/admin/users/batch
+ * Bulk provisions users from a provided JSON array (parsed from CSV on client).
+ * Requires Permission: 'PROVISION_USERS'
+ */
+router.post('/users/batch', requirePermission('PROVISION_USERS'), async (req, res) => {
+    const { users } = req.body;
+
+    if (!users || !Array.isArray(users) || users.length === 0) {
+        return res.status(400).json({ error: 'No user data provided.' });
+    }
+
+    try {
+        // bulkProvisionUsers returns { success: n, failed: n, errors: [] }
+        const results = await bulkProvisionUsers(users);
+        
+        return res.status(200).json({ 
+            success: true, 
+            summary: results,
+            message: `Processed ${users.length} rows. Success: ${results.success}, Failed: ${results.failed}, Skipped: ${results.skipped || 0}`
+        });
+
+    } catch (error) {
+        console.error('API Error in bulk provision:', error);
+        return res.status(500).json({ error: 'Failed to process bulk import.' });
+    }
+});
+
+/**
+ * DELETE /api/admin/users/:userId
+ * Deletes a user account.
+ * Requires Permission: 'PROVISION_USERS' (or 'MANAGE_USERS')
+ * Checks: Cannot delete self, cannot delete Professors.
+ */
+router.delete('/users/:userId', requirePermission('PROVISION_USERS'), async (req, res) => {
+    const targetUserId = parseInt(req.params.userId, 10);
+    const requesterId = req.user.id; // From session middleware
+
+    if (isNaN(targetUserId)) {
+        return res.status(400).json({ error: 'Invalid user ID.' });
+    }
+
+    // SECURITY: Prevent Self-Deletion
+    if (targetUserId === requesterId) {
+        return res.status(403).json({ error: 'You cannot delete your own account.' });
+    }
+
+    try {
+        await deleteUser(targetUserId);
+        return res.status(200).json({ success: true, message: 'User deleted successfully.' });
+    } catch (error) {
+        // Handle specific safety errors from the DB
+        if (error.message.includes('protected user')) {
+            return res.status(403).json({ error: error.message });
+        }
+        console.error('API Error deleting user:', error);
+        return res.status(500).json({ error: 'Failed to delete user.' });
+    }
+});
 
 /**
  * POST /api/admin/groups
