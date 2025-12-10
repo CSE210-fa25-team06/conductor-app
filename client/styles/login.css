@@ -201,6 +201,7 @@ main::before {
         opacity: 0; 
         transform: translateX(30px); 
     }
+
     to { 
         opacity: 1; 
         transform: translateX(0); 
@@ -208,14 +209,13 @@ main::before {
 }
 
 #google-login {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--white);
-  color: #3c4043;
-  border: 1px solid var(--gray-border);
-  border-radius: var(--border-radius-sm);
-  padding: 0;
+  display: inline-block;
+  background-color: #036;
+  color: white;
+  border: none;
+  padding: 0.7em 1.5em;
+  font-size: 1em;
+  border-radius: 5px;
   cursor: pointer;
   text-decoration: none;
   transition: all var(--transition-fast);
