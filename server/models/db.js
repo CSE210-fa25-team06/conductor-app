@@ -572,12 +572,6 @@ async function linkRoleToPermission(roleId, permissionId) {
     }
 }
 
-async function deleteUser(userId) {
-    const query = 'DELETE FROM users WHERE id = $1;';
-    await pool.query(query, [userId]);
-}
-
-
 // =========================================================================
 // LOOKUP & FIND FUNCTIONS
 // =========================================================================
@@ -705,15 +699,12 @@ async function insertUserRole(client, userId, roleId) {
 
 /**
  * Deletes a user account.
- * SAFETY: Throws an error if the user has a high-privilege role (Level >= 100).
  */
 async function deleteUser(userId) {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
-        // Removed: The check for privilege_level >= 100
-        
         // 1. Delete User (Cascades to auth, logs, attendance, etc.)
         const result = await client.query('DELETE FROM users WHERE id = $1 RETURNING id', [userId]);
         
@@ -750,7 +741,6 @@ module.exports = {
   createActivity,
   getAllPermissions,
   getPermissionsForRole,
-  deleteUser,
   
   // Provisioning/Admin Functions
   getRolePrivilegeLevel,
