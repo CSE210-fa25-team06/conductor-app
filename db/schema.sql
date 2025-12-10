@@ -7,28 +7,6 @@
 --
 
 -- =========================================================================
-<<<<<<< HEAD
--- DEVELOPMENT CLEANUP (FOR DEBUGGING PURPOSES ONLY. REMOVE BEFORE DEPLOYING.)
--- =========================================================================
-DROP TABLE IF EXISTS messages CASCADE;
-DROP TABLE IF EXISTS message_threads CASCADE;
-DROP TABLE IF EXISTS journals CASCADE;
-DROP TABLE IF EXISTS attendance CASCADE;
-DROP TABLE IF EXISTS attendance_sessions CASCADE;
-DROP TABLE IF EXISTS events CASCADE;
-DROP TABLE IF EXISTS user_auth CASCADE;
-DROP TABLE IF EXISTS activity_log CASCADE;
-DROP TABLE IF EXISTS activity CASCADE;
-DROP TABLE IF EXISTS user_roles CASCADE;
-DROP TABLE IF EXISTS role_permissions CASCADE;
-DROP TABLE IF EXISTS permissions CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS roles CASCADE;
-DROP TABLE IF EXISTS groups CASCADE;
-
--- =========================================================================
-=======
->>>>>>> b388bd6 (chore(db): Removed delete statements from schema.sql.)
 -- CORE ENTITIES (PARENTS)
 -- =========================================================================
 

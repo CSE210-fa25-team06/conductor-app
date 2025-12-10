@@ -57,9 +57,6 @@ const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" cl
 
         <section class="profile-wrapper">
             <section class="profile-photo-section">
-<<<<<<< HEAD
-                <img src="${user.photo_url || '/assets/images/avatar.png'}" alt="Profile Photo" class="profile-photo">
-=======
                 <img 
                     src="${photoSrc}" 
                     alt="Profile Photo" 
@@ -67,7 +64,6 @@ const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" cl
                     referrerpolicy="no-referrer"
                     onerror="this.onerror=null; this.src='https://via.placeholder.com/250';"
                 >
->>>>>>> 40c4ffa (feat(profile): Profile page now displays Google profile picture)
                 <div class="profile-meta-badges">
                     <span class="meta-badge">${providerLabel} Account</span>
                     <span class="meta-badge">Joined ${joinedDate}</span>

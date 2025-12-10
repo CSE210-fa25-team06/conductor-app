@@ -651,11 +651,7 @@ async function findRoleByName(name) {
 async function insertUser(client, email, name, groupId, photoUrl = null) {
     const userInsertQuery = `
         INSERT INTO users (email, name, group_id, photo_url)
-<<<<<<< HEAD
-        VALUES ($1, $2, $3, '/assets/images/avatar.png') 
-=======
         VALUES ($1, $2, $3, $4) 
->>>>>>> 40c4ffa (feat(profile): Profile page now displays Google profile picture)
         RETURNING id;
     `;
     
