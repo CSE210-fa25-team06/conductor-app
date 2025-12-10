@@ -572,6 +572,11 @@ async function linkRoleToPermission(roleId, permissionId) {
     }
 }
 
+async function deleteUser(userId) {
+    const query = 'DELETE FROM users WHERE id = $1;';
+    await pool.query(query, [userId]);
+}
+
 
 // =========================================================================
 // LOOKUP & FIND FUNCTIONS
@@ -698,6 +703,7 @@ module.exports = {
   createActivity,
   getAllPermissions,
   getPermissionsForRole,
+  deleteUser,
   
   // Provisioning/Admin Functions
   getRolePrivilegeLevel,

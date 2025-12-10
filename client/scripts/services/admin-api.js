@@ -92,7 +92,7 @@ const API = {
         });
     },
 
-    // NEW: System Defaults
+    // System Defaults
     async setSystemDefaults(roleId, groupId) {
         return this.fetch('/api/admin/defaults', {
             method: 'PUT',
@@ -101,6 +101,13 @@ const API = {
                 default_role_id: parseInt(roleId),
                 default_group_id: groupId === "null" ? null : parseInt(groupId)
             })
+        });
+    },
+
+    async deleteUser(userId) {
+        return this.fetch(`/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
         });
     }
 };
