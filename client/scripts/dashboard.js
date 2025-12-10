@@ -1,6 +1,7 @@
 import { renderAttendance } from './attendance.js';
 import { renderClassDirectory } from './class-directory.js';
 import { renderProfilePage } from './profile.js';
+import { initCalendarSection } from "./widgets/calendar.js";
 
 const VALID_SECTIONS = ['dashboard', 'directory', 'attendance', 'journal', 'profile', 'settings'];
 const SECTION_NAMES = {
@@ -48,6 +49,20 @@ const utils = {
     }
 };
 
+async function loadCalendarWidget(container) {
+    // Create a placeholder div ABOVE the cards
+    const calendarDiv = document.createElement("section");
+    calendarDiv.id = "calendar-section";
+    calendarDiv.style.marginBottom = "2rem"; // spacing above cards
+    container.prepend(calendarDiv);
+
+    // Load the calendar HTML widget
+    const html = await fetch("../dashboard_widgets/calendar.html").then(r => r.text());
+    calendarDiv.innerHTML = html;
+
+    // Now initialize FullCalendar on the injected HTML
+    initCalendarSection();
+}
 
 async function initializeDashboard() {
     try {
@@ -290,7 +305,7 @@ function loadDropdownSection(section, isInitialLoad = false) {
     }, isInitialLoad ? 0 : 250);
 }
 
-function renderDashboardContent(container) {
+async function renderDashboardContent(container) {
     container.innerHTML = `
         <div class="dashboard-cards">
             <div class="card" data-section="directory">
@@ -314,6 +329,9 @@ function renderDashboardContent(container) {
         </div>
     `;
     container.classList.remove('centered');
+
+    // Load the calendar ABOVE the cards
+    await loadCalendarWidget(container);
 }
 
 function setupCardEventListeners() {
