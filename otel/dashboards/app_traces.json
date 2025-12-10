@@ -1,0 +1,727 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "Tempo"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "percentage",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 100
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Duration"
+          }
+        ]
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "Tempo"
+          },
+          "limit": 500,
+          "query": "{ duration > 1ms }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Top 20 Longest Traces (from last 500)",
+      "transformations": [
+        {
+          "id": "limit",
+          "options": {
+            "limit": 20
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "duration"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "title": "HTTP Server",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      }
+    },
+    {
+      "title": "Overall Request Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Prometheus",
+          "expr": "sum(rate(conductor_http_server_duration_milliseconds_count{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval]))",
+          "legendFormat": "Total Requests"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 13
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "id": 17
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 13
+      },
+      "dataLinks": [
+        {
+          "datasourceUid": "Tempo",
+          "title": "View Traces",
+          "url": "/d/tempo-traces-overview?var-service=${__field.labels.service_name}&var-filter_http_route=${__field.labels.http_route}&from=${__data.timeRange.from}&to=${__data.timeRange.to}"
+        }
+      ],
+      "id": 1,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(conductor_http_server_duration_milliseconds_count{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (http_route)",
+          "legendFormat": "Rate {{http_route}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Request Rate by Route",
+      "type": "timeseries"
+    },
+    {
+      "title": "Overall Error Rate (5xx)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Prometheus",
+          "expr": "sum(rate(conductor_http_server_duration_milliseconds_count{service_name=\"$service\", http_status_code=~\"5..\", job=\"otel-collector\"}[$__rate_interval]))",
+          "legendFormat": "Total 5xx Errors"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 13
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "id": 18
+    },
+    {
+      "title": "Overall Request Duration",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(conductor_http_server_duration_milliseconds_bucket{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (le))",
+          "legendFormat": "p95 Total"
+        },
+        {
+          "refId": "B",
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(conductor_http_server_duration_milliseconds_bucket{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (le))",
+          "legendFormat": "p50 Total"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "unit": "ms"
+      },
+      "id": 19
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 21
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(conductor_http_server_duration_milliseconds_count{service_name=\"$service\", http_status_code=~\"5..\", job=\"otel-collector\"}[$__rate_interval])) by (http_route)",
+          "legendFormat": "Error Rate {{http_route}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Rate (5xx) by Route",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 21
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "unit": "ms"
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(conductor_http_server_duration_milliseconds_bucket{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (le, http_route))",
+          "legendFormat": "p95 {{http_route}}",
+          "refId": "A"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(conductor_http_server_duration_milliseconds_bucket{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (le, http_route))",
+          "hide": false,
+          "legendFormat": "p50 {{http_route}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Request Duration by Route",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 11,
+      "panels": [],
+      "title": "Node.js Runtime",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "unit": "s"
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "avg(conductor_nodejs_eventloop_delay_mean_seconds{service_name=\"$service\", job=\"otel-collector\"})",
+          "legendFormat": "Mean (avg over all instances)",
+          "refId": "A"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "max(conductor_nodejs_eventloop_delay_max_seconds{service_name=\"$service\", job=\"otel-collector\"})",
+          "legendFormat": "Max (worst instance)",
+          "refId": "B"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "max(conductor_nodejs_eventloop_delay_p99_seconds{service_name=\"$service\", job=\"otel-collector\"})",
+          "legendFormat": "P99 (worst instance)",
+          "refId": "C"
+        }
+      ],
+      "title": "Event Loop Lag",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "unit": "percent"
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "avg(conductor_nodejs_eventloop_utilization_ratio{service_name=\"$service\", job=\"otel-collector\"}) * 100",
+          "legendFormat": "Utilization (avg over all instances)",
+          "refId": "A"
+        }
+      ],
+      "title": "Event Loop Utilization",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "unit": "bytes"
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(conductor_v8js_memory_heap_used_bytes{service_name=\"$service\", job=\"otel-collector\"}) by (v8js_heap_space_name)",
+          "legendFormat": "{{v8js_heap_space_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Heap Memory Used",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "id": 21,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "unit": "s"
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(conductor_v8js_gc_duration_seconds_bucket{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (le, v8js_gc_type))",
+          "legendFormat": "p95 {{v8js_gc_type}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Garbage Collection Duration (p95)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Database",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 47
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(conductor_db_client_operation_duration_seconds_count{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (db_operation_name)",
+          "legendFormat": "{{db_operation_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "DB Operation Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 47
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "unit": "s"
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(conductor_db_client_operation_duration_seconds_bucket{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (le, db_operation_name))",
+          "legendFormat": "p95 {{db_operation_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "DB Operation Duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(conductor_db_client_connection_count{service_name=\"$service\", job=\"otel-collector\"}) by (db_client_connection_state)",
+          "legendFormat": "{{db_client_connection_state}}",
+          "refId": "A"
+        }
+      ],
+      "title": "DB Connection Count",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 13,
+      "panels": [],
+      "title": "HTTP Client",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 64
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(conductor_http_client_duration_milliseconds_count{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (net_peer_name)",
+          "legendFormat": "{{net_peer_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Outbound Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 64
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "unit": "ms"
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(conductor_http_client_duration_milliseconds_bucket{service_name=\"$service\", job=\"otel-collector\"}[$__rate_interval])) by (le, net_peer_name))",
+          "legendFormat": "p95 {{net_peer_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Outbound Request Duration",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": "Prometheus",
+        "definition": "label_values(conductor_http_server_duration_milliseconds_count{job=\"otel-collector\"}, service_name)",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "service",
+        "options": [],
+        "query": "label_values(conductor_http_server_duration_milliseconds_count{job=\"otel-collector\"}, service_name)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Application Traces",
+  "uid": "app-traces",
+  "version": 1,
+  "weekStart": ""
+}
