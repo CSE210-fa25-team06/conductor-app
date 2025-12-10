@@ -296,7 +296,7 @@
     background: none;
     border: none;
     font-size: 2rem;
-    color: rgba(255, 255, 255, 0.8); /* Light color for visibility on blue */
+    color: rgb(255 255 255 / 80%); /* Light color for visibility on blue */
     cursor: pointer;
     line-height: 1;
     padding: 0;
@@ -448,8 +448,8 @@
 
 /* NEW: Help Icon Button */
 .help-icon-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgb(255 255 255 / 20%);
+    border: 1px solid rgb(255 255 255 / 40%);
     color: white;
     width: 24px;
     height: 24px;
