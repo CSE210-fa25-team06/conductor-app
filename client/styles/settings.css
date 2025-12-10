@@ -222,6 +222,17 @@
     transform: translateY(0);
 }
 
+.remove-user-btn {
+    background-color: #d9534f !important;
+    border-color: #d9534f !important;
+    color: white !important;
+}
+
+.remove-user-btn:hover {
+    background-color: #c9302c !important;
+    border-color: #ac2925 !important;
+}
+
 /* --- Modal Styles --- */
 .modal-overlay, .modal {
     position: fixed;
