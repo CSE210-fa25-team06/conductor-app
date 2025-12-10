@@ -591,6 +591,13 @@
         width: 100%;
         max-width: 300px;
     }
+  .users-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+  }
 
   .users-table td {
     padding: 0.25rem 0;
