@@ -1,15 +1,17 @@
 import { renderAttendance } from './attendance.js';
+import { renderStatistics } from './statistics.js';
 import { renderClassDirectory } from './class-directory.js';
 import { renderProfilePage } from './profile.js';
 
-const VALID_SECTIONS = ['dashboard', 'directory', 'attendance', 'journal', 'profile', 'settings'];
+const VALID_SECTIONS = ['dashboard', 'directory', 'attendance', 'journal', 'profile', 'settings', 'statistics'];
 const SECTION_NAMES = {
     'dashboard': 'Dashboard',
     'directory': 'Class Directory',
     'attendance': 'Attendance',
     'journal': 'Journal',
     'profile': 'Profile',
-    'settings': 'Settings'
+    'settings': 'Settings',
+    'statistics': 'Statistics'
 };
 
 let currentUser = null;
@@ -246,6 +248,9 @@ function loadSectionContent(section, isInitialLoad = false) {
                 case 'journal':
                     renderJournalSection(content);
                     break;
+                case 'statistics':
+                    renderStatistics(content);
+                    break;
                 default:
                     content.innerHTML = `<p>Section "${section}" not found.</p>`;
             }
@@ -310,6 +315,12 @@ function renderDashboardContent(container) {
                 <h3>Journal</h3>
                 <p>Review student journals and submissions</p>
                 <button class="card-btn" data-section="journal">View Journals</button>
+            </div>
+            <div class="card" data-section="statistics">
+                <i class="fas fa-chart-line card-icon"></i>
+                <h3>Statistics</h3>
+                <p>Track attendance over time</p>
+                <button class="card-btn" data-section="statistics">View Statistics</button>
             </div>
         </div>
     `;

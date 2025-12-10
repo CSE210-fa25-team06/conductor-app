@@ -13,7 +13,8 @@ const {
   createSession,
   getSession,
   endSession,
-  updateStudents
+  updateStudents,
+  fetchAttendanceStats
 } = require("../models/attendanceModel");
 
 const QRCode = require("qrcode")
@@ -159,6 +160,16 @@ async function scanAttendance(req, res){
     }
 }
 
+// Fetch attendance stats
+async function getAttendanceStats(req, res) {
+  try {
+    const stats = await fetchAttendanceStats();
+    res.json(stats);
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+    res.status(500).json({ error: "Failed to fetch attendance statistics" });
+  }
+}
 
 
 module.exports = {
@@ -168,5 +179,6 @@ module.exports = {
   getAttendanceByDate,
   startAttendance,
   endAttendance,
-  scanAttendance
+  scanAttendance,
+  getAttendanceStats
 };

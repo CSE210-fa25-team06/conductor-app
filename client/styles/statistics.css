@@ -1,0 +1,44 @@
+.stats-page {
+  padding: 20px;
+}
+
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Card styling */
+.chart-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+  outline: none;
+}
+
+/* For focus visible */
+.chart-card:focus-within {
+  outline: 3px solid #005fcc;
+  outline-offset: 4px;
+}
+
+.chart-title {
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.chart {
+  width: 100%;
+  height: 350px;
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
