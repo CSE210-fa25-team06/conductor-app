@@ -7,10 +7,9 @@
   <title>Class Directory</title>
 </head>
 <body> -->
-    <main class="attendance-container">
         <div class="controls">
-        <div class="controls-row">
-            <div class="controls-left">
+    <div class="controls-row">
+        <div class="controls-left">
             <div class="form-group">
                 <label for="meetingDate">Meeting date:</label>
                 <input type="text" id="meetingDate" class="date-input" placeholder="____/__/____">
@@ -18,50 +17,50 @@
             <div class="form-group">
                 <label>Meeting type:</label>
                 <div class="checkbox-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="lecture" name="meetingType">
-                    <span>Lecture</span>
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="informal" name="meetingType">
-                    <span>Informal</span>
-                </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="lecture" name="meetingType">
+                        <span>Lecture</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="informal" name="meetingType">
+                        <span>Informal</span>
+                    </label>
                 </div>
             </div>
-            </div>
         </div>
+    </div>
 
-        <div class="bottom-row">
-            <button type="button" class="sort-btn">Sort ⋯</button>
-            <button type="button" class="submit-btn">Submit</button>
-        </div>
-        </div>
+    <div class="bottom-row">
+        <button type="button" class="sort-btn">Sort ⋯</button>
+        <button type="button" class="submit-btn">Submit</button>
+    </div>
+</div>
 
-        <div class="student-list">
-        <div class="student-row">
-            <div class="student-avatar"></div>
-            <div class="student-info">
+<div class="student-list">
+    <div class="student-row">
+        <div class="student-avatar">FL</div>
+        <div class="student-info">
             <div class="student-name">FName LName</div>
             <div class="student-group">Group N</div>
-            </div>
         </div>
-        <div class="student-row selected">
-            <div class="student-avatar"></div>
-            <div class="student-info">
+    </div>
+    <div class="student-row selected">
+        <div class="student-avatar">FL</div>
+        <div class="student-info">
             <div class="student-name">FName LName</div>
             <div class="student-group">Group N</div>
-            </div>
         </div>
-        <div class="student-row">
-            <div class="student-avatar"></div>
-            <div class="student-info">
+    </div>
+    <div class="student-row">
+        <div class="student-avatar">FL</div>
+        <div class="student-info">
             <div class="student-name">FName LName</div>
             <div class="student-group">Group N</div>
-            </div>
         </div>
-        </div>
-        <button type="button" class="button" id="startMeetingBtn">Test start meeting</button>
-    </main>
+    </div>
+</div>
+
+<button type="button" class="button" id="start-meeting-btn">Test start meeting</button>
 
     <!-- Reusable QR code component which can be scanned
     to record meeting attendance. It should:
@@ -69,23 +68,18 @@
     2. Be "closable" (a button to make the display window disappear)
     3. Have an "end meeting" button if you are the owner of the meeting -->
     <!-- this uses classes from journal.css (since they are already implemented and work great) -->
-    <template id="QRModal">
-        <div class="modal-overlay" id="modalRoot">
-            <article class="modal-content">
-                <section class="modal-header">
-                    <h2 class="modal-title">Scan for Attendance</h2>
-                    <button type="button" class="modal-close" id="closeModal">&times;</button>
-                </section>
+<template id="QRModal">
+    <div class="modal-overlay" id="modalRoot">
+        <article class="modal-content">
+            <section class="modal-header">
+                <h2 class="modal-title">Scan for Attendance</h2>
+                <button type="button" class="modal-close" id="closeModal">&times;</button>
+            </section>
 
-                <!-- using image to display the QR code, will update when I know what the endpoint returns -->
-                <section class="centered-modal-body">
-                    <!-- placeholder image to appease htmlhint -->
-                    <img id="qr-image" src="https://icon-library.com/images/no-connection-icon/no-connection-icon-16.jpg" alt="QR code for meeting">
-
-                    <button type="button" class="button" id="endMeeting">End Meeting</button>
-                </section>
-            </article>
-        </div>
-    </template>
-<!-- </body>
-</html> -->
+            <section class="centered-modal-body">
+                <img id="qr-image" src="https://icon-library.com/images/no-connection-icon/no-connection-icon-16.jpg" alt="QR code for meeting">
+                <button type="button" class="button" id="endMeeting">End Meeting</button>
+            </section>
+        </article>
+    </div>
+</template>
