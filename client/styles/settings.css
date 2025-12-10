@@ -636,7 +636,7 @@
     .admin-actions-wrapper .settings-subtitle {
         flex-direction: column;
         width: 100%;
-        align-items: stretch;
+        align-items: center;
         gap: 0.6rem;
     }
 
@@ -687,12 +687,6 @@
     margin-bottom: 2px;
   }
 
-    .admin-actions-wrapper .settings-subtitle {
-        flex-direction: column;
-        width: 100%;
-        align-items: stretch;
-        gap: 0.6rem;
-    }
 
     .admin-actions-wrapper .btn-admin-action {
         width: 100%;

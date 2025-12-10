@@ -173,18 +173,12 @@ function renderUsersTable(users) {
                     </button>`;
             } else {
                 actions += `
-                    <button class="button button-small button-danger" style="margin-left: 5px;" onclick="window.deleteUser(${user.id}, '${escapeHtml(user.name)}')">
+                    <button class="button button-small button-danger" style="margin-left: 5px;"
+                        onclick="window.openRemoveUserModal(${user.id}, '${escapeHtml(user.name)}')">
                         Delete
                     </button>`;
             }
         }
-
-        actions += `
-            <button class="button button-small" 
-                style="margin-left: 0.2rem; background-color: #d9534f; color: white;" 
-                onclick="window.openRemoveUserModal(${user.id})">
-                Remove User
-            </button>`;
 
         row.innerHTML = `
             <td data-label="Name" class="user-name">${escapeHtml(user.name)}</td>
@@ -612,19 +606,15 @@ function parseCSV(csvText) {
     return users;
 }
 
-// --- 8. Delete User (Exposed to Window) ---
-window.deleteUser = async function(userId, userName) {
-    const confirmed = confirm(`Are you sure you want to permanently delete ${userName}? This cannot be undone.`);
-    if (!confirmed) return;
-
+// --- 8. Delete User ---
+window.deleteUser = async function(userId) {
     try {
         await API.deleteUser(userId);
-        Notifications.success(`User ${userName} deleted successfully.`);
         await performSearch(); 
     } catch (err) {
         Notifications.error(err.message || 'Failed to delete user.');
     }
-}
+};
 
 // --- Helpers ---
 function toggleModal(id, show) {
@@ -635,6 +625,35 @@ function toggleModal(id, show) {
     }
 }
 window.closeModal = (id) => toggleModal(id, false);
+
+window.openRemoveUserModal = function (userId, userName) {
+    const modal = document.getElementById("remove-user-modal");
+    const nameField = document.getElementById("remove-user-name");
+    const confirmBtn = document.getElementById("remove-user-confirm");
+
+    nameField.textContent = userName;
+
+    // Clicking confirm should call deleteUser
+    confirmBtn.onclick = () => window.confirmRemoveUser(userId, userName);
+
+    modal.classList.remove("hidden");
+    modal.classList.add("active");
+};
+
+window.confirmRemoveUser = async function (userId, userName) {
+    const modal = document.getElementById("remove-user-modal");
+
+    try {
+        await window.deleteUser(userId);
+        Notifications.success(`User ${userName} deleted successfully.`);
+    } catch (err) {
+        Notifications.error("Failed to remove user.");
+    }
+
+    modal.classList.add("hidden");
+    modal.classList.remove("active");
+};
+
 
 function debounce(func, wait) {
     let timeout;
