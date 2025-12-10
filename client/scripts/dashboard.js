@@ -331,6 +331,12 @@ async function renderDashboardContent(container) {
                 <p>Review student journals and submissions</p>
                 <button class="card-btn" data-section="journal">View Journals</button>
             </div>
+            <div class="card" data-section="statistics">
+                <i class="fas fa-chart-line card-icon"></i>
+                <h3>Statistics</h3>
+                <p>Track attendance over time</p>
+                <button class="card-btn" data-section="statistics">View Statistics</button>
+            </div>
         </div>
     `;
     container.classList.remove('centered');
