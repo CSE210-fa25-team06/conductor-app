@@ -128,15 +128,22 @@ function renderUsersTable(users) {
 
         let actions = `<button class="button button-small" style="background-color: #06c; color: white;" onclick="window.openRoleModal(${user.id})">Assign Role</button>`;
         if (canAssignGroup) {
-            actions += `<button class="button button-small" style="margin-left: 5px; background-color: #06c; color: white;" onclick="window.openGroupModal(${user.id})">Assign Group</button>`;
+            actions += `<button class="button button-small" style="margin-left: 0.2rem; background-color: #06c; color: white;" onclick="window.openGroupModal(${user.id})">Assign Group</button>`;
         }
 
+        actions += `
+            <button class="button button-small" 
+                style="margin-left: 0.2rem; background-color: #d9534f; color: white;" 
+                onclick="window.openRemoveUserModal(${user.id})">
+                Remove User
+            </button>`;
+
         row.innerHTML = `
-            <td class="user-name">${escapeHtml(user.name)}</td>
-            <td class="user-email">${escapeHtml(user.email)}</td>
-            <td class="user-role">${roleBadges}</td>
-            <td class="user-group">${escapeHtml(user.group_name || 'Unassigned')}</td>
-            <td class="user-actions">${actions}</td>
+            <td data-label="Name" class="user-name">${escapeHtml(user.name)}</td>
+            <td data-label="Email" class="user-email">${escapeHtml(user.email)}</td>
+            <td data-label="Current Role" class="user-role">${roleBadges}</td>
+            <td data-label="Group" class="user-group">${escapeHtml(user.group_name || 'Unassigned')}</td>
+            <td data-label="Actions" class="user-actions">${actions}</td>
         `;
         tbody.appendChild(row);
     });
@@ -158,7 +165,7 @@ function renderAdminButtons() {
     };
 
     if (state.currentUserPermissions.includes(PERMISSIONS.CREATE_ROLES)) {
-        subtitle.appendChild(createBtn('System Defaults', 'btn-sys-defaults', openDefaultsModal, 'margin-right: 15px;'));
+        subtitle.appendChild(createBtn('System Defaults', 'btn-sys-defaults', openDefaultsModal));
     }
 
     if (state.currentUserPermissions.includes(PERMISSIONS.MANAGE_PERMISSIONS)) {
@@ -191,7 +198,8 @@ function bindModalEvents() {
         'group-save': saveGroup,
         'perm-save': savePermissions,
         'create-group-save': createNewGroup,
-        'create-role-save': createNewRole
+        'create-role-save': createNewRole,
+        'remove-user-confirm': confirmRemoveUser
     };
 
     for (const [id, fn] of Object.entries(handlers)) {
@@ -476,6 +484,42 @@ async function saveSystemDefaults() {
         btn.textContent = "Save Defaults";
     }
 }
+
+// Remove Users Functionality
+window.openRemoveUserModal = function(userId) {
+    const user = state.users.find(u => u.id === userId);
+    if (!user) return;
+
+    // Put user's name inside modal
+    document.getElementById('remove-user-name').textContent = user.name;
+
+    // Store userId in modal dataset
+    const modal = document.getElementById('remove-user-modal');
+    modal.dataset.userId = userId;
+
+    toggleModal('remove-user-modal', true);
+};
+
+// Remove User Functionality
+async function confirmRemoveUser() {
+    const modal = document.getElementById('remove-user-modal');
+    const userId = parseInt(modal.dataset.userId);
+    // Find the user object so we can show their name
+    const user = state.users.find(u => u.id === userId);
+    try {
+        await API.deleteUser(userId);
+        // Remove user from local state
+        state.users = state.users.filter(u => u.id !== userId);
+        // Refresh table
+        filterUsers();
+        // Success notification
+        Notifications.success(`Successfully removed ${user?.name || 'user'}.`);
+    } catch (err) {
+        Notifications.error(err.message || 'Failed to remove user.');
+    }
+    toggleModal('remove-user-modal', false);
+}
+
 
 // --- Helpers ---
 function toggleModal(id, show) {

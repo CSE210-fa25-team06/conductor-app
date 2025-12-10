@@ -272,6 +272,9 @@ export async function initJournals() {
 
 // FIX: Added currentUser parameter so we can use it in submission
 async function showJournalModal(entryToEdit = null, currentUser = null) {
+    const existingModal = document.getElementById('journal-modal');
+    if (existingModal) existingModal.remove();
+
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
     modalOverlay.id = 'journal-modal';
@@ -332,8 +335,7 @@ function initModalHandlers(modalOverlay, entryToEdit = null, currentUser) {
     const backBtn = modalOverlay.querySelector('#backBtn');
     
     const closeModal = () => {
-        modalOverlay.classList.remove('active');
-        setTimeout(() => modalOverlay.remove(), 300);
+        modalOverlay.remove();
     };
     
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
@@ -430,7 +432,7 @@ function attachEditHandlers(entries, currentUser) {
 async function showSentimentModal(existingEntry = null, currentUser = null) {
   const modalOverlay = document.createElement('div');
   modalOverlay.className = 'modal-overlay';
-  modalOverlay.id = 'sentimentModal';
+  modalOverlay.id = 'sentiment-modal';
 
   try {
     const response = await fetch('/journal/sentiment.html');
@@ -439,7 +441,7 @@ async function showSentimentModal(existingEntry = null, currentUser = null) {
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    const formElement = doc.querySelector('#sentimentForm');
+    const formElement = doc.querySelector('#sentiment-form');
     const formHTML = formElement ? formElement.outerHTML : html;
 
     modalOverlay.innerHTML = `
@@ -483,8 +485,7 @@ function initSentimentModalHandlers(modalOverlay, existingEntry = null, currentU
   const closeBtn = modalOverlay.querySelector('#closeSentimentModal');
   const backBtn = modalOverlay.querySelector('#sentimentBackBtn');
   const closeModal = () => {
-    modalOverlay.classList.remove('active');
-    setTimeout(() => modalOverlay.remove(), 300);
+    modalOverlay.remove();
   };
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (backBtn) backBtn.addEventListener('click', closeModal);
@@ -498,7 +499,7 @@ function initSentimentModalHandlers(modalOverlay, existingEntry = null, currentU
   };
   document.addEventListener('keydown', escapeHandler);
 
-  const sentimentForm = modalOverlay.querySelector('#sentimentForm');
+  const sentimentForm = modalOverlay.querySelector('#sentiment-form');
   if (sentimentForm) {
     sentimentForm.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -568,8 +569,7 @@ function showDeleteConfirmation(id, type = 'journal', currentUser = null) {
     modal.classList.add("active");
 
     const closeModal = () => {
-        modal.classList.remove("active");
-        setTimeout(() => modal.remove(), 300);
+        modal.remove()
     };
 
     document.getElementById("cancel-delete").onclick = closeModal;

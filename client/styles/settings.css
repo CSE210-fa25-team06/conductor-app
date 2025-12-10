@@ -25,16 +25,7 @@
     margin: 0;
     color: white;
     font-weight: 600;
-    font-size: 1.6rem;
-}
-
-/* Admin Action Bar (Header Buttons) */
-.settings-subtitle {
-    display: flex;    
-    align-items: center;
-    gap: 10px;
-    margin-top: 0;
-    min-height: 40px;
+    font-size: 1rem;
 }
 
 /* Controls Area (Search/Filter) */
@@ -214,7 +205,6 @@
     padding: 0.6rem 1.2rem;
     font-weight: 500;
     border-radius: 6px;
-    font-size: 0.95rem;
     box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -230,6 +220,17 @@
 .btn-admin-action:active {
     background-color: #004d99;
     transform: translateY(0);
+}
+
+.remove-user-btn {
+    background-color: #d9534f !important;
+    border-color: #d9534f !important;
+    color: white !important;
+}
+
+.remove-user-btn:hover {
+    background-color: #c9302c !important;
+    border-color: #ac2925 !important;
 }
 
 /* --- Modal Styles --- */
@@ -282,7 +283,7 @@
 .modal-header h2, .modal-header h3 {
     margin: 0;
     font-size: 1.5rem;
-    color: white;
+    color: black;
 }
 
 .modal-close {
@@ -476,44 +477,94 @@
     color: #c62828;
 }
 
-/* Responsive Design */
+/* Actions column */
+.users-table th:last-child {
+    width: 190px;
+    text-align: center;
+}
+
+.users-table td:last-child {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.users-table td:last-child .button-small {
+    display: inline-block;
+}
+
+.admin-actions-wrapper {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-actions-wrapper .settings-subtitle {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Mobile layout */
 @media (width <= 768px) {
-    .settings-container {
-        padding: 0 1rem;
+  button.button.button-small {
+    margin-left: 0 !important;
+  }
+
+  .users-table thead {
+    display: none; /* Hide column headers */
+  }
+
+  .users-table,
+  .users-table tbody,
+  .users-table tr,
+  .users-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .users-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+  }
+
+  .users-table td {
+    padding: 0.25rem 0;
+  }
+
+  .users-table td:last-child {
+    margin-top: 0.5rem;
+  }
+
+  .users-table td:last-child .button-small {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .users-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #444;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+    .admin-actions-wrapper .settings-subtitle {
+        flex-direction: column;
+        width: 100%;
+        align-items: stretch;
+        gap: 0.6rem;
     }
 
-    .settings-header {
+    .admin-actions-wrapper .btn-admin-action {
+        width: 100%;
         text-align: center;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .settings-subtitle {
-        width: 100%;
-        justify-content: center;
-        flex-direction: column;
-    }
-    
-    .btn-admin-action {
-        width: 100%;
-        max-width: 300px;
     }
 
     .settings-controls {
-        flex-direction: column;
-    }
-
-    .search-box, .filter-box {
-        width: 100%;
-    }
-
-    .users-table th, .users-table td {
-        padding: 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    .modal-content {
-        width: 95%;
-        margin: 1rem;
+        margin-top: 1rem;
     }
 }
