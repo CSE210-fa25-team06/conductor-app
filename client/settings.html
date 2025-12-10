@@ -2,7 +2,7 @@
     <header class="settings-header">
         <div style="display:flex; align-items:center; gap: 10px;">
             <h1>Admin CP</h1>
-            <button id="btn-admin-help" class="help-icon-btn" title="Admin Guide">
+            <button id="btn-admin-help" class="help-icon-btn" title="Admin Guide" type="button">
                 <span class="icon">?</span>
             </button>
         </div>
@@ -47,15 +47,15 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2>Assign Roles</h2>
-            <button class="modal-close" data-target="role-modal">&times;</button>
+            <button class="modal-close" data-target="role-modal" type="button">&times;</button>
         </div>
         <div class="modal-body">
             <p>Assign roles for: <strong id="modal-user-name"></strong></p>
             <div id="role-checkbox-container"></div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" data-target="role-modal">Cancel</button>
-            <button class="button button-primary" id="modal-assign">Save Roles</button>
+            <button class="button button-secondary" data-target="role-modal" type="button">Cancel</button>
+            <button class="button button-primary" id="modal-assign" type="button">Save Roles</button>
         </div>
     </div>
 </div>
@@ -64,7 +64,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2>Assign Group</h2>
-            <button class="modal-close" data-target="group-modal">&times;</button>
+            <button class="modal-close" data-target="group-modal" type="button">&times;</button>
         </div>
         <div class="modal-body">
             <p>Assign group for: <strong id="group-user-name"></strong></p>
@@ -74,8 +74,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" data-target="group-modal">Cancel</button>
-            <button class="button button-primary" id="group-save">Save Group</button>
+            <button class="button button-secondary" data-target="group-modal" type="button">Cancel</button>
+            <button class="button button-primary" id="group-save" type="button">Save Group</button>
         </div>
     </div>
 </div>
@@ -84,7 +84,7 @@
     <div class="modal-content modal-large">
         <div class="modal-header">
             <h3>Configure Role</h3>
-            <button class="modal-close" data-target="permissions-modal">&times;</button>
+            <button class="modal-close" data-target="permissions-modal" type="button">&times;</button>
         </div>
         <div class="modal-body flex-body">
             <div class="controls-row" style="display: flex; gap: 2rem; align-items: flex-end;">
@@ -111,8 +111,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" data-target="permissions-modal">Cancel</button>
-            <button class="button button-primary" id="perm-save" disabled>Save Changes</button>
+            <button class="button button-secondary" data-target="permissions-modal" type="button">Cancel</button>
+            <button class="button button-primary" id="perm-save" disabled type="button">Save Changes</button>
         </div>
     </div>
 </div>
@@ -121,7 +121,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2>Create New Group</h2>
-            <button class="modal-close" data-target="create-group-modal">&times;</button>
+            <button class="modal-close" data-target="create-group-modal" type="button">&times;</button>
         </div>
         <div class="modal-body">
             <div class="form-group">
@@ -130,8 +130,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" data-target="create-group-modal">Cancel</button>
-            <button class="button button-primary" id="create-group-save">Create Group</button>
+            <button class="button button-secondary" data-target="create-group-modal" type="button">Cancel</button>
+            <button class="button button-primary" id="create-group-save" type="button">Create Group</button>
         </div>
     </div>
 </div>
@@ -140,7 +140,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2>Create New Role</h2>
-            <button class="modal-close" data-target="create-role-modal">&times;</button>
+            <button class="modal-close" data-target="create-role-modal" type="button">&times;</button>
         </div>
         <div class="modal-body">
             <div class="form-group">
@@ -160,8 +160,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" data-target="create-role-modal">Cancel</button>
-            <button class="button button-primary" id="create-role-save">Create Role</button>
+            <button class="button button-secondary" data-target="create-role-modal" type="button">Cancel</button>
+            <button class="button button-primary" id="create-role-save" type="button">Create Role</button>
         </div>
     </div>
 </div>
@@ -170,7 +170,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2>System Defaults</h2>
-            <button class="modal-close" data-target="defaults-modal">&times;</button>
+            <button class="modal-close" data-target="defaults-modal" type="button">&times;</button>
         </div>
         <div class="modal-body">
             <p>Select the default assignments for new users when they first sign up.</p>
@@ -190,8 +190,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" data-target="defaults-modal">Cancel</button>
-            <button class="button button-primary" id="save-defaults-btn">Save Defaults</button>
+            <button class="button button-secondary" data-target="defaults-modal" type="button">Cancel</button>
+            <button class="button button-primary" id="save-defaults-btn" type="button">Save Defaults</button>
         </div>
     </div>
 </div>
@@ -200,7 +200,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2>Import Users</h2>
-            <button class="modal-close" data-target="import-modal">&times;</button>
+            <button class="modal-close" data-target="import-modal" type="button">&times;</button>
         </div>
         <div class="modal-body">
             <p>Upload a CSV file to provision multiple users at once.</p>
@@ -214,8 +214,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-secondary" data-target="import-modal">Cancel</button>
-            <button class="button button-primary" id="btn-process-import">Create Users</button>
+            <button class="button button-secondary" data-target="import-modal" type="button">Cancel</button>
+            <button class="button button-primary" id="btn-process-import" type="button">Create Users</button>
         </div>
     </div>
 </div>
@@ -224,15 +224,15 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2>Admin Feature Guide</h2>
-            <button class="modal-close" data-target="help-modal">&times;</button>
+            <button class="modal-close" data-target="help-modal" type="button">&times;</button>
         </div>
         <div class="modal-body">
             <div class="help-section">
                 <h3>Privilege Levels (0-100)</h3>
                 <p>The Privilege Level establishes a strict role hierarchy. Lower numbers indicate fewer administrative responsibilities.</p>
                 <ul class="help-list">
-                    <li><strong>Unprivileged role (level ≤ 1):</strong> Guests, Students, Group Leaders. These are standard users and can be set as defaults.</li>
-                    <li><strong>Privileged role (level > 1):</strong> Tutors, TAs, Professors. These roles have administrative powers and <span style="color: #c62828;">cannot</span> be set as defaults.</li>
+                    <li><strong>Unprivileged role (level &le; 1):</strong> Guests, Students, Group Leaders. These are standard users and can be set as defaults.</li>
+                    <li><strong>Privileged role (level &gt; 1):</strong> Tutors, TAs, Professors. These roles have administrative powers and <span style="color: #c62828;">cannot</span> be set as defaults.</li>
                 </ul>
             </div>
 
@@ -260,7 +260,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="button button-primary" data-target="help-modal">Got it</button>
+            <button class="button button-primary" data-target="help-modal" type="button">Got it</button>
         </div>
     </div>
 </div>
