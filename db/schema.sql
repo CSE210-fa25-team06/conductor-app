@@ -156,11 +156,11 @@ CREATE TABLE attendance (
     UNIQUE (user_id, event_id)
 );
 
-CREATE INDEX idx_attendance_user_id ON attendance(user_id)
+CREATE INDEX idx_attendance_user_id ON attendance(user_id);
 
 -- Optimizes SQL queries for retrieving attendance based on the associated user_id (very common condition used by all user roles)
 
-CREATE INDEX idx_attendance_date ON attendance(date)
+CREATE INDEX idx_attendance_date ON attendance(date);
 
 -- An index based on the date, because other users retrieve attendance by date mostly
 
@@ -178,7 +178,7 @@ CREATE TABLE journals (
     edited_at     TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_journals_user_id ON journals(user_id)
+CREATE INDEX idx_journals_user_id ON journals(user_id);
 
 -- Optimizes SQL queries for retrieving journals based on the associated user_id (very common condition on this query in the app's logic)
 
