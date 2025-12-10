@@ -569,7 +569,7 @@ function showDeleteConfirmation(id, type = 'journal', currentUser = null) {
     modal.classList.add("active");
 
     const closeModal = () => {
-        modelOverlay.remove()
+        modal.remove()
     };
 
     document.getElementById("cancel-delete").onclick = closeModal;
