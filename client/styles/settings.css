@@ -575,6 +575,22 @@
     width: 100%;
   }
 
+    .settings-header {
+        text-align: center;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .settings-subtitle {
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .btn-admin-action {
+        width: 100%;
+        max-width: 300px;
+    }
   .users-table tr {
     margin-bottom: 1rem;
     border: 1px solid #ccc;

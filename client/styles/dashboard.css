@@ -419,6 +419,9 @@ body.sidebar-collapsed .content {
 }
 
 footer {
+  text-align: center;
+  color: #666;
+  padding: 1em 0;
   grid-area: footer;
   background: white;
   border-top: 1px solid var(--border-color);
