@@ -14,6 +14,7 @@ const API = {
                 if (errorData.error) errorMessage = errorData.error;
             } catch (e) {
                 console.warn("Non-JSON response received:", response.status);
+                console.log(e);
             }
             throw new Error(errorMessage);
         }
@@ -21,6 +22,7 @@ const API = {
         try {
             return await response.json();
         } catch (err) {
+            console.log(err);
             throw new Error("Received invalid JSON from server.");
         }
     },

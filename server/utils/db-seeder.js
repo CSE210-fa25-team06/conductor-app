@@ -30,6 +30,7 @@ try {
     deployUsersConfig = require('../config/data/deploy-users.json');
 } catch (e) {
     console.warn('   ! Notice: deploy-users.json not found. Skipping real user provisioning.');
+    console.err(e);
 }
 
 async function seedRolesAndPermissions() {
