@@ -11,6 +11,7 @@ const {
   markAttendance,
   getStudentAttendanceHistory,
   getAttendanceByDate,
+  showScanPage,
   startAttendance,
   endAttendance,
   scanAttendance,
@@ -32,6 +33,9 @@ router.get("/by-date/:date", getAttendanceByDate);
 
 // Get full history for a date range
 router.get("/by-date", getAttendanceByDate);
+
+//Get attendance form
+router.get("/attend", showScanPage);
 
 // Start attendance
 router.post("/start", requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), startAttendance) // Added permissions

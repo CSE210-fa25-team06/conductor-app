@@ -240,6 +240,8 @@ async function createQRAndStartMeeting() {
 		const qrModal = createQRModal();
 		//start meeting
 		const meetingData = await startMeeting(data.user.id);
+		//log link for testing
+		console.log(meetingData.qrPayload)
 		if (meetingData == null) {
 			//temp fix - maybe we should have a placeholder img to display when
 			//network failure?
@@ -271,7 +273,6 @@ function createQRModal() {
 	//this will need to be done once I can work with Isheta's changes (right now just a button)
 	const removeModal = () => {
 		modalRoot.classList.remove('active');
-		setTimeout(() => {modalRoot.remove()}, 300);
 	}
 	//setup modal close functionality here
 	const closeBtn = document.getElementById("closeModal");
