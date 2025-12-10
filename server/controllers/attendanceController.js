@@ -211,17 +211,6 @@ async function showScanPage(req, res) {
     }
 }
 
-// Fetch attendance stats
-async function getAttendanceStats(req, res) {
-  try {
-    const stats = await fetchAttendanceStats();
-    res.json(stats);
-  } catch (err) {
-    console.error("Error fetching stats:", err);
-    res.status(500).json({ error: "Failed to fetch attendance statistics" });
-  }
-}
-
 async function getUserInfo(req) {
     try {
         const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
