@@ -34,7 +34,7 @@ export function renderProfilePage(contentElement) {
 function renderProfileContent(contentElement, user, joinedDate, lastActive, lastJournal, roleDesc, providerLabel) {
     const formattedAvailability = formatAvailability(user.availability);
     
-    const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" class="resource-btn repo">GitHub Repo</a>` : '';
+const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" class="resource-btn repo">GitHub Repo</a>` : '';
     const slackBtn = user.slack_link ? `<a href="${user.slack_link}" target="_blank" class="resource-btn slack">Slack Channel</a>` : '';
     
     const resourcesSection = (repoBtn || slackBtn) ? `
@@ -47,12 +47,23 @@ function renderProfileContent(contentElement, user, joinedDate, lastActive, last
         </div>
     ` : '';
 
+    let photoSrc = user.photo_url || 'https://via.placeholder.com/250';
+    if (photoSrc.includes('googleusercontent.com')) {
+        photoSrc = photoSrc.replace(/=s\d+(-c)?/i, '=s400-c');
+    }
+
     contentElement.innerHTML = `
         <h2 class="profile-title">Profile</h2>
 
         <section class="profile-wrapper">
             <section class="profile-photo-section">
-                <img src="${user.photo_url || '/assets/images/avatar.png'}" alt="Profile Photo" class="profile-photo">
+                <img 
+                    src="${photoSrc}" 
+                    alt="Profile Photo" 
+                    class="profile-photo"
+                    referrerpolicy="no-referrer"
+                    onerror="this.onerror=null; this.src='https://via.placeholder.com/250';"
+                >
                 <div class="profile-meta-badges">
                     <span class="meta-badge">${providerLabel} Account</span>
                     <span class="meta-badge">Joined ${joinedDate}</span>

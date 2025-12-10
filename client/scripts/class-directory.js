@@ -19,7 +19,7 @@ export function renderClassDirectory(containerEl) {
     containerEl.innerHTML = `
       <main class="directory">
         <form aria-label="Search class directory" id="search-form">
-          <label for="search" class="sr-only">Search by first name</label>
+          <label for="search" class="sr-only">Search</label>
           <input type="text" id="search" name="search" placeholder="Search by name or email">
           <button type="submit" hidden>Search</button>
           <label for="role-filter" class="sr-only">Filter by role</label>
@@ -40,7 +40,7 @@ export function renderClassDirectory(containerEl) {
               <th scope="col">Name</th>
               <th scope="col">Role</th>
               <th scope="col">Group</th>
-              <th scope="col">Contact</th>
+              <th scope="col">Email</th>
               <th scope="col">Attendance</th>
             </tr>
           </thead>
@@ -62,7 +62,8 @@ export function renderClassDirectory(containerEl) {
     };
 
     if (searchInput) {
-        searchInput.addEventListener('input', triggerDirectoryLoad);
+        // UPDATED: Use debounce to prevent API spamming while typing
+        searchInput.addEventListener('input', debounce(triggerDirectoryLoad, 100));
     }
 
     if (roleSelect) {
@@ -158,4 +159,14 @@ async function loadDirectory(query, role, containerEl) {
     const tbody = document.getElementById('directory-table-body');
     if (tbody) tbody.innerHTML = `<tr><td colspan="6">Network error loading directory.</td></tr>`;
   }
+}
+
+// Helper function
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
 }

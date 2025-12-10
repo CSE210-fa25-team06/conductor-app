@@ -19,6 +19,8 @@ const {
     linkProviderAccount
 } = require('../../../services/user-provisioning');
 
+const { isEmailAllowed } = require('../whitelist-manager');
+
 // The provider name to be passed to the provisioning service
 const PROVIDER_NAME = 'google';
 
@@ -59,8 +61,19 @@ passport.use(new GoogleStrategy({
             const googleEmail = profile.emails[0].value;
             const googleName = profile.displayName;
 
-            // 1. Find User ID in our database using the verified email
-            let userId = await findUserIdByEmail(googleEmail);
+            // EXTRACT PHOTO: Get the first photo URL if available
+            const googlePhotoUrl = (profile.photos && profile.photos.length > 0) 
+                ? profile.photos[0].value 
+                : null;
+            
+            // --- 1. CENTRALIZED CHECK ---
+            if (!isEmailAllowed(googleEmail)) {
+                console.warn(`[AUTH BLOCKED] ${googleEmail} is not whitelisted.`);
+                return done(null, false, { message: 'email_not_authorized' });
+            }
+ 
+            // 2. Proceed to Provisioning (lines 63+ in your original file)
+            let userId = await findUserIdByEmail(googleEmail); //
 
             if (!userId) {
                 // User is not in user_auth. Check if user exists in the main users table (manual creation/migration)
@@ -71,7 +84,7 @@ passport.use(new GoogleStrategy({
                     await linkProviderAccount(userId, PROVIDER_NAME, googleEmail, accessToken, refreshToken);
                 } else {
                     // Case 3: User is brand new. Create the user and link the account.
-                    userId = await createUserAccount(PROVIDER_NAME, googleEmail, googleName, accessToken, refreshToken);
+                    userId = await createUserAccount(PROVIDER_NAME, googleEmail, googleName, accessToken, refreshToken, googlePhotoUrl);
                 }
             }
             
@@ -121,19 +134,36 @@ router.get('/google',
  * GET /api/auth/google/callback
  * Route that Google redirects back to after the user signs in.
  */
-router.get('/callback/google',
-    passport.authenticate('google', { 
-        failureRedirect: '/api/auth/login-fail?error=google_failed', 
-    }),
-    /**
-     * Success Handler: Runs only if authentication is successful.
-     */
-    (req, res) => {
-        // req.user is populated by Passport's deserializeUser
-        // Final redirect to the client's home page
-        res.redirect('/dashboard.html');
-    }
-);
+router.get('/callback/google', (req, res, next) => {
+    passport.authenticate('google', (err, user, info) => {
+        // 1. System/Network Errors
+        if (err) { 
+            console.error('Google Auth Error:', err);
+            return res.redirect('/index.html?error=server_error'); 
+        }
+
+        // 2. Authentication Failure (Whitelist or User not found)
+        if (!user) {
+            // Extract the message we set in the strategy (e.g., "Email not authorized")
+            const failureMessage = info && info.message ? info.message : 'login_failed';
+            
+            // Encode it safely for the URL
+            const code = encodeURIComponent(failureMessage);
+            
+            // Redirect to frontend with the specific reason
+            return res.redirect(`/index.html?error=${code}`);
+        }
+
+        // 3. Success: Log the user in manually
+        req.logIn(user, (loginErr) => {
+            if (loginErr) {
+                return next(loginErr);
+            }
+            return res.redirect('/dashboard.html');
+        });
+
+    })(req, res, next); // <--- Immediate invocation of the middleware
+});
 
 module.exports = {
     router,

@@ -19,6 +19,7 @@
     padding: 16px 20px;
     border-radius: 4px;
     margin-bottom: 20px;
+    gap: 2rem;
 }
 
 .settings-header h1 {
@@ -261,13 +262,13 @@
     width: 90%;
     max-width: 500px;
     box-shadow: 0 4px 20px rgb(0 0 0 / 30%);
-    text-align: left !important; /* Force left alignment */
+    text-align: left !important;
 }
 
 /* Large Modal variant for Permissions Table */
 .modal-large {
     max-width: 900px;
-    height: 80vh; /* Fixed height to allow scrolling */
+    height: 80vh;
     display: flex;
     flex-direction: column;
 }
@@ -278,27 +279,35 @@
     align-items: center;
     padding: 1.5rem;
     border-bottom: 1px solid #e0e0e0;
+    
+    /* FIX: Match main header theme (Blue background + White text) */
+    background-color: #063970;
+    color: white;
+    border-radius: 8px 8px 0 0; /* Rounds top corners to fit modal */
 }
 
 .modal-header h2, .modal-header h3 {
     margin: 0;
     font-size: 1.5rem;
-    color: black;
+    color: white; /* Ensure text is white on blue background */
 }
 
 .modal-close {
     background: none;
     border: none;
     font-size: 2rem;
-    color: #999;
+    color: rgb(255 255 255 / 80%); /* Light color for visibility on blue */
     cursor: pointer;
     line-height: 1;
     padding: 0;
     width: 2rem;
     height: 2rem;
+    transition: color 0.2s;
 }
 
-.modal-close:hover { color: #333; }
+.modal-close:hover { 
+    color: white; 
+}
 
 .modal-body {
     padding: 1.5rem;
@@ -437,6 +446,63 @@
     border-left: 4px solid #c62828;
 }
 
+/* NEW: Help Icon Button */
+.help-icon-btn {
+    background: rgb(255 255 255 / 20%);
+    border: 1px solid rgb(255 255 255 / 40%);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    margin-left: 5px;
+}
+
+.help-icon-btn:hover {
+    background: white;
+    color: #063970;
+    transform: scale(1.1);
+}
+
+/* Help Modal Content Styling */
+.help-section h3 {
+    margin-top: 0;
+    color: #063970;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.help-list {
+    padding-left: 1.2rem;
+    line-height: 1.6;
+    color: #444;
+}
+
+.help-list li {
+    margin-bottom: 0.5rem;
+}
+
+.help-dict dt {
+    font-weight: bold;
+    color: #333;
+    margin-top: 1rem;
+}
+
+.help-dict dd {
+    margin-left: 0;
+    margin-bottom: 0.5rem;
+    color: #666;
+    line-height: 1.5;
+}
+
 @keyframes toast-slide-in {
     from { 
         opacity: 0; 
@@ -476,6 +542,22 @@
     margin-top: 0;
     color: #c62828;
 }
+
+.button-danger {
+    background-color: #dc3545; /* Red */
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.button-danger:hover {
+    background-color: #bb2d3b;
+}
+
+/* Responsive Design */
 
 /* Actions column */
 .users-table th:last-child {
@@ -522,14 +604,6 @@
     width: 100%;
   }
 
-  .users-table tr {
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 1rem;
-    background: #fff;
-  }
-
   .users-table td {
     padding: 0.25rem 0;
   }
@@ -552,17 +626,38 @@
     margin-bottom: 2px;
   }
 
+    .settings-subtitle {
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+    }
+
     .admin-actions-wrapper .settings-subtitle {
         flex-direction: column;
         width: 100%;
-        align-items: stretch;
+        align-items: center;
         gap: 0.6rem;
     }
 
+    .btn-admin-action {
+        width: 100%;
+        max-width: 300px;
+    }
+    
     .admin-actions-wrapper .btn-admin-action {
         width: 100%;
         text-align: center;
+        flex-direction: column;
+        gap: 2rem;
     }
+
+  .users-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+  }
 
     .settings-controls {
         margin-top: 1rem;

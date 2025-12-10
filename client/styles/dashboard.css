@@ -282,18 +282,25 @@ main {
   font-weight: 600;
 }
 
-.welcome-subtitle {
-  margin: 0.5rem 0 0;
-  opacity: 0.9;
+#user-name {
+    font-weight: bold; 
+    color: #036;
 }
 
-/* Welcome section visibility control */
-body:not(.on-dashboard) .welcome {
-  display: none;
+#user-name:empty {
+    display: inline-block;
+    width: 150px;
+    height: 1em;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    vertical-align: middle;
+    animation: pulse 1.5s infinite ease-in-out;
 }
 
-body.on-dashboard .welcome {
-  display: block;
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 }
 
 .content {
@@ -392,6 +399,7 @@ body.sidebar-collapsed .content {
 }
 
 footer {
+  text-align: center;
   grid-area: footer;
   background: white;
   border-top: 1px solid var(--border-color);

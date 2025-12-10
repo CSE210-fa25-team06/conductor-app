@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Admin Control Panel</title>
@@ -8,11 +7,42 @@
     <meta name="description"
         content="Admin Control Panel for managing roles, groups, and permissions in the Conductor app.">
 </head>
-
 <body>
+    <section id="import-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Import Users</h2>
+                <button type="button" class="modal-close" data-target="import-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <p>Upload a CSV file to provision multiple users at once.</p>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem; color: #555;">
+                    <strong>Required CSV Columns:</strong>
+                    <code style="display:block; margin-top:5px; padding:5px; background:#eee; border-radius:4px;">
+                        email, name, role, group
+                    </code>
+                </div>
+
+                <div class="form-group">
+                    <label for="csv-file-input">Select CSV File:</label>
+                    <input type="file" id="csv-file-input" accept=".csv" style="padding:10px; border:1px dashed #ccc;">
+                </div>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="import-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="btn-process-import">Create Users</button>
+            </footer>
+        </div>
+    </section>
 
     <header class="settings-header">
         <h1>Admin Control Panel</h1>
+        <button id="btn-admin-help" class="help-icon-btn" title="Admin Guide" type="button">
+            <span class="icon">?</span>
+        </button>
     </header>
 
     <section class="admin-actions-wrapper">
@@ -52,6 +82,7 @@
             <section id="loading-indicator" class="loading-indicator hidden" role="status" aria-live="polite">
                 <p>Loading data…</p>
             </section>
+
         </section>
     </main>
 
@@ -264,9 +295,45 @@
         </div>
     </section>
 
+    <!-- NEW HELP MODAL -->
+    <section id="help-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Admin Feature Guide</h2>
+                <button type="button" class="modal-close" data-target="help-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <div class="help-section">
+                    <h3>Privilege Levels (0–100)</h3>
+                    <p>The Privilege Level establishes a strict role hierarchy. Lower numbers indicate fewer administrative responsibilities.</p>
+                    <ul class="help-list">
+                        <li><strong>Unprivileged role (level ≤ 1):</strong> Guests, Students, Group Leaders.</li>
+                        <li><strong>Privileged role (level &gt; 1):</strong> Tutors, TAs, Professors. These roles have admin powers and <span style="color:#c62828;">cannot</span> be defaults.</li>
+                    </ul>
+                </div>
+
+                <hr style="margin:1.5rem 0; border:0; border-top:1px solid #eee;">
+
+                <div class="help-section">
+                    <h3>Configuring Role Permissions</h3>
+                    <p>You can redefine what each role is allowed to do using the <strong>Manage Role Permissions</strong> tool.</p>
+                    <ul class="help-list">
+                        <li><strong>View permissions:</strong> Select a role to see all permissions.</li>
+                        <li><strong>Toggle permissions:</strong> Check or uncheck boxes to grant or revoke access.</li>
+                        <li><strong>Save changes:</strong> Changes apply immediately to every user with that role.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-primary" data-target="help-modal">Got it</button>
+            </footer>
+        </div>
+    </section>
+
     <!-- TOASTS -->
     <div id="toast-container" role="status" aria-live="polite"></div>
 
 </body>
-
 </html>

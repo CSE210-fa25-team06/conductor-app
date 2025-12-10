@@ -1,9 +1,7 @@
 /**
  * @file role-assignment.js
  * @description Controller for the Admin Control Panel.
- * Synchronized with settings.html.
  */
-/* global openDefaultsModal, openCreateGroupModal, openCreateRoleModal */
 
 import API from './services/admin-api.js';
 import { Notifications, escapeHtml } from './utils/ui-utils.js';
@@ -14,7 +12,8 @@ let state = {
     groups: [],
     users: [],
     permissions: [], 
-    currentUserPermissions: []
+    currentUserPermissions: [],
+    currentUserId: null
 };
 
 // =============================================================================
@@ -22,8 +21,6 @@ let state = {
 // =============================================================================
 
 export async function initializeRoleAssignment() {
-    // 1. Target the WRAPPER, not the whole container.
-    // This preserves the Header and Modals (which are outside this wrapper)
     const wrapper = document.getElementById('admin-content-wrapper');
     if (!wrapper) return console.error('Admin content wrapper not found');
 
@@ -45,6 +42,12 @@ export async function initializeRoleAssignment() {
             bindModalEvents();
             setupDefaultsModal();
 
+            // Bind Help Button
+            const helpBtn = document.getElementById('btn-admin-help');
+            if (helpBtn) {
+                helpBtn.onclick = () => toggleModal('help-modal', true);
+            }
+
             const loader = document.getElementById('loading-indicator');
             if(loader) loader.classList.add('hidden');
         }
@@ -55,8 +58,9 @@ async function loadData() {
     try {
         const session = await API.getSession();
         state.currentUserPermissions = session.user.permissions || [];
+        state.currentUserId = session.user.id;
 
-        const promises = [API.getRoles(), API.getUsers()];
+        const promises = [API.getRoles(), API.getUsers('', '')];
         
         if (state.currentUserPermissions.includes(PERMISSIONS.ASSIGN_GROUPS) || 
             state.currentUserPermissions.includes(PERMISSIONS.CREATE_GROUPS)) {
@@ -76,7 +80,7 @@ async function loadData() {
 }
 
 // =============================================================================
-// UI COMPONENTS
+// SEARCH & FILTERING
 // =============================================================================
 
 function setupRoleFilter() {
@@ -86,25 +90,39 @@ function setupRoleFilter() {
     state.roles.forEach(role => {
         filter.add(new Option(role.name, role.name));
     });
-    filter.addEventListener('change', filterUsers);
+    filter.addEventListener('change', performSearch);
 }
 
 function setupSearchBox() {
     const input = document.getElementById('user-search');
-    if (input) input.addEventListener('input', filterUsers);
+    if (input) {
+        input.addEventListener('input', debounce(performSearch, 100));
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+    }
 }
 
-function filterUsers() {
-    const term = document.getElementById('user-search').value.toLowerCase();
-    const roleFilter = document.getElementById('role-filter').value;
-
-    const filtered = state.users.filter(user => {
-        const matchesSearch = !term || user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
-        const matchesRole = !roleFilter || (user.role_name && user.role_name.includes(roleFilter));
-        return matchesSearch && matchesRole;
-    });
-    renderUsersTable(filtered);
+async function performSearch() {
+    const query = document.getElementById('user-search').value.trim();
+    const role = document.getElementById('role-filter').value;
+    
+    try {
+        const data = await API.getUsers(query, role);
+        state.users = data.users || [];
+        renderUsersTable(state.users);
+    } catch (err) {
+        console.error('Search failed:', err);
+        Notifications.error('Failed to search users.');
+    }
 }
+
+// =============================================================================
+// RENDERING
+// =============================================================================
 
 function renderUsersTable(users) {
     const tbody = document.getElementById('users-table-body');
@@ -117,26 +135,50 @@ function renderUsersTable(users) {
     }
 
     const canAssignGroup = state.currentUserPermissions.includes(PERMISSIONS.ASSIGN_GROUPS);
+    const canDeleteUsers = state.currentUserPermissions.includes(PERMISSIONS.PROVISION_USERS);
 
     users.forEach(user => {
         const row = document.createElement('tr');
         
-        const roleNames = user.role_name ? user.role_name.split(',').map(r => r.trim()) : [];
+        let roleNames = [];
+        if (Array.isArray(user.roles)) {
+            roleNames = user.roles;
+        } else if (user.role_name) {
+            roleNames = user.role_name.split(',').map(r => r.trim());
+        }
+
         const roleBadges = roleNames.length > 0 
             ? roleNames.map(r => `<span class="role-badge role-${r.toLowerCase().replace(/\s+/g, '-') || 'none'}">${escapeHtml(r)}</span>`).join(' ')
             : `<span class="role-badge role-none">No Role</span>`;
 
-        let actions = `<button class="button button-small" style="background-color: #06c; color: white;" onclick="window.openRoleModal(${user.id})">Assign Role</button>`;
+        let actions = `
+            <button class="button button-small" style="background-color: #06c; color: white;" onclick="window.openRoleModal(${user.id})">
+                Assign Role
+            </button>`;
+        
         if (canAssignGroup) {
-            actions += `<button class="button button-small" style="margin-left: 0.2rem; background-color: #06c; color: white;" onclick="window.openGroupModal(${user.id})">Assign Group</button>`;
+            actions += `
+                <button class="button button-small" style="margin-left: 5px; background-color: #06c; color: white;" onclick="window.openGroupModal(${user.id})">
+                    Assign Group
+                </button>`;
         }
 
-        actions += `
-            <button class="button button-small" 
-                style="margin-left: 0.2rem; background-color: #d9534f; color: white;" 
-                onclick="window.openRemoveUserModal(${user.id})">
-                Remove User
-            </button>`;
+        if (canDeleteUsers) {
+            const isSelf = user.id === state.currentUserId;
+            
+            if (isSelf) {
+                actions += `
+                    <button class="button button-small button-danger" disabled style="margin-left: 5px; opacity: 0.5; cursor: not-allowed;" title="You cannot delete yourself">
+                        Delete
+                    </button>`;
+            } else {
+                actions += `
+                    <button class="button button-small button-danger" style="margin-left: 5px;"
+                        onclick="window.openRemoveUserModal(${user.id}, '${escapeHtml(user.name)}')">
+                        Delete
+                    </button>`;
+            }
+        }
 
         row.innerHTML = `
             <td data-label="Name" class="user-name">${escapeHtml(user.name)}</td>
@@ -164,6 +206,11 @@ function renderAdminButtons() {
         return btn;
     };
 
+    // 1. Bulk Import (Now works because openImportModal is hoisted)
+    if (state.currentUserPermissions.includes(PERMISSIONS.PROVISION_USERS)) {
+        subtitle.appendChild(createBtn('Import Users', 'btn-import-csv', openImportModal, 'margin-right: 5px; background-color: #28a745;'));
+    }
+
     if (state.currentUserPermissions.includes(PERMISSIONS.CREATE_ROLES)) {
         subtitle.appendChild(createBtn('System Defaults', 'btn-sys-defaults', openDefaultsModal));
     }
@@ -186,20 +233,21 @@ function renderAdminButtons() {
 // =============================================================================
 
 function bindModalEvents() {
-    document.querySelectorAll('.modal-close, .button-secondary').forEach(btn => {
+    document.querySelectorAll('[data-target]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const targetId = e.target.dataset.target;
             if (targetId) toggleModal(targetId, false);
         });
     });
 
+    // We manually bind these specific IDs for saving
     const handlers = {
         'modal-assign': saveRoles,
         'group-save': saveGroup,
         'perm-save': savePermissions,
         'create-group-save': createNewGroup,
         'create-role-save': createNewRole,
-        'remove-user-confirm': confirmRemoveUser
+        'btn-process-import': processImport
     };
 
     for (const [id, fn] of Object.entries(handlers)) {
@@ -212,6 +260,7 @@ function bindModalEvents() {
 }
 
 // --- 1. Assign Role ---
+// Exposed to window for HTML onclick
 window.openRoleModal = function(userId) {
     const user = state.users.find(u => u.id === userId);
     if (!user) return;
@@ -222,7 +271,10 @@ window.openRoleModal = function(userId) {
     const container = document.getElementById('role-checkbox-container');
     if(!container) return;
     container.innerHTML = '';
-    const currentRoles = user.role_name ? user.role_name.split(',').map(r => r.trim()) : [];
+    
+    let currentRoles = [];
+    if (Array.isArray(user.roles)) currentRoles = user.roles;
+    else if (user.role_name) currentRoles = user.role_name.split(',').map(r => r.trim());
 
     state.roles.forEach(role => {
         const div = document.createElement('div');
@@ -247,8 +299,7 @@ async function saveRoles() {
     try {
         await API.updateUserRole(userId, roleIds);
         const user = state.users.find(u => u.id === userId);
-        user.role_name = roleIds.map(id => state.roles.find(r => r.id === id).name).join(', ');
-        filterUsers();
+        await performSearch(); 
         Notifications.success(`Roles updated for ${user.name}`);
         toggleModal('role-modal', false);
     } catch (err) { Notifications.error(err.message); }
@@ -292,21 +343,18 @@ async function saveGroup() {
     try {
         await API.updateUserGroup(userId, groupId);
         const user = state.users.find(u => u.id === userId);
-        const grp = state.groups.find(g => g.id === groupId);
-        user.group_id = groupId;
-        user.group_name = grp ? grp.name : 'Unassigned';
-        filterUsers();
+        await performSearch();
         Notifications.success(`Group updated for ${user.name}`);
         toggleModal('group-modal', false);
     } catch (err) { Notifications.error(err.message); }
 }
 
-// --- 3. Manage Permissions ---
+// --- 3. Permissions ---
+// Changed to function declaration for hoisting
 async function openPermissionsModal() {
     const select = document.getElementById('perm-role-select');
-    // Clear selections and inputs on open
     select.innerHTML = '<option value="" disabled selected>-- Choose a Role --</option>';
-    document.getElementById('perm-role-level').value = ''; // RESET LEVEL INPUT
+    document.getElementById('perm-role-level').value = '';
 
     state.roles.forEach(r => select.add(new Option(r.name, r.id)));
 
@@ -344,7 +392,6 @@ async function loadRolePermissions(roleId) {
     
     btn.disabled = true;
     
-    // Pre-fill level from local state
     const role = state.roles.find(r => r.id == roleId);
     if(role) levelInput.value = role.privilege_level;
 
@@ -357,10 +404,7 @@ async function loadRolePermissions(roleId) {
             i.disabled = false;
         });
         btn.disabled = false;
-    } catch(err) { 
-        console.error(err)
-        Notifications.error("Failed to fetch permissions"); 
-    }
+    } catch(err) { Notifications.error(err.message || "Failed to fetch permissions"); }
 }
 
 async function savePermissions() {
@@ -381,7 +425,7 @@ async function savePermissions() {
 }
 
 // --- 4. Create Group ---
-window.openCreateGroupModal = function() {
+function openCreateGroupModal() {
     document.getElementById('new-group-name').value = '';
     toggleModal('create-group-modal', true);
     setTimeout(() => document.getElementById('new-group-name').focus(), 100);
@@ -400,9 +444,9 @@ async function createNewGroup() {
 }
 
 // --- 5. Create Role ---
-window.openCreateRoleModal = function() {
+function openCreateRoleModal() {
     document.getElementById('new-role-name').value = '';
-    document.getElementById('new-role-desc').value = ''; // Reset description
+    document.getElementById('new-role-desc').value = ''; 
     document.getElementById('new-role-level').value = '';
     toggleModal('create-role-modal', true);
     setTimeout(() => document.getElementById('new-role-name').focus(), 100);
@@ -410,14 +454,13 @@ window.openCreateRoleModal = function() {
 
 async function createNewRole() {
     const name = document.getElementById('new-role-name').value.trim();
-    const desc = document.getElementById('new-role-desc').value.trim(); // Get Value
+    const desc = document.getElementById('new-role-desc').value.trim();
     const level = document.getElementById('new-role-level').value;
 
     if (!name) return Notifications.error('Role name required');
     if (level === '' || level < 0 || level > 100) return Notifications.error('Level must be 0-100');
 
     try {
-        // Pass desc to API
         await API.createRole(name, level, desc);
         Notifications.success(`Role "${name}" created.`);
         const data = await API.getRoles();
@@ -427,13 +470,13 @@ async function createNewRole() {
     } catch(err) { Notifications.error(err.message); }
 }
 
-// --- 6. System Defaults ---
+// --- 6. Defaults ---
 function setupDefaultsModal() {
     const btn = document.getElementById('save-defaults-btn');
     if (btn) btn.onclick = saveSystemDefaults;
 }
 
-window.openDefaultsModal = function() {
+function openDefaultsModal() {
     const roleSelect = document.getElementById('default-role-select');
     const groupSelect = document.getElementById('default-group-select');
     
@@ -470,6 +513,11 @@ async function saveSystemDefaults() {
     const groupId = groupVal ? parseInt(groupVal) : null;
     const btn = document.getElementById('save-defaults-btn');
 
+    const selectedRole = state.roles.find(r => r.id == roleId);
+    if (selectedRole && selectedRole.privilege_level > 1) {
+        return Notifications.error(`Role "${selectedRole.name}" is too privileged to be default.`);
+    }
+
     try {
         btn.disabled = true;
         btn.textContent = "Saving...";
@@ -485,41 +533,88 @@ async function saveSystemDefaults() {
     }
 }
 
-// Remove Users Functionality
-window.openRemoveUserModal = function(userId) {
-    const user = state.users.find(u => u.id === userId);
-    if (!user) return;
-
-    // Put user's name inside modal
-    document.getElementById('remove-user-name').textContent = user.name;
-
-    // Store userId in modal dataset
-    const modal = document.getElementById('remove-user-modal');
-    modal.dataset.userId = userId;
-
-    toggleModal('remove-user-modal', true);
-};
-
-// Remove User Functionality
-async function confirmRemoveUser() {
-    const modal = document.getElementById('remove-user-modal');
-    const userId = parseInt(modal.dataset.userId);
-    // Find the user object so we can show their name
-    const user = state.users.find(u => u.id === userId);
-    try {
-        await API.deleteUser(userId);
-        // Remove user from local state
-        state.users = state.users.filter(u => u.id !== userId);
-        // Refresh table
-        filterUsers();
-        // Success notification
-        Notifications.success(`Successfully removed ${user?.name || 'user'}.`);
-    } catch (err) {
-        Notifications.error(err.message || 'Failed to remove user.');
-    }
-    toggleModal('remove-user-modal', false);
+// --- 7. Bulk Import (Standard function, Hoisted) ---
+function openImportModal() {
+    document.getElementById('csv-file-input').value = '';
+    toggleModal('import-modal', true);
 }
 
+async function processImport() {
+    const fileInput = document.getElementById('csv-file-input');
+    const file = fileInput.files[0];
+
+    if (!file) return Notifications.error("Please select a CSV file.");
+
+    const btn = document.getElementById('btn-process-import');
+    btn.disabled = true;
+    btn.textContent = "Processing...";
+
+    const reader = new FileReader();
+    
+    reader.onload = async (e) => {
+        const text = e.target.result;
+        try {
+            const users = parseCSV(text);
+            
+            if (users.length === 0) throw new Error("CSV appears empty or invalid format.");
+
+            const response = await API.bulkImportUsers(users);
+            
+            Notifications.success(response.message);
+            if (response.summary.failed > 0) {
+                console.warn("Import Warnings:", response.summary.errors);
+                alert(`Import complete with warnings.\nSuccess: ${response.summary.success}\nFailed: ${response.summary.failed}\nCheck console for details.`);
+            }
+
+            await performSearch(); // Refresh table
+            toggleModal('import-modal', false);
+
+        } catch (err) {
+            console.error("Import Error:", err);
+            Notifications.error(err.message || "Failed to process import.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Upload & Process";
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+function parseCSV(csvText) {
+    const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
+    if (lines.length < 2) return [];
+
+    const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+    const required = ['email', 'name'];
+    
+    if (!required.every(r => headers.includes(r))) {
+        throw new Error("CSV missing required columns: email, name");
+    }
+
+    const users = [];
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        if (values.length < headers.length) continue; 
+
+        const userObj = {};
+        headers.forEach((header, index) => {
+            userObj[header] = values[index] ? values[index].trim() : '';
+        });
+        users.push(userObj);
+    }
+    return users;
+}
+
+// --- 8. Delete User ---
+window.deleteUser = async function(userId) {
+    try {
+        await API.deleteUser(userId);
+        await performSearch(); 
+    } catch (err) {
+        Notifications.error(err.message || 'Failed to delete user.');
+    }
+};
 
 // --- Helpers ---
 function toggleModal(id, show) {
@@ -530,3 +625,42 @@ function toggleModal(id, show) {
     }
 }
 window.closeModal = (id) => toggleModal(id, false);
+
+window.openRemoveUserModal = function (userId, userName) {
+    const modal = document.getElementById("remove-user-modal");
+    const nameField = document.getElementById("remove-user-name");
+    const confirmBtn = document.getElementById("remove-user-confirm");
+
+    nameField.textContent = userName;
+
+    // Clicking confirm should call deleteUser
+    confirmBtn.onclick = () => window.confirmRemoveUser(userId, userName);
+
+    modal.classList.remove("hidden");
+    modal.classList.add("active");
+};
+
+window.confirmRemoveUser = async function (userId, userName) {
+    const modal = document.getElementById("remove-user-modal");
+
+    try {
+        await window.deleteUser(userId);
+        Notifications.success(`User ${userName} deleted successfully.`);
+    } catch (err) {
+        console.err(err);
+        Notifications.error("Failed to remove user.");
+    }
+
+    modal.classList.add("hidden");
+    modal.classList.remove("active");
+};
+
+
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
