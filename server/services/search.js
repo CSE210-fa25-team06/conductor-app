@@ -1,9 +1,9 @@
 const { pool } = require("../models/db");
 
 /*
-      Returns names and emails of members where the name parts match the passed in query tokens.
+    Returns names and emails of members where the name parts match the passed in query tokens.
     - Tokenizes search query by space to allow matching "First Name" + "Last Name" independently.
-    - searches matches in both NAME and EMAIL fields.
+    - searches matches in NAME, EMAIL, and GROUP fields.
     - Optionally filters by role name when a role is provided.
     - Optionally filters by group name when a group is provided.
 */
@@ -15,17 +15,19 @@ async function searchDirectory(query, role, group) {
     let whereConditions = [];
     let values = [];
 
-    // 2. Build dynamic SQL: Each token must match EITHER the name OR the email
+    // 2. Build dynamic SQL: Each token must match EITHER the name, email, OR group name
     if (tokens.length > 0) {
         tokens.forEach((token, index) => {
             // Postgres params start at $1
             const paramIndex = index + 1;
-            whereConditions.push(`(u.name ILIKE $${paramIndex} OR u.email ILIKE $${paramIndex})`);
+            // UPDATED: Added OR g.name ILIKE ...
+            whereConditions.push(`(u.name ILIKE $${paramIndex} OR u.email ILIKE $${paramIndex} OR g.name ILIKE $${paramIndex})`);
             values.push('%' + token + '%');
         });
     } else {
         // If no search query, match everything
-        whereConditions.push(`(u.name ILIKE $1 OR u.email ILIKE $1)`);
+        // UPDATED: Added OR g.name ILIKE ...
+        whereConditions.push(`(u.name ILIKE $1 OR u.email ILIKE $1 OR g.name ILIKE $1)`);
         values.push('%%');
     }
 
