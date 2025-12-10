@@ -23,7 +23,14 @@ const {
     roles: rolesConfig,
     groups: groupsConfig
 } = require('../config/data/role-groups.json');
-const { activities: activitiesConfig } = require('../config/data/activity-config.json'); 
+const { activities: activitiesConfig } = require('../config/data/activity-config.json');
+
+let deployUsersConfig = [];
+try {
+    deployUsersConfig = require('../config/data/deploy-users.json');
+} catch (e) {
+    console.warn('   ! Notice: deploy-users.json not found. Skipping real user provisioning.');
+}
 
 async function seedRolesAndPermissions() {
     console.log('--- STARTING DATABASE SEEDER: SYNC MODE ---');
@@ -163,7 +170,7 @@ async function seedRolesAndPermissions() {
         }
 
         // =====================================================================
-        // 6. Seed Demo Users (Idempotent)
+        // 6. Seed Demo Users (Mock Auth)
         // =====================================================================
         console.log('\n6. Verifying Demo Users...');
         
@@ -175,18 +182,58 @@ async function seedRolesAndPermissions() {
                 const name = `${role.name} Demo User`;
                 const roleId = roleIdMap[role.name];
 
-                // CHECK: Does user exist?
                 const userCheck = await client.query('SELECT id FROM users WHERE email = $1', [email]);
 
                 if (userCheck.rows.length === 0) {
-                    const userId = await insertUser(client, email, name, defaultGroupId);
+                    const userId = await insertUser(client, email, name, defaultGroupId, null);
                     await insertUserRole(client, userId, roleId);
+                    // DEMO USERS get fake auth tokens so they can log in via the Mock Strategy
                     await insertUserAuth(client, userId, 'google', email, 'mock_access_token', 'mock_refresh_token');
                     console.log(`   - Created User: ${email} -> Role: ${role.name}`);
                 } else {
                     console.log(`   - User ${email} already exists.`);
                 }
             }
+        }
+
+        // =====================================================================
+        // 7. Seed Real Users (Pre-Provisioning)
+        // =====================================================================
+        console.log('\n7. Seeding Real Users (from deploy-users.json)...');
+        
+        if (deployUsersConfig.length > 0) {
+            for (const realUser of deployUsersConfig) {
+                // Check if user exists
+                const userCheck = await client.query('SELECT id FROM users WHERE email = $1', [realUser.email]);
+                
+                if (userCheck.rows.length === 0) {
+                    // 1. Find Role ID
+                    const roleId = roleIdMap[realUser.role];
+                    if (!roleId) {
+                        console.error(`   ! ERROR: Role '${realUser.role}' not found for user ${realUser.email}. Skipping.`);
+                        continue;
+                    }
+
+                    // 2. Find Group ID (Optional)
+                    let groupId = defaultGroupId;
+                    if (realUser.group) {
+                         const groupRes = await client.query('SELECT id FROM groups WHERE name = $1', [realUser.group]);
+                         if (groupRes.rows.length > 0) groupId = groupRes.rows[0].id;
+                    }
+
+                    // 3. Create User & Role
+                    const userId = await insertUser(client, realUser.email, realUser.name, groupId, null);
+                    await insertUserRole(client, userId, roleId);
+                    
+                    // NOTE: We do NOT insertUserAuth here. The user will link their account
+                    // when they sign in with Google for the first time.
+                    console.log(`   - Provisioned Real User: ${realUser.email} (${realUser.role})`);
+                } else {
+                    console.log(`   - Real User ${realUser.email} already exists.`);
+                }
+            }
+        } else {
+            console.log('   - No real users found in deploy-users.json.');
         }
         
         console.log(`\n--- DB SYNC COMPLETE: Permissions Relinked: ${linkCount} ---`);

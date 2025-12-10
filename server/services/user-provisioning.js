@@ -10,9 +10,11 @@ const {
     insertUserRole,
     insertUserAuth,
     findGroupByName,
-    findRoleByName
+    findRoleByName,
+    findUserIdInUsers
 } = require('../models/db'); 
 const roleGroupConfig = require('../config/data/role-groups.json'); 
+const { isEmailAllowed } = require('../services/auth/whitelist-manager');
 
 let provisioningDetails = null;
 
@@ -74,7 +76,7 @@ async function getProvisioningDetails() {
  * Automatically assigns the user to the configured default role and group.
  * @param {string} provider The name of the authentication provider (e.g., 'google', 'linkedin').
  */
-async function createUserAccount(provider, email, name, accessToken, refreshToken) {
+async function createUserAccount(provider, email, name, accessToken, refreshToken, photoUrl = null) {
     const client = await pool.connect();
     
     try {
@@ -84,7 +86,7 @@ async function createUserAccount(provider, email, name, accessToken, refreshToke
         const { defaultGroupId, defaultRoleId } = await getProvisioningDetails();
 
         // 1. Insert into users table (using the default group)
-        const userId = await insertUser(client, email, name, defaultGroupId); 
+        const userId = await insertUser(client, email, name, defaultGroupId, photoUrl); 
         
         // 2. Insert into user_roles table (using the default role)
         await insertUserRole(client, userId, defaultRoleId);
@@ -104,6 +106,86 @@ async function createUserAccount(provider, email, name, accessToken, refreshToke
     } finally {
         client.release();
     }
+}
+
+/**
+ * Bulk provisions users from a parsed CSV array.
+ * NOTE: This creates the user record but DOES NOT create a user_auth record.
+ * The user_auth record is created when the user logs in via Google for the first time
+ * and triggers the 'linkProviderAccount' logic.
+ * * @param {Array<Object>} csvRows - Array of objects { email, name, role, group }
+ * @returns {Object} Summary of successes and failures
+ */
+async function bulkProvisionUsers(csvRows) {
+    const results = { success: 0, failed: 0, skipped: 0, errors: [] }; // Added 'skipped'
+    const client = await pool.connect();
+
+    try {
+        const defaults = await getProvisioningDetails();
+
+        for (const row of csvRows) {
+            const email = row.email.trim();
+            const name = row.name.trim();
+
+            // 1. Skip non-whitelisted emails
+            if (!isEmailAllowed(email)) {
+                console.log(`[BULK SKIP] ${email} is not whitelisted.`);
+                results.skipped++;
+                continue; 
+            }
+
+            // 2. NEW: Skip existing users to prevent DB errors
+            const existingUser = await findUserIdInUsers(email);
+            if (existingUser) {
+                console.log(`[BULK SKIP] User ${email} already exists.`);
+                results.skipped++;
+                continue;
+            }
+
+            try {
+                await client.query('BEGIN');
+                
+                // 3. Resolve Role ID (Use CSV value or Default)
+                let roleId = defaults.defaultRoleId;
+                if (row.role) {
+                    const roleRecord = await findRoleByName(row.role.trim());
+                    if (roleRecord) roleId = roleRecord.id;
+                    else console.warn(`[BULK] Role '${row.role}' not found, using default.`);
+                }
+
+                // 4. Resolve Group ID (Use CSV value or Default)
+                let groupId = defaults.defaultGroupId;
+                if (row.group) {
+                    const groupRecord = await findGroupByName(row.group.trim());
+                    if (groupRecord) groupId = groupRecord.id;
+                    else console.warn(`[BULK] Group '${row.group}' not found, using default.`);
+                }
+
+                // 5. Insert User
+                const userId = await insertUser(client, email, name, groupId, null);
+
+                // 6. Insert Role
+                await insertUserRole(client, userId, roleId);
+
+                await client.query('COMMIT');
+                results.success++;
+                console.log(`[BULK] Pre-provisioned user: ${email}`);
+
+            } catch (rowError) {
+                await client.query('ROLLBACK');
+                results.failed++;
+                results.errors.push({ email: row.email, error: rowError.message });
+                console.error(`[BULK] Failed to provision ${row.email}:`, rowError.message);
+            }
+        }
+    } catch (err) {
+        console.error('Bulk Provisioning Fatal Error:', err);
+        throw err;
+    } finally {
+        client.release();
+    }
+
+    return results;
 }
 
 /**
@@ -130,6 +212,7 @@ async function linkProviderAccount(userId, provider, email, accessToken, refresh
 module.exports = {
     getProvisioningDetails,
     createUserAccount,
+    bulkProvisionUsers,
     linkProviderAccount,
     resetProvisioningCache
 };

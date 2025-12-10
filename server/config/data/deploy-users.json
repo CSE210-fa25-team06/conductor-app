@@ -1,0 +1,20 @@
+[
+  {
+    "email": "tpowell2@ucsd.edu",
+    "name": "Thomas Powell",
+    "role": "Professor",
+    "group": "Teaching Staff"
+  },
+  {
+    "email": "skamate@ucsd.edu",
+    "name": "Sammy Kamate",
+    "role": "TA",
+    "group": "Teaching Staff"
+  },
+  {
+    "email": "tnale@ucsd.edu",
+    "name": "Tanmay Nale",
+    "role": "TA",
+    "group": "Teaching Staff"
+  }
+]
