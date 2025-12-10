@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "allowed_domains": ["ucsd.edu", "eng.ucsd.edu", "cs.ucsd.edu"],
+  "allowed_emails": [],
+  "admin_emails": []
+}
