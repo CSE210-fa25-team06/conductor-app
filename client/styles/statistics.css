@@ -10,10 +10,10 @@
 
 /* Card styling */
 .chart-card {
-  background: #ffffff;
+  background: #fff;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
   outline: none;
 }
 

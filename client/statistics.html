@@ -2,48 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Attendance statistics and visual analytics for the Conductor app.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Statistics</title>
     <link rel="stylesheet" href="/css/statistics.css">
 </head>
 <body>
+    <main>
 
-<section class="stats-page" aria-labelledby="stats-page-title">
-  <h1 id="stats-page-title">Attendance Statistics</h1>
-  <div class="stats-container">
-    <!-- Presence Over Time -->
-    <article class="chart-card">
-      <h2 id="presence-chart-title" class="chart-title">Presence over time</h2>
-      <div 
-        id="presenceRateChart"
-        class="chart"
-        role="img"
-        aria-labelledby="presence-chart-title"
-        aria-describedby="presence-chart-desc"
-        tabindex="0">
-      </div>
-      <p id="presence-chart-desc" class="sr-only">
-        Line chart showing attendance percentage across the recorded dates.
-      </p>
-    </article>
+        <section class="stats-page" aria-labelledby="stats-page-title">
+            <h1 id="stats-page-title">Attendance Statistics</h1>
+            <div class="stats-container">
+                <!-- Presence Over Time -->
+                <article class="chart-card">
+                    <h2 id="presence-chart-title" class="chart-title">Presence over time</h2>
+                    <div 
+                        id="presenceRateChart"  
+                        class="chart"
+                        role="img"
+                        aria-labelledby="presence-chart-title"
+                        aria-describedby="presence-chart-desc"
+                        tabindex="0">
+                    </div>
+                    <p id="presence-chart-desc" class="sr-only">
+                        Line chart showing attendance percentage across recorded dates.
+                    </p>
+                </article>
+                
+                <!-- Attendance by Meeting Type -->
+                <article class="chart-card">
+                    <h2 id="meeting-type-title" class="chart-title">Attendance by meeting type</h2>
+                    <div 
+                        id="meetingTypeChart"
+                         class="chart"
+                         role="img"
+                         aria-labelledby="meeting-type-title"
+                         aria-describedby="meeting-type-desc"
+                         tabindex="0">
+                    </div>
+                    <p id="meeting-type-desc" class="sr-only">
+                        Bar chart comparing attendance across lectures, meetings, and office hours.
+                    </p>
+                </article>
+            </div>
+        </section>
+    </main>
 
-    <!-- Attendance by Meeting Type -->
-    <article class="chart-card">
-      <h2 id="meeting-type-title" class="chart-title">Attendance by meeting type</h2>
-      <div
-        id="meetingTypeChart"
-        class="chart"
-        role="img"
-        aria-labelledby="meeting-type-title"
-        aria-describedby="meeting-type-desc"
-        tabindex="0">
-      </div>
-      <p id="meeting-type-desc" class="sr-only">
-        Bar chart comparing attendance rates across lecture sessions, team meetings, and office hours.
-      </p>
-    </article>
-  </div>
-</section>
-<script src="../scripts/statistics.js"></script>
+    <script src="../scripts/statistics.js"></script>
+
 </body>
 </html>
