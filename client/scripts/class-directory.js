@@ -20,7 +20,7 @@ export function renderClassDirectory(containerEl) {
       <main class="directory">
         <form aria-label="Search class directory" id="search-form">
           <label for="search" class="sr-only">Search</label>
-          <input type="text" id="search" name="search" placeholder="Search">
+          <input type="text" id="search" name="search" placeholder="Search by name or email">
           <button type="submit" hidden>Search</button>
           <label for="role-filter" class="sr-only">Filter by role</label>
           <select id="role-filter" name="role">
