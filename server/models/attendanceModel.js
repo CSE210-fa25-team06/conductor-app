@@ -105,8 +105,49 @@ async function updateStudents({ user_id, group_id, session_id, date, meeting_typ
     ON CONFLICT (user_id, session_id) DO NOTHING`
 
     await pool.query(query, [user_id, group_id, session_id, date, meeting_type, recorded_by])
+}
 
+async function fetchAttendanceStats() {
+  const client = await pool.connect();
+  try {
+    //  total attendance entries
+    const totalRes = await client.query(`
+      SELECT COUNT(*) as total FROM attendance
+    `);
 
+    //  present entries
+    const presentRes = await client.query(`
+      SELECT COUNT(*) as present
+      FROM attendance
+      WHERE status = 'Present'
+    `);
+
+    // presence evolution (per day)
+    const dailyRes = await client.query(`
+      SELECT date, COUNT(*) as count
+      FROM attendance
+      WHERE status = 'Present'
+      GROUP BY date
+      ORDER BY date ASC
+    `);
+
+    // meeting type distribution
+    const typeRes = await client.query(`
+      SELECT meeting_type, COUNT(*) as count
+      FROM attendance
+      GROUP BY meeting_type
+    `);
+
+    return {
+      total: Number(totalRes.rows[0].total),
+      present: Number(presentRes.rows[0].present),
+      absent: Number(totalRes.rows[0].total) - Number(presentRes.rows[0].present),
+      daily: dailyRes.rows,
+      byType: typeRes.rows
+    };
+  } finally {
+    client.release();
+  }
 }
 
 module.exports = {
@@ -117,5 +158,6 @@ module.exports = {
   createSession,
   endSession,
   getSession,
-  updateStudents
+  updateStudents,
+  fetchAttendanceStats
 };
