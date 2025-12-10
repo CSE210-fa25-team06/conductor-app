@@ -21,6 +21,7 @@
     "playwright": "^1.57.0"
   },
   "dependencies": {
+    "connect-redis": "^9.0.0",
     "@opentelemetry/auto-instrumentations-node": "^0.67.2",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.208.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
