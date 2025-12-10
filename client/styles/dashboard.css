@@ -138,6 +138,27 @@ main {
   font-weight: 600;
 }
 
+#user-name {
+    font-weight: bold; 
+    color: #036;
+}
+
+#user-name:empty {
+    display: inline-block;
+    width: 150px;
+    height: 1em;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    vertical-align: middle;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
 .content {
   font-size: 1.2em;
   color: #036;
