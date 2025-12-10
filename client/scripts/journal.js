@@ -442,7 +442,7 @@ async function showSentimentModal(existingEntry = null, currentUser = null) {
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    const formElement = doc.querySelector('#sentimentForm');
+    const formElement = doc.querySelector('#sentiment-form');
     const formHTML = formElement ? formElement.outerHTML : html;
 
     modalOverlay.innerHTML = `
