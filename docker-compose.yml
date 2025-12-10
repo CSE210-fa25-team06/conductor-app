@@ -27,6 +27,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
 
 
   app:
@@ -48,7 +50,7 @@ services:
       DB_PASSWORD: ${PGPASSWORD}
       DB_NAME: ${PGDATABASE}
 
-      REDIS_URL: ${REDIS_URL}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       
       AUTH_STRATEGY: ${AUTH_STRATEGY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
@@ -61,3 +63,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
