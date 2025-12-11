@@ -116,15 +116,24 @@ app.use(passport.session());
 // =========================================================================
 // ROUTE REGISTRATION
 // =========================================================================
+// #swagger.tags = ['Users']
 app.use('/users', usersRouter);            // enables class directory
+// #swagger.tags = ['Journals']
 app.use('/journals', journalRouter);      // enables journal posting
+// #swagger.tags = ['Sentiments']
 app.use('/sentiments', sentimentRouter);  // enables sentiment tracking
+// #swagger.tags = ['Groups']
 app.use('/groups', groupsRouter);          // enables group fetching
+// #swagger.tags = ['Attendance']
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
+// #swagger.tags = ['Auth']
 app.use('/api/auth', authRouter);
+// #swagger.tags = ['Admin']
 app.use('/api/admin', groupsRolesRouter); 
+// #swagger.tags = ['Admin']
 app.use('/api/admin', userRoleRouter); // <-- NEW MOUNT
+// #swagger.tags = ['Config']
 app.use('/api/config', configRouter);
 
 /**
@@ -143,7 +152,7 @@ if (process.env.ENVIRONMENT === "DEV") {
   const docsMetadata = {
     info: {
       title: 'Conductor Backend',
-      description: 'Conductor Backend API (usage manual TBD)'
+      description: 'Conductor Backend API - Ignore the "default" tag (contains duplicate of all endpoints for debug purpose)'
     },
     host: 'localhost:3000'
   };
