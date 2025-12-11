@@ -151,9 +151,10 @@ router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
 });
 
 /**
- * GET /api/admin/permissions
- * Returns a master list of all permissions.
- * Requires Permission: 'MANAGE_PERMISSIONS'
+ * @swagger	 * GET /api/admin/permissions
+ * #swagger.tags = ['Admin - Groups & Roles']	 * Returns a master list of all permissions.
+ * #swagger.summary = 'Create a permission'	 * Requires Permission: 'MANAGE_PERMISSIONS'
+ * #swagger.description = 'Requires CREATE_PERMISSIONS permission.'	
  */
 router.get('/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
     try {
