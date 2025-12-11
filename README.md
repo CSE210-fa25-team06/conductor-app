@@ -32,7 +32,7 @@ To use the auto-deployment system, the host machine requires:
 
 **Deployment Script (`update_app.sh`)**
 This script manages the application lifecycle:
-- `./update_app.sh --install` : Adds a cron job that checks for updates every 2 minutes.
+- `./update_app.sh --install` : Adds a cron job that checks for updates every 2 minutes. (make sure to chmod this file first)
 - `./update_app.sh --force` : Manually forces a rebuild of the containers.
 - `./update_app.sh` : (Default) Checks git status; if the local branch is behind remote, it pulls changes and rebuilds.
 
