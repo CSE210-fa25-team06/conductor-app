@@ -172,6 +172,9 @@ async function loadJournals(currentUser) {
             whatIWillDo: j.doing_next,
             blockers: j.blockers,
             timestamp: j.created_at,
+            author_name: j.author_name,
+            author_roles: j.author_roles,
+            group_name: j.group_name,
             type: 'journal'
         }));
 

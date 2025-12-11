@@ -32,7 +32,6 @@ export function renderProfilePage(contentElement) {
 }
 
 function renderProfileContent(contentElement, user, joinedDate, lastActive, lastJournal, roleDesc, providerLabel) {
-    const formattedAvailability = formatAvailability(user.availability);
     
 const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" class="resource-btn repo">GitHub Repo</a>` : '';
     const slackBtn = user.slack_link ? `<a href="${user.slack_link}" target="_blank" class="resource-btn slack">Slack Channel</a>` : '';
@@ -81,10 +80,8 @@ const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" cl
                 
                 <div class="profile-details">
                     <div class="detail-group">
-                        <h3>Contact & Availability</h3>
+                        <h3>Contact</h3>
                         <p><strong>Email:</strong> ${user.email}</p>
-                        <p><strong>Contact:</strong> ${user.contact_info || 'Not provided'}</p>
-                        <p><strong>Availability:</strong> ${formattedAvailability}</p>
                     </div>
 
                     <div class="detail-group">
@@ -112,16 +109,4 @@ const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" cl
             </section>
         </section>
     `;
-}
-
-function formatAvailability(availability) {
-    if (!availability) return 'Not set';
-    try {
-        const obj = typeof availability === 'string' ? JSON.parse(availability) : availability;
-        return Object.entries(obj)
-            .map(([day, time]) => `${day}: ${time}`)
-            .join(', ');
-    } catch {
-        return availability;
-    }
 }

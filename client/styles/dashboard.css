@@ -235,7 +235,8 @@ header {
   align-items: center;
   justify-content: space-between;
   z-index: 50;
-  position: sticky;
+
+  /* position: sticky; */
   top: 0;
   height: var(--header-height);
   flex-shrink: 0;
