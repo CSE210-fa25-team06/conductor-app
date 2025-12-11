@@ -11,10 +11,30 @@
 
 <body>
 
-  <!-- Start Meeting Button -->
-  <button type="button" class="button" id="start-meeting-btn">
-    Start Meeting
-  </button>
+  <!-- Instructions -->
+  <div id="attendance-instructions">
+    <p>
+      Clicking <strong>Start Meeting</strong> will generate a QR code that students
+      can scan with their phones to record their attendance.
+    </p>
+    <p style="margin-top: 6px; font-weight: 600;">
+      For instructor use only.
+    </p>
+  </div>
+
+    <div class="attendance-center-wrapper">
+
+        <!-- Clock -->
+        <div id="clock-container">
+            <div id="giant-clock">00:00:00</div>
+        </div>
+
+        <!-- Start Meeting Button -->
+        <button type="button" class="button" id="start-meeting-btn">
+            Start Meeting
+        </button>
+
+    </div>
 
   <!-- QR Code Modal Template -->
   <template id="QRModal">

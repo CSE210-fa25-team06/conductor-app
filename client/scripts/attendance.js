@@ -21,6 +21,7 @@ export function renderAttendance(containerEl) {
 ----------------------------- */
 
 function initAttendanceLogic() {
+  startClock();
   const startBtn = document.getElementById("start-meeting-btn");
   if (startBtn) {
     startBtn.addEventListener("click", createQRAndStartMeeting);
@@ -49,6 +50,24 @@ async function createQRAndStartMeeting() {
 
   // Populate modal with QR image + bind End button
   initQRModal(qrModal, meetingData.session_id, meetingData.qrImageDataUrl);
+}
+
+function startClock() {
+  const clockEl = document.getElementById("giant-clock");
+  if (!clockEl) return;
+
+  function updateClock() {
+    const now = new Date();
+
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+
+    clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
 }
 
 /* -----------------------------
