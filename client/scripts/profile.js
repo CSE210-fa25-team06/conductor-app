@@ -81,10 +81,8 @@ const repoBtn = user.repo_link ? `<a href="${user.repo_link}" target="_blank" cl
                 
                 <div class="profile-details">
                     <div class="detail-group">
-                        <h3>Contact & Availability</h3>
+                        <h3>Contact</h3>
                         <p><strong>Email:</strong> ${user.email}</p>
-                        <p><strong>Contact:</strong> ${user.contact_info || 'Not provided'}</p>
-                        <p><strong>Availability:</strong> ${formattedAvailability}</p>
                     </div>
 
                     <div class="detail-group">
