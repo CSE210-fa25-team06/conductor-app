@@ -307,15 +307,6 @@
   font-size: 18px;
 }
 
-#content-section {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: 70vh;
-  text-align: center;
-}
-
 /* Responsive Design */
 @media (width <= 768px) {
     #giant-clock {
