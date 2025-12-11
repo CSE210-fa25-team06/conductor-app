@@ -82,12 +82,22 @@ router.delete('/users/:userId', requirePermission('PROVISION_USERS'), async (req
     }
 });
 
-/**
- * POST /api/admin/groups
- * Creates a new Group.
- * Requires Permission: 'CREATE_GROUPS'
- */
 router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
+    /* 
+    #swagger.tags = ['Admin']
+    #swagger.summary = 'Create a group'
+    #swagger.description = 'Requires CREATE_GROUPS permission.'
+    #swagger.parameters['body'] = {
+        in: 'body',
+        schema: { 
+            $name: "Team A", 
+            logoUrl: "", 
+            slackLink: "", 
+            repoLink: "" 
+        }
+    }
+    #swagger.responses[201] = { description: "Group created" }
+    */
     const { name, logoUrl, slackLink, repoLink } = req.body;
 
     if (!name) {
@@ -111,9 +121,10 @@ router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
 });
 
 /**
- * POST /api/admin/roles
- * Creates a new Role.
- * Requires Permission: 'CREATE_ROLES'
+ * @swagger
+ * #swagger.tags = ['Admin - Groups & Roles']
+ * #swagger.summary = 'Create a role'
+ * #swagger.description = 'Requires CREATE_ROLES permission.'
  */
 router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
     // Extract description from body
@@ -140,9 +151,10 @@ router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
 });
 
 /**
- * GET /api/admin/permissions
- * Returns a master list of all permissions.
- * Requires Permission: 'MANAGE_PERMISSIONS'
+ * @swagger	 * GET /api/admin/permissions
+ * #swagger.tags = ['Admin - Groups & Roles']	 * Returns a master list of all permissions.
+ * #swagger.summary = 'Create a permission'	 * Requires Permission: 'MANAGE_PERMISSIONS'
+ * #swagger.description = 'Requires CREATE_PERMISSIONS permission.'	
  */
 router.get('/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
     try {
@@ -187,12 +199,11 @@ router.get('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS')
 });
 
 /**
- * PUT /api/admin/roles/:roleId/permissions
- * Updates permissions AND privilege_level for a role.
- */
-/**
- * PUT /api/admin/roles/:roleId/permissions
- * Updates permissions AND privilege_level for a role.
+ * @swagger
+ * #swagger.tags = ['Admin - Groups & Roles']
+ * #swagger.summary = 'Set permissions for a role'
+ * #swagger.description = 'Requires MANAGE_PERMISSIONS permission.'
+ * #swagger.parameters['roleId'] = { description: 'Role ID' }
  */
 router.put('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
     const roleId = parseInt(req.params.roleId, 10);

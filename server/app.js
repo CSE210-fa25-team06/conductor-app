@@ -116,15 +116,24 @@ app.use(passport.session());
 // =========================================================================
 // ROUTE REGISTRATION
 // =========================================================================
+// #swagger.tags = ['Users']
 app.use('/users', usersRouter);            // enables class directory
+// #swagger.tags = ['Journals']
 app.use('/journals', journalRouter);      // enables journal posting
+// #swagger.tags = ['Sentiments']
 app.use('/sentiments', sentimentRouter);  // enables sentiment tracking
+// #swagger.tags = ['Groups']
 app.use('/groups', groupsRouter);          // enables group fetching
+// #swagger.tags = ['Attendance']
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
+// #swagger.tags = ['Auth']
 app.use('/api/auth', authRouter);
+// #swagger.tags = ['Admin']
 app.use('/api/admin', groupsRolesRouter); 
+// #swagger.tags = ['Admin']
 app.use('/api/admin', userRoleRouter); // <-- NEW MOUNT
+// #swagger.tags = ['Config']
 app.use('/api/config', configRouter);
 
 /**
@@ -135,6 +144,29 @@ app.get('/', (req, res) => {
   res.send('Conductor API is running.');
 });
 
+
+if (process.env.ENVIRONMENT === "DEV") {
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerAutogen = require('swagger-autogen')({ openapi: '3.0.0' });
+
+  const docsMetadata = {
+    info: {
+      title: 'Conductor Backend',
+      description: 'Conductor Backend API - Ignore the "default" tag (contains duplicate of all endpoints for debug purpose)'
+    },
+    host: 'localhost:3000'
+  };
+
+  const apiRoutes = ["./routes/*.js", "./routes/*/*.js","./routes/*/*/*.js"];
+
+  swaggerAutogen("./swagger-output.json", apiRoutes, docsMetadata)
+    .then(swaggerSpec => {
+      app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec.data));
+    })
+    .catch(err => {
+      console.error("Swagger generation failed:", err);
+    });
+}
 
 // New endpoint to generate a 500 error for testing
 app.get('/error-test', (req, res, next) => {

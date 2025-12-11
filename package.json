@@ -39,6 +39,10 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.16.3",
+    "stylelint": "^16.25.0",
+    "stylelint-config-standard": "^39.0.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1",
     "qrcode": "^1.5.4",
     "stylelint": "^16.25.0",
     "stylelint-config-standard": "^39.0.1"

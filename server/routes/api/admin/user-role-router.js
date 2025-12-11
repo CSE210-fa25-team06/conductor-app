@@ -39,6 +39,26 @@ router.get('/roles', requirePermission('ASSIGN_ROLES'), async (req, res) => {
  * Request Body: { groupId: number | null }
  */
 router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (req, res) => {
+    /* 
+        #swagger.tags = ['Admin']
+        #swagger.summary = 'Assign user to a group'
+        #swagger.description = 'Requires ASSIGN_GROUPS permission.'
+        #swagger.parameters['userId'] = { 
+            in: 'path',
+            required: true,
+            description: 'User ID'
+        }
+        #swagger.parameters['body'] = {
+            in: 'body',
+            required: true,
+            description: 'Group assignment payload',
+            schema: { 
+                $groupId: 1 
+            }
+        }
+        #swagger.responses[200] = { description: "User assigned to group" }
+    */
+
     const userId = parseInt(req.params.userId, 10);
     const { groupId } = req.body; 
 
@@ -68,13 +88,25 @@ router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (re
     }
 });
 
-/**
- * PUT /api/admin/users/:userId/roles
- * Professor assigns a list of role IDs to a user.
- * Requires Permission: 'ASSIGN_ROLES'
- * Request Body: { roleIds: Array<number> }
- */
 router.put('/users/:userId/roles', requirePermission('ASSIGN_ROLES'), async (req, res) => {
+    /*
+        #swagger.tags = ['Admin']
+        #swagger.summary = 'Assign a user to a group'
+        #swagger.description = 'Requires assign group permission.'
+        #swagger.parameters['userId'] = {
+            in: 'path',
+            required: true,
+            description: 'User ID'
+        }
+        #swagger.parameters['body'] = {
+            in: 'body',
+            required: true,
+            description: 'Group assignment payload',
+            schema: {
+            }
+        }
+        #swagger.responses[200] = { description: "User assigned to group" }
+    */
     const userId = parseInt(req.params.userId, 10);
     const { roleIds } = req.body; 
 
