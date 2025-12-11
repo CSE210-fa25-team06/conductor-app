@@ -47,7 +47,7 @@ router.post("/end", requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), endAtt
 //Scan students for who attended
 router.post("/scan", scanAttendance)
 
-router.get('/stats', getAttendanceStats);
+router.get('/stats', requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), getAttendanceStats);
 
 
 // Show which students attended class (Professor view)
