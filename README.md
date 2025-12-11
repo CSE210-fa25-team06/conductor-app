@@ -19,6 +19,56 @@ Run `docker compose down -v`.
 
 ---
 
+### **Deployment & Auto-Updates**
+The project includes a self-updating deployment script (`update_app.sh`) designed for easy hosting on any Linux server (VPS, cloud instance, or self-hosted).
+
+**Prerequisites**
+To use the auto-deployment system, the host machine requires:
+- **Docker & Docker Compose**: Must be installed and running.
+- **Git**: Installed with **Deploy Keys** (or SSH keys) configured so the server can pull changes from the repository without interactive authentication.
+- **Cron**: The `cron` daemon must be installed and active to schedule the update checks.
+
+**Deployment Script (`update_app.sh`)**
+This script manages the application lifecycle:
+- `./update_app.sh --install` : Adds a cron job that checks for updates every 2 minutes.
+- `./update_app.sh --force` : Manually forces a rebuild of the containers.
+- `./update_app.sh` : (Default) Checks git status; if the local branch is behind remote, it pulls changes and rebuilds.
+
+**Production Overrides**
+The script utilizes `docker-compose.override.yml` during deployment. This file applies production-ready configurations, specifically setting restart policies (e.g., `restart: unless-stopped`) for all services. This ensures the application automatically recovers after server reboots or service crashes.
+
+**Universal Deployment**
+This setup allows the application to be easily deployed on any host meeting the prerequisites:
+1. Clone the repository to the target server (Default location: `~/conductor-app`).
+2. Configure the `.env` file.
+3. Run `./update_app.sh --install`.
+The system will now automatically pull the latest code from the `main` branch and redeploy whenever changes are detected.
+
+**Post-Deployment & Production**
+- **Grafana Setup**: Log in to the Grafana instance at `http://<server-ip>:3001` and set up the admin user.
+- **Reverse Proxy**: To fully deploy, a simple Nginx reverse proxy with domain setup and Certbot is recommended.
+
+---
+
+### **Observability Stack**
+This project integrates a comprehensive observability stack using OpenTelemetry to provide tools for monitoring application health, debugging performance issues, and understanding system behavior.
+
+**Core Services**
+- **Grafana (Port 3001)**: The visualization hub. It includes a pre-provisioned "Application Traces" dashboard to view metrics and traces immediately.
+- **Prometheus**: Collects and stores metrics from the application and the OpenTelemetry Collector.
+- **Tempo**: A distributed tracing backend for storing and querying traces.
+- **OpenTelemetry Collector**: The central data pipeline that receives telemetry (traces, metrics) from the app and exports it to Prometheus and Tempo.
+
+**Instrumentation**
+The Node.js application is instrumented with the OpenTelemetry SDK (`server/tracing.js`) to automatically generate detailed traces and metrics for HTTP requests and database operations.
+- **Verification**: A test endpoint `/error-test` is available to simulate errors and verify trace capture in Grafana.
+
+**Configuration**
+- Service configurations are located in the `otel/` directory.
+- Data is persisted using Docker volumes (`grafana_data`, `prometheus_data`, `tempo_data`).
+
+---
+
 ### **client/**
 Contains all frontend code written in standard **HTML, CSS, and JavaScript**.
 

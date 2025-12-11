@@ -12,3 +12,4 @@ server/swagger-output.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+update_app.log
