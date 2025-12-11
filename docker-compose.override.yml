@@ -1,0 +1,18 @@
+services:
+  grafana:
+    restart: unless-stopped
+
+  tempo:
+    restart: unless-stopped
+
+  db:
+    restart: unless-stopped
+
+  prometheus:
+    restart: unless-stopped
+
+  otel-collector:
+    restart: unless-stopped
+
+  app:
+    restart: unless-stopped
