@@ -12,54 +12,128 @@
     <link rel="stylesheet" href="styles/class-directory.css" />
     <link rel="stylesheet" href="styles/attendance.css" />
     <link rel="stylesheet" href="styles/profile.css">
+    <link rel="stylesheet" href="styles/settings.css">
     <script type="module" src="scripts/profile.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
 </head>
 
 <body>
-    <header>
-        <h1><a href="#" id="home-link">Conductor</a></h1>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>
+                <a href="#" id="home-link" title="Dashboard">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span class="logo-text">Conductor</span>
+                </a>
+            </h1>
+            <button class="collapse-btn" id="collapse-btn" title="Collapse sidebar" type="button"
+                aria-label="Toggle sidebar">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
 
-        <nav>
-            <ul>
-                <li>
-                    <a data-testid="directory-tab" id="directory" href="#" onclick="loadSection('directory', event)">Directory</a>
+        <nav class="sidebar-nav" aria-label="Main navigation">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a data-testid="directory-tab" id="directory" href="#" class="nav-link" data-section="directory"
+                        title="Class Directory">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span class="nav-text">Directory</span>
+                    </a>
                 </li>
-                <li>
-                    <a data-testid="attendance-tab" id="attendance" href="#" onclick="loadSection('attendance', event)">Attendance</a>
+                <li class="nav-item">
+                    <a data-testid="attendance-tab" id="attendance" href="#" class="nav-link" data-section="attendance"
+                        title="Attendance">
+                        <i class="fas fa-clipboard-check nav-icon"></i>
+                        <span class="nav-text">Attendance</span>
+                    </a>
                 </li>
-                <li>
-                    <a data-testid="journal-tab" id="journal" href="#" onclick="loadSection('journal', event)">Journal</a>
+                <li class="nav-item">
+                    <a data-testid="journal-tab" id="journal" href="#" class="nav-link" data-section="journal"
+                        title="Journal">
+                        <i class="fas fa-book nav-icon"></i>
+                        <span class="nav-text">Journal</span>
+                    </a>
                 </li>
-                <li>
-                    <a data-testid="evaluation-tab" id="evaluation" href="#" onclick="loadSection('evaluation', event)">Evaluation</a>
+                <li class="nav-item">
+                    <a data-testid="statistics" id="statistics" href="#" class="nav-link" data-section="statistics"
+                    title="Statistics">
+                      <i class="fas fa-chart-line nav-icon"></i>
+                      <span class="nav-text">Statistics</span>
+                    </a>
+                </li>
+                <li class="nav-item profile-section">
+                    <a href="#" class="nav-link" id="profile-btn" data-section="profile" title="Profile">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" id="sidebar-settings" data-section="settings" title="Settings">
+                        <i class="fas fa-cog nav-icon"></i>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </li>               
+                <li class="nav-item">
+                    <a href="#" class="nav-link" id="sidebar-logout" title="Logout">
+                        <i class="fas fa-sign-out-alt nav-icon"></i>
+                        <span class="nav-text">Logout</span>
+                    </a>
                 </li>
             </ul>
         </nav>
+    </aside>
 
-        <section class="profile-menu">
-            <button id="profile-btn" type="button" title="Profile">👤</button>
-            <ul id="dropdown" class="hidden">
-                <li><a href="#">Profile</a></li>
-                <li><a href="#">Settings</a></li>
-                <li id="logout-option"><a href="#">Log out</a></li>
-            </ul>
-        </section>
+    <header>
+        <button id="mobile-menu-btn" type="button" class="mobile-menu-btn" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="header-left">
+            <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+        </div>
     </header>
 
     <main>
         <section class="welcome" id="welcome-section">
-            <h2>Welcome, <span id="user-name">&lt;Name&gt;</span></h2>
+            <h2>Welcome, <span id="user-name-display">...</span> 👋</h2>
+            <p class="welcome-subtitle">Here's what's happening today</p>
         </section>
 
-        <section class="content" id="content-section">
-            <p>Dashboard content will appear here...</p>
+        <section class="content" id="content-section" aria-live="polite">
         </section>
     </main>
 
+    <!-- Mobile Hamburger -->
+    <div id="mobile-nav-overlay" class="mobile-nav-overlay hidden">
+        <div class="mobile-nav-panel">
+            <button id="mobile-nav-close" type="button" class="mobile-nav-close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <ul class="mobile-nav-list">
+                <li data-section="dashboard">Dashboard</li>
+                <li data-section="directory">Directory</li>
+                <li data-section="attendance">Attendance</li>
+                <li data-section="journal">Journal</li>
+                <li data-section="statistics">Statistics</li>
+                <li data-section="profile">Profile</li>
+                <li data-section="settings">Settings</li>
+                <li id="mobile-logout">Logout</li>
+            </ul>
+        </div>
+    </div>
+
     <footer>
-        <small>© 2025 Conductor Portal</small>
+        <small>© 2025 Conductor Portal • v2.0</small>
+        <div class="footer-links">
+            <a href="#" title="Privacy Policy">Privacy Policy</a> •
+            <a href="#" title="Terms of Service">Terms of Service</a> •
+            <a href="#" title="Help Center">Help Center</a>
+        </div>
     </footer>
+
     <script type="module" src="scripts/dashboard.js"></script>
-  </body>
+</body>
+
 </html>

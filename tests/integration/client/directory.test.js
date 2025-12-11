@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
     If this were to hypothetically fail, it would not trigger an infinite loop. Playwright would stop it after 5 seconds.
     */
     
-    await expect(page.getByPlaceholder('Search by first name')).toBeVisible();
+    await expect(page.getByPlaceholder('Search by name or email')).toBeVisible();
 });
 
 
@@ -28,9 +28,8 @@ test('Search Bar Appears', async ({ page }) => {
 });
 
 test('Search bar properly retrieves names that match via the prefix', async ({ page }) => {
-    const searchBar = page.getByPlaceholder('Search by first name');
-    await searchBar.fill("al");
-    await expect(page.getByRole('cell', { name: 'Alice', exact: true })).toBeVisible();
-    await expect(page.getByRole('cell', { name: 'Alex', exact: true })).toBeVisible();
-    await expect(page.getByRole('cell', { name: 'Charlie', exact: true })).not.toBeVisible();
+    const searchBar = page.getByPlaceholder('Search by name or email');
+    await searchBar.fill("g");
+    await expect(page.getByRole('cell', { name: 'Group Leader Demo User', exact: true })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Guest Demo User', exact: true })).toBeVisible();
 });

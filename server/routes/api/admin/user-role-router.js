@@ -9,13 +9,35 @@ const router = express.Router();
 const { 
     assignRolesToUser,
     assignUserToGroup,             
-    getRolePrivilegeLevel,  
+    getRolePrivilegeLevel,
+    getAllRoles,
+    deleteUser
 } = require('../../../models/db');
 
 // 1. Import the generic permission checker
 const { requirePermission } = require('../../../middleware/role-checker'); 
 const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver');
 
+/**
+ * GET /api/admin/roles
+ * Returns a list of all available roles in the system.
+ * Requires Permission: 'ASSIGN_ROLES' (Using same permission as the page itself)
+ */
+router.get('/roles', requirePermission('ASSIGN_ROLES'), async (req, res) => {
+    try {
+        const roles = await getAllRoles();
+        res.status(200).json({ success: true, roles });
+    } catch (error) {
+        console.error('API Error fetching roles:', error);
+        res.status(500).json({ error: 'Failed to fetch roles.' });
+    }
+});
+
+/**
+ * PUT /api/admin/users/:userId/group
+ * Assigns a user to a group using the ASSIGN_GROUPS permission.
+ * Request Body: { groupId: number | null }
+ */
 router.put('/users/:userId/group', requirePermission('ASSIGN_GROUPS'), async (req, res) => {
     /* 
         #swagger.tags = ['Admin']
@@ -132,6 +154,32 @@ router.put('/users/:userId/roles', requirePermission('ASSIGN_ROLES'), async (req
     } catch (error) {
         console.error('API Error updating user roles:', error);
         return res.status(500).json({ error: 'Failed to update user roles.' });
+    }
+});
+
+/**
+ * DELETE /api/admin/users/:userId
+ * Permanently removes a user and all associated data from the system.
+ * Requires Permission: 'PROVISION_USERS' 
+ */
+router.delete('/users/:userId', requirePermission('PROVISION_USERS'), async (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+
+    // Validation: Ensure userId is numeric
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid userId.' });
+    }
+
+    try {
+        await deleteUser(userId);
+
+        return res.status(200).json({
+            success: true,
+            message: `User ${userId} removed successfully.`
+        });
+    } catch (error) {
+        console.error('API Error deleting user:', error);
+        return res.status(500).json({ error: 'Failed to delete user.' });
     }
 });
 

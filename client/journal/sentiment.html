@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<body>
+  <main>
+    <div class="journal-container">
+      <h1 class="page-title">Emotional Tracker</h1>
+      <form class="journal-form" id="sentiment-form">
+        <div class="journal-form-group">
+          <label for="sentimentDateTime">Date and time</label>
+          <input 
+            type="text" 
+            id="sentimentDateTime" 
+            name="sentimentDateTime" 
+            value="Auto: current time" 
+            disabled
+          />
+        </div>
+        <div class="journal-form-group">
+          <label>How are you feeling today?</label>
+          <div class="sentiment-options">
+            <label class="sentiment-option">
+              <input type="radio" name="sentiment" value="happy" required>
+              <span class="sentiment-icon">😊</span>
+              <span class="sentiment-label">Happy</span>
+            </label>
+            <label class="sentiment-option">
+              <input type="radio" name="sentiment" value="neutral" required>
+              <span class="sentiment-icon">😐</span>
+              <span class="sentiment-label">Neutral</span>
+            </label>
+            <label class="sentiment-option">
+              <input type="radio" name="sentiment" value="sad" required>
+              <span class="sentiment-icon">😔</span>
+              <span class="sentiment-label">Sad</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="journal-form-group">
+          <label for="sentimentComment">Additional comments (optional)</label>
+          <textarea 
+            id="sentimentComment" 
+            name="sentimentComment" 
+            placeholder="Share any additional thoughts or context about how you're feeling..."
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="button-primary">Submit</button>
+          <button type="button" class="button-secondary" id="sentimentBackBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>

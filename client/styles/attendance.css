@@ -1,227 +1,364 @@
-/* Attendance Section Styles - Integrated with Dashboard */
-
 .attendance-container {
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 30px 20px;
-	text-align: left;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
 }
 
+/* Controls Section */
 .attendance-controls {
-	background-color: white;
-	padding: 20px;
-	border-radius: 6px;
-	margin-bottom: 20px;
-	box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
+    background: var(--bg-white);
+    padding: var(--space-5) var(--space-6);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .controls-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+    gap: var(--space-4);
 }
 
 .controls-left {
-	display: flex;
-	gap: 30px;
-	align-items: center;
+    display: flex;
+    gap: var(--space-6);
+    align-items: center;
+    flex-wrap: wrap;
 }
 
+/* Form Elements */
 .form-group {
-	display: flex;
-	align-items: center;
-	gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
 }
 
 .form-group label {
-	font-weight: 500;
-	color: #036;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    white-space: nowrap;
 }
 
 .date-input {
-	padding: 6px 12px;
-	border: 2px solid #036;
-	border-radius: 4px;
-	font-size: 14px;
-	color: #333;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--bg-white);
+    transition: all var(--transition-fast);
+    width: 140px;
+    font-family: inherit;
 }
 
 .date-input:focus {
-	outline: none;
-	border-color: #05a;
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgb(3 54 255 / 10%);
 }
 
 .checkbox-group {
-	display: flex;
-	gap: 20px;
-	align-items: center;
+    display: flex;
+    gap: var(--space-5);
+    align-items: center;
 }
 
 .checkbox-label {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	cursor: pointer;
-	color: #333;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    transition: color var(--transition-fast);
+    user-select: none;
+}
+
+.checkbox-label:hover {
+    color: var(--text-primary);
 }
 
 .checkbox-label input[type='checkbox'] {
-	width: 18px;
-	height: 18px;
-	cursor: pointer;
-	accent-color: #036;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+    margin: 0;
 }
 
 .bottom-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-color);
+    gap: var(--space-4);
 }
 
+/* Buttons */
 .sort-btn {
-	padding: 8px 16px;
-	background-color: transparent;
-	border: none;
-	cursor: pointer;
-	font-size: 14px;
-	font-weight: 500;
-	color: #036;
-	border-radius: 4px;
-	transition: background-color 0.2s;
+    padding: var(--space-3) var(--space-5);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
 }
 
 .sort-btn:hover {
-	background-color: #f0f4ff;
+    background: var(--bg-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .submit-btn {
-	padding: 10px 30px;
-	background-color: #036;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 14px;
-	font-weight: 500;
-	color: white;
-	transition: background-color 0.2s;
+    padding: var(--space-3) var(--space-5);
+    background: var(--primary-color);
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    transition: all var(--transition-fast);
 }
 
 .submit-btn:hover {
-	background-color: #05a;
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 
+/* Start Meeting Button */
+.button#start-meeting-btn {
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    align-self: flex-start;
+}
+
+.button#start-meeting-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Student List */
 .student-list {
-	background-color: white;
-	border-radius: 6px;
-	box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
-	overflow: hidden;
+    background: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
 }
 
 .student-row {
-	display: flex;
-	align-items: center;
-	padding: 20px;
-	border-bottom: 1px solid #e1ecff;
-	cursor: pointer;
-	transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
 .student-row:last-child {
-	border-bottom: none;
+    border-bottom: none;
 }
 
 .student-row:hover {
-	background-color: #f0f4ff;
-}
-
-.student-name {
-	font-weight: 500;
-	color: #333;
-	min-width: 150px;
-}
-
-.student-group {
-	color: #666;
+    background: var(--bg-light);
 }
 
 .student-row.selected {
-	background-color: #036;
+    background: var(--primary-bg);
+    border-left: 4px solid var(--primary-color);
 }
 
-.student-row.selected .student-name,
-.student-row.selected .student-group {
-	color: white;
+.student-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    min-width: 150px;
+    font-size: 0.95rem;
+}
+
+.student-row.selected .student-name {
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
 .student-avatar {
-	width: 60px;
-	height: 60px;
-	background: linear-gradient(
-			45deg,
-			#e1ecff 25%,
-			transparent 25%,
-			transparent 75%,
-			#e1ecff 75%,
-			#e1ecff
-		),
-		linear-gradient(
-			45deg,
-			#e1ecff 25%,
-			transparent 25%,
-			transparent 75%,
-			#e1ecff 75%,
-			#e1ecff
-		);
-	background-size: 10px 10px;
-	background-position: 0 0, 5px 5px;
-	border-radius: 4px;
-	margin-right: 20px;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--border-radius-md);
+    margin-right: var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    flex-shrink: 0;
 }
 
 .student-info {
-	flex: 1;
-	display: flex;
-	gap: 40px;
+    flex: 1;
+    display: flex;
+    gap: var(--space-6);
+    align-items: center;
+}
+
+.student-group {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+
+#qr-image {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    padding: var(--space-3);
+    background: white;
+}
+
+.centered-modal-body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.centered-modal-body .button {
+    padding: var(--space-3) var(--space-5);
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.centered-modal-body .button:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
 }
 
 /* Responsive Design */
 @media (width <= 768px) {
-	.attendance-container {
-		padding: 20px 15px;
-	}
+    .attendance-container {
+        padding: var(--space-3);
+    }
+    
+    .attendance-controls {
+        padding: var(--space-4);
+    }
+    
+    .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-4);
+    }
+    
+    .controls-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+        width: 100%;
+    }
+    
+    .form-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .date-input {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .checkbox-group {
+        width: 100%;
+        justify-content: space-between;
+        gap: var(--space-4);
+    }
+    
+    .bottom-row {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+    
+    .sort-btn,
+    .submit-btn,
+    .button#start-meeting-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .student-row {
+        padding: var(--space-3);
+    }
+    
+    .student-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+    
+    .student-name {
+        min-width: auto;
+    }
+    
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: var(--space-3);
+    }
+}
 
-	.controls-row {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 15px;
-	}
-
-	.controls-left {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 15px;
-		width: 100%;
-	}
-
-	.bottom-row {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 10px;
-		width: 100%;
-	}
-
-	.sort-btn,
-	.submit-btn {
-		width: 100%;
-	}
-
-	.student-info {
-		flex-direction: column;
-		gap: 10px;
-	}
-
-	.student-row {
-		padding: 15px;
-	}
+@media (width <= 480px) {
+    .attendance-container {
+        padding: var(--space-2);
+    }
+    
+    .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+    
+    .date-input {
+        max-width: none;
+        width: 100%;
+    }
+    
+    .checkbox-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+    }
 }

@@ -79,25 +79,47 @@ async function findUserIdInUsers(email) {
  * @param {string} ipAddress - The IP address used during the login attempt.
  * @returns {object|null} The user object with roles and permissions, or null.
  */
+/**
+ * UPDATED: Retrieves full data set including Group Resources, Meta, and Stats.
+ */
 async function getFullUserData(userId, ipAddress) {
-    // 1. Get Base User Data (ID, Email, Name, Group ID, Group Name)
+    // 1. Enhanced Base Query with Joins and Subqueries for Stats
     const baseQuery = `
         SELECT
             u.id,
             u.email,
             u.name,
-            u.group_id,   
-            COALESCE(g.name, 'Group Lookup Failed') AS "groupName"
+            u.photo_url,
+            u.contact_info,
+            u.availability,
+            u.created_at,
+            u.group_id,
+            
+            -- Group Metadata
+            COALESCE(g.name, 'Unassigned') AS "groupName",
+            g.repo_link,
+            g.slack_link,
+            g.logo_url AS group_logo,
+
+            -- Auth Provider (Meta)
+            ua.provider,
+
+            -- Activity Stats (Subqueries for latest dates)
+            (SELECT MAX(entry_date) FROM journals WHERE user_id = u.id) AS last_journal_date,
+            (SELECT MAX(timestamp) FROM activity_log WHERE user_id = u.id) AS last_active_at
+
         FROM users u
-        LEFT JOIN groups g ON u.group_id = g.id 
+        LEFT JOIN groups g ON u.group_id = g.id
+        LEFT JOIN user_auth ua ON u.id = ua.user_id
         WHERE u.id = $1;
     `;
     
-    // 2. Get Roles and Permissions Data
+    // 2. Get Roles and Permissions (unchanged logic)
     const rolesPermissionsQuery = `
         SELECT
             r.id AS role_id,
             r.name AS role_name,
+            r.description AS role_description, -- Added Description
             r.privilege_level,           
             p.id AS permission_id,
             p.name AS permission_name
@@ -115,48 +137,57 @@ async function getFullUserData(userId, ipAddress) {
             return null;
         }
 
-        const firstRow = baseResult.rows[0];
+        const row = baseResult.rows[0];
         const rawUserResult = {
-            id: firstRow.id,
-            email: firstRow.email,
-            name: firstRow.name,
-            groupName: firstRow.groupName, 
+            ...row, // Spread all the new fields (repo_link, last_active_at, etc.)
             roles: []
         }; 
         
-        // Execute the second query to get roles/permissions
         const rpResult = await pool.query(rolesPermissionsQuery, [userId]);
         
-        // This loop handles users who have roles (rpResult.rows.length > 0)
-        // AND users who have NO roles (rpResult.rows.length === 0)
-        rpResult.rows.forEach(row => {
-            const existingRole = rawUserResult.roles.find(r => r.role_id === row.role_id);
+        rpResult.rows.forEach(rRow => {
+            const existingRole = rawUserResult.roles.find(r => r.role_id === rRow.role_id);
             
-            if (row.role_id != null && !existingRole) { 
+            if (rRow.role_id != null && !existingRole) { 
                 rawUserResult.roles.push({
-                    role_id: row.role_id,
-                    name: row.role_name,
-                    privilege_level: row.privilege_level, 
-                    group_id: firstRow.group_id,
-                    permissions: row.permission_id != null ? [{ id: row.permission_id, name: row.permission_name }] : []
+                    role_id: rRow.role_id,
+                    name: rRow.role_name,
+                    description: rRow.role_description, // Capture description
+                    privilege_level: rRow.privilege_level, 
+                    group_id: row.group_id,
+                    permissions: rRow.permission_id != null ? [{ id: rRow.permission_id, name: rRow.permission_name }] : []
                 });
-            } else if (row.permission_id != null && existingRole) {
-                existingRole.permissions.push({ id: row.permission_id, name: row.permission_name });
+            } else if (rRow.permission_id != null && existingRole) {
+                existingRole.permissions.push({ id: rRow.permission_id, name: rRow.permission_name });
             }
         });
         
-        // If the user is new, userRoles will be an empty array, which is correct.
         const userRoles = rawUserResult.roles.filter(r => r.role_id !== null);
-
-        // Resolve effective permissions
         const permissionDetails = resolveUserPermissions(userRoles);
 
+        // Construct final object
         const userData = {
             id: rawUserResult.id,
             email: rawUserResult.email,
             name: rawUserResult.name,
-            group_id: firstRow.group_id,
-            groupName: rawUserResult.groupName, // Now guaranteed to be a string
+            photo_url: rawUserResult.photo_url,
+            contact_info: rawUserResult.contact_info,
+            availability: rawUserResult.availability,
+            created_at: rawUserResult.created_at,
+            
+            // Group Data
+            group_id: rawUserResult.group_id,
+            groupName: rawUserResult.groupName,
+            repo_link: rawUserResult.repo_link,
+            slack_link: rawUserResult.slack_link,
+            group_logo: rawUserResult.group_logo,
+
+            // Meta & Stats
+            provider: rawUserResult.provider,
+            last_journal_date: rawUserResult.last_journal_date,
+            last_active_at: rawUserResult.last_active_at,
+
+            // Roles
             permissions: Array.from(permissionDetails.permissions), 
             effectiveRoleName: permissionDetails.effectiveRoleName, 
             roles: userRoles
@@ -227,6 +258,14 @@ async function logSuccessfulLogin(userId, ipAddress) {
  * @returns {number} The ID of the created group.
  */
 async function createGroup(name, logoUrl, slackLink, repoLink) {
+    // Prevent duplicate group names
+    const existing = await findGroupByName(name);
+    if (existing) {
+        const err = new Error('Group already exists');
+        err.code = 'GROUP_EXISTS';
+        throw err;
+    }
+
     const query = `
         INSERT INTO groups (name, logo_url, slack_link, repo_link)
         VALUES ($1, $2, $3, $4)
@@ -260,53 +299,65 @@ async function assignUserToGroup(userId, groupId) {
     }
 }
 
+/**
+ * Retrieves all groups for the dropdown list.
+ * @returns {Array<object>} List of {id, name}
+ */
+async function getAllGroups() {
+    const query = 'SELECT id, name FROM groups ORDER BY name ASC;';
+    try {
+        const result = await pool.query(query);
+        return result.rows;
+    } catch (error) {
+        console.error('Database Error in getAllGroups:', error);
+        throw error;
+    }
+}
 
 /**
- * This is the implementation for the PUT /roles/:roleId/permissions route.
+ * Updates a role's privilege level and permissions in a single atomic transaction.
+ * Replaces the old setRolePermissions function.
  * @param {number} roleId - The ID of the role to update.
- * @param {Array<string>} permissionNames - The list of permission names to assign.
+ * @param {Array<string>} permissionNames - List of permission names to assign.
+ * @param {number|null} privilegeLevel - (Optional) New privilege level to set.
  */
-async function setRolePermissions(roleId, permissionNames) {
+async function updateRoleConfiguration(roleId, permissionNames, privilegeLevel = null) {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
-        // 1. Get all required permission IDs and validate
+        // 1. Update Privilege Level (if provided)
+        if (privilegeLevel !== null) {
+            await client.query('UPDATE roles SET privilege_level = $1 WHERE id = $2', [privilegeLevel, roleId]);
+        }
+
+        // 2. Resolve Permission Names to IDs
         const permissionIds = [];
         for (const name of permissionNames) {
-            // Use the utility to get the ID
-            const id = await getPermissionIdByName(name); 
-            if (id === null) {
-                // Rollback and throw a clear error if a permission is invalid
-                await client.query('ROLLBACK');
-                throw new Error(`Permission name '${name}' not found.`);
+            const idRes = await client.query('SELECT id FROM permissions WHERE name = $1', [name]);
+            if (idRes.rows.length === 0) {
+                throw new Error(`Permission '${name}' not found.`);
             }
-            permissionIds.push(id);
+            permissionIds.push(idRes.rows[0].id);
         }
 
-        // 2. Delete all existing permissions for the role
-        const deleteQuery = 'DELETE FROM role_permissions WHERE role_id = $1;';
-        await client.query(deleteQuery, [roleId]);
-
-        // 3. Insert the new permissions
-        if (permissionIds.length > 0) {
-            const insertPromises = permissionIds.map(permissionId => {
-                const insertQuery = `
-                    INSERT INTO role_permissions (role_id, permission_id)
-                    VALUES ($1, $2);
-                `;
-                return client.query(insertQuery, [roleId, permissionId]);
-            });
-            await Promise.all(insertPromises);
-        }
+        // 3. Update Links (Wipe and Recreate)
+        await client.query('DELETE FROM role_permissions WHERE role_id = $1', [roleId]);
         
-        // 4. Commit the transaction
+        if (permissionIds.length > 0) {
+            const values = permissionIds.map((pId, i) => `($1, $${i + 2})`).join(', ');
+            await client.query(
+                `INSERT INTO role_permissions (role_id, permission_id) VALUES ${values}`, 
+                [roleId, ...permissionIds]
+            );
+        }
+
         await client.query('COMMIT');
+        return true;
 
     } catch (error) {
-        // Rollback transaction if any step failed
         await client.query('ROLLBACK');
-        console.error('Database Error in setRolePermissions (Transaction Rolled Back):', error);
+        console.error('Database Error in updateRoleConfiguration:', error);
         throw error;
     } finally {
         client.release();
@@ -370,16 +421,23 @@ async function createActivity(id, name, activity_type, description) {
  * @param {boolean} is_default - Whether this role is the default assigned role.
  * @returns {number} The ID of the created or existing role.
  */
-async function createRole(name, privilege_level, is_default) {
+/**
+ * Creates a new role with description support.
+ * UPDATED: Now accepts 'description' as the 3rd argument.
+ */
+async function createRole(name, privilege_level, description = null, is_default = false) {
     const query = `
-        INSERT INTO roles (name, privilege_level, is_default)
-        VALUES ($1, $2, $3)
+        INSERT INTO roles (name, privilege_level, description, is_default)
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT (name) DO UPDATE 
-        SET privilege_level = EXCLUDED.privilege_level, is_default = EXCLUDED.is_default
+        SET 
+            privilege_level = EXCLUDED.privilege_level, 
+            description = EXCLUDED.description,
+            is_default = EXCLUDED.is_default
         RETURNING id;
     `;
     try {
-        const result = await pool.query(query, [name, privilege_level, is_default]);
+        const result = await pool.query(query, [name, privilege_level, description, is_default]);
         return result.rows[0].id;
     } catch (error) {
         console.error('Database Error in createRole:', error);
@@ -394,6 +452,59 @@ async function getRolePrivilegeLevel(roleId) {
         throw new Error(`Role ID ${roleId} not found.`);
     }
     return result.rows[0].privilege_level;
+}
+
+/**
+ * NEW: Retrieves all system permissions.
+ * @returns {Array<object>} List of {id, name, description}
+ */
+async function getAllPermissions() {
+    const query = 'SELECT * FROM permissions ORDER BY name ASC;';
+    try {
+        const result = await pool.query(query);
+        return result.rows;
+    } catch (error) {
+        console.error('Database Error in getAllPermissions:', error);
+        throw error;
+    }
+}
+
+/**
+ * NEW: Retrieves permission names associated with a specific role ID.
+ * @param {number} roleId 
+ * @returns {Array<string>} Array of permission names
+ */
+async function getPermissionsForRole(roleId) {
+    const query = `
+        SELECT p.name 
+        FROM role_permissions rp
+        JOIN permissions p ON rp.permission_id = p.id
+        WHERE rp.role_id = $1;
+    `;
+    try {
+        const result = await pool.query(query, [roleId]);
+        return result.rows.map(row => row.name);
+    } catch (error) {
+        console.error('Database Error in getPermissionsForRole:', error);
+        throw error;
+    }
+}
+
+/**
+ * NEW: Retrieves all available roles from the database.
+ * @returns {Array<object>} List of roles.
+ */
+async function getAllRoles() {
+    // Selects all roles. Note: 'description' column is assumed to be handled by schema
+    // if it exists, otherwise this might need adjustment to select specific columns.
+    const query = 'SELECT * FROM roles ORDER BY privilege_level ASC;';
+    try {
+        const result = await pool.query(query);
+        return result.rows;
+    } catch (error) {
+        console.error('Database Error in getAllRoles:', error);
+        throw error;
+    }
 }
 
 async function assignRolesToUser(userId, roleIds) {
@@ -461,7 +572,6 @@ async function linkRoleToPermission(roleId, permissionId) {
     }
 }
 
-
 // =========================================================================
 // LOOKUP & FIND FUNCTIONS
 // =========================================================================
@@ -522,15 +632,28 @@ async function findRoleByName(name) {
 // INSERT FUNCTIONS (Called by the Service Layer)
 // =========================================================================
 
-async function insertUser(client, email, name, groupId) {
+
+/**
+ * Inserts a new user into the database.
+ * Accepts an optional photoUrl.
+ * @param {object} client - The database client.
+ * @param {string} email - User email.
+ * @param {string} name - User full name.
+ * @param {number|null} groupId - Assigned group ID.
+ * @param {string|null} photoUrl - (Optional) URL to the user's profile photo.
+ */
+async function insertUser(client, email, name, groupId, photoUrl = null) {
     const userInsertQuery = `
         INSERT INTO users (email, name, group_id, photo_url)
-        VALUES ($1, $2, $3, 'https://example.com/default-photo.png') 
+        VALUES ($1, $2, $3, $4) 
         RETURNING id;
     `;
-    // If groupId is null, PostgreSQL will handle it based on your schema's group_id column definition
+    
+    // Use the provided URL, or fallback to the default if null/undefined
+    const finalPhotoUrl = photoUrl || 'https://example.com/default-photo.png';
+
     try {
-        const userResult = await client.query(userInsertQuery, [email, name, groupId]); 
+        const userResult = await client.query(userInsertQuery, [email, name, groupId, finalPhotoUrl]); 
         return userResult.rows[0].id; 
     } catch (error) {
         console.error('Database Error in insertUser:', error);
@@ -570,6 +693,37 @@ async function insertUserRole(client, userId, roleId) {
     }
 }
 
+// =========================================================================
+// DELETE FUNCTIONS
+// =========================================================================
+
+/**
+ * Deletes a user account.
+ */
+async function deleteUser(userId) {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Delete User (Cascades to auth, logs, attendance, etc.)
+        const result = await client.query('DELETE FROM users WHERE id = $1 RETURNING id', [userId]);
+        
+        if (result.rowCount === 0) {
+            throw new Error('User not found.');
+        }
+
+        await client.query('COMMIT');
+        return true;
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Database Error in deleteUser:', error);
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
   pool,
   findUserIdByEmail,
@@ -585,13 +739,18 @@ module.exports = {
   getPermissionIdByName,
   linkRoleToPermission,
   createActivity,
+  getAllPermissions,
+  getPermissionsForRole,
   
   // Provisioning/Admin Functions
   getRolePrivilegeLevel,
   assignRolesToUser,
+  getAllRoles,
   findRoleByName,
   createGroup,
-  setRolePermissions,
+  getAllGroups,
+  updateRoleConfiguration,
+  deleteUser,
   
   // User/Auth Insert Functions
   insertUserAuth,

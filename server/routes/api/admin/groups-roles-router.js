@@ -5,8 +5,82 @@
 
 const express = require('express');
 const router = express.Router();
-const { createGroup, createRole, createPermission, setRolePermissions } = require('../../../models/db');
+const { 
+    createGroup, 
+    createRole,
+    getAllPermissions,
+    getPermissionsForRole,
+    updateRoleConfiguration,
+    deleteUser,
+    getAllGroups,
+} = require('../../../models/db');
+
+const { bulkProvisionUsers } = require('../../../services/user-provisioning')
 const { requirePermission } = require('../../../middleware/role-checker');
+
+// Import the threshold constant
+const { UNPRIVILEGED_THRESHOLD } = require('../../../utils/permission-resolver');
+
+
+/**
+ * POST /api/admin/users/batch
+ * Bulk provisions users from a provided JSON array (parsed from CSV on client).
+ * Requires Permission: 'PROVISION_USERS'
+ */
+router.post('/users/batch', requirePermission('PROVISION_USERS'), async (req, res) => {
+    const { users } = req.body;
+
+    if (!users || !Array.isArray(users) || users.length === 0) {
+        return res.status(400).json({ error: 'No user data provided.' });
+    }
+
+    try {
+        // bulkProvisionUsers returns { success: n, failed: n, errors: [] }
+        const results = await bulkProvisionUsers(users);
+        
+        return res.status(200).json({ 
+            success: true, 
+            summary: results,
+            message: `Processed ${users.length} rows. Success: ${results.success}, Failed: ${results.failed}, Skipped: ${results.skipped || 0}`
+        });
+
+    } catch (error) {
+        console.error('API Error in bulk provision:', error);
+        return res.status(500).json({ error: 'Failed to process bulk import.' });
+    }
+});
+
+/**
+ * DELETE /api/admin/users/:userId
+ * Deletes a user account.
+ * Requires Permission: 'PROVISION_USERS' (or 'MANAGE_USERS')
+ * Checks: Cannot delete self, cannot delete Professors.
+ */
+router.delete('/users/:userId', requirePermission('PROVISION_USERS'), async (req, res) => {
+    const targetUserId = parseInt(req.params.userId, 10);
+    const requesterId = req.user.id; // From session middleware
+
+    if (isNaN(targetUserId)) {
+        return res.status(400).json({ error: 'Invalid user ID.' });
+    }
+
+    // SECURITY: Prevent Self-Deletion
+    if (targetUserId === requesterId) {
+        return res.status(403).json({ error: 'You cannot delete your own account.' });
+    }
+
+    try {
+        await deleteUser(targetUserId);
+        return res.status(200).json({ success: true, message: 'User deleted successfully.' });
+    } catch (error) {
+        // Handle specific safety errors from the DB
+        if (error.message.includes('protected user')) {
+            return res.status(403).json({ error: error.message });
+        }
+        console.error('API Error deleting user:', error);
+        return res.status(500).json({ error: 'Failed to delete user.' });
+    }
+});
 
 router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
     /* 
@@ -32,15 +106,12 @@ router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
 
     try {
         const newGroupId = await createGroup(name, logoUrl, slackLink, repoLink);
-        
         return res.status(201).json({ 
             success: true, 
             id: newGroupId, 
             message: `Group '${name}' created successfully.` 
         });
-        
     } catch (error) {
-        // Handle unique constraint error (e.g., group name already exists)
         if (error.code === '23505') { 
             return res.status(409).json({ error: `Group name '${name}' already exists.` });
         }
@@ -56,19 +127,21 @@ router.post('/groups', requirePermission('CREATE_GROUPS'), async (req, res) => {
  * #swagger.description = 'Requires CREATE_ROLES permission.'
  */
 router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
-    const { name, privilege_level } = req.body;
+    // Extract description from body
+    const { name, privilege_level, description } = req.body;
 
     if (!name || typeof privilege_level !== 'number') {
         return res.status(400).json({ error: 'Role name and numeric privilege_level are required.' });
     }
 
     try {
-        const newRoleId = await createRole(name, privilege_level); 
+        // Pass description to the DB function
+        const newRoleId = await createRole(name, privilege_level, description); 
         
         return res.status(201).json({ 
             success: true, 
             id: newRoleId, 
-            message: `Role '${name}' created successfully with level ${privilege_level}.` 
+            message: `Role '${name}' created successfully.` 
         });
 
     } catch (error) {
@@ -78,36 +151,51 @@ router.post('/roles', requirePermission('CREATE_ROLES'), async (req, res) => {
 });
 
 /**
- * @swagger
- * #swagger.tags = ['Admin - Groups & Roles']
- * #swagger.summary = 'Create a permission'
- * #swagger.description = 'Requires CREATE_PERMISSIONS permission.'
+ * GET /api/admin/permissions
+ * Returns a master list of all permissions.
+ * Requires Permission: 'MANAGE_PERMISSIONS'
  */
-router.post('/permissions', requirePermission('CREATE_PERMISSIONS'), async (req, res) => {
-    const { name, description } = req.body;
-
-    if (!name || !description) {
-        return res.status(400).json({ error: 'Permission name and description are required.' });
-    }
-
+router.get('/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
     try {
-        const newPermissionId = await createPermission(name, description);
-        
-        return res.status(201).json({ 
-            success: true, 
-            id: newPermissionId, 
-            message: `Permission '${name}' created successfully.` 
-        });
-        
+        const permissions = await getAllPermissions();
+        res.status(200).json({ success: true, permissions });
     } catch (error) {
-        if (error.code === '23505') { 
-            return res.status(409).json({ error: `Permission name '${name}' already exists.` });
-        }
-        console.error('API Error creating permission:', error);
-        return res.status(500).json({ error: 'Failed to create permission.' });
+        console.error('API Error fetching permissions:', error);
+        res.status(500).json({ error: 'Failed to fetch permissions.' });
     }
 });
 
+/**
+ * GET /api/admin/groups
+ * Returns a list of all groups.
+ */
+router.get('/groups', async (req, res) => {
+    try {
+        const groups = await getAllGroups();
+        res.status(200).json({ success: true, groups });
+    } catch (error) {
+        console.error('API Error fetching groups:', error);
+        res.status(500).json({ error: 'Failed to fetch groups.' });
+    }
+});
+
+/**
+ * GET /api/admin/roles/:roleId/permissions
+ * Returns the list of permission names assigned to a specific role.
+ * Requires Permission: 'MANAGE_PERMISSIONS'
+ */
+router.get('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
+    const roleId = parseInt(req.params.roleId, 10);
+    if (isNaN(roleId)) return res.status(400).json({ error: 'Invalid roleId' });
+
+    try {
+        const permissionNames = await getPermissionsForRole(roleId);
+        res.status(200).json({ success: true, permissionNames });
+    } catch (error) {
+        console.error('API Error fetching role permissions:', error);
+        res.status(500).json({ error: 'Failed to fetch role permissions.' });
+    }
+});
 
 /**
  * @swagger
@@ -118,26 +206,82 @@ router.post('/permissions', requirePermission('CREATE_PERMISSIONS'), async (req,
  */
 router.put('/roles/:roleId/permissions', requirePermission('MANAGE_PERMISSIONS'), async (req, res) => {
     const roleId = parseInt(req.params.roleId, 10);
-    const { permissionNames } = req.body; 
+    const { permissionNames, privilegeLevel } = req.body; 
 
     if (isNaN(roleId) || !Array.isArray(permissionNames)) {
-        return res.status(400).json({ error: 'Invalid roleId or missing/invalid permissionNames array.' });
+        return res.status(400).json({ error: 'Invalid data provided.' });
     }
     
+    // Validate privilegeLevel
+    let newLevel = null;
+    if (privilegeLevel !== undefined) {
+        newLevel = parseInt(privilegeLevel, 10);
+        if (isNaN(newLevel) || newLevel < 0 || newLevel > 100) {
+            return res.status(400).json({ error: 'Privilege level must be between 0 and 100.' });
+        }
+    }
+
     try {
-        await setRolePermissions(roleId, permissionNames);
+        // ONE LINE to handle everything!
+        await updateRoleConfiguration(roleId, permissionNames, newLevel);
         
         return res.status(200).json({ 
             success: true, 
-            message: `Permissions updated successfully for Role ID ${roleId}.` 
+            message: `Role configuration updated successfully.` 
         });
 
     } catch (error) {
         if (error.message.includes('not found')) {
             return res.status(404).json({ error: error.message });
         }
-        console.error('API Error setting role permissions:', error);
-        return res.status(500).json({ error: 'Failed to set role permissions due to a server error.' });
+        console.error('API Error updating role:', error);
+        return res.status(500).json({ error: 'Failed to update role configuration.' });
+    }
+});
+
+/**
+ * PUT /api/admin/defaults
+ * Sets the system-wide default role and group.
+ * SECURITY: Prevents setting a privileged role as default using UNPRIVILEGED_THRESHOLD.
+ */
+router.put('/defaults', requirePermission('CREATE_ROLES'), async (req, res) => {
+    const { default_role_id } = req.body;
+    
+    if (!default_role_id || isNaN(parseInt(default_role_id))) {
+        return res.status(400).json({ error: 'A valid default Role ID is required.' });
+    }
+
+    const client = await require('../../../models/db').pool.connect();
+
+    try {
+        const levelQuery = 'SELECT privilege_level, name FROM roles WHERE id = $1';
+        const levelRes = await client.query(levelQuery, [default_role_id]);
+        
+        if (levelRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Role not found.' });
+        }
+
+        const role = levelRes.rows[0];
+        
+        if (role.privilege_level > UNPRIVILEGED_THRESHOLD) {
+            return res.status(403).json({ 
+                error: `Security Violation: Role '${role.name}' (Level ${role.privilege_level}) is too privileged to be a default (Max: ${UNPRIVILEGED_THRESHOLD}).` 
+            });
+        }
+
+        await client.query('BEGIN');
+        await client.query('UPDATE roles SET is_default = FALSE');
+        await client.query('UPDATE roles SET is_default = TRUE WHERE id = $1', [default_role_id]);
+        await client.query('COMMIT');
+
+        return res.status(200).json({ success: true, message: 'System defaults updated.' });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('API Error setting defaults:', error);
+        return res.status(500).json({ error: 'Failed to set system defaults.' });
+    } finally {
+        client.release();
     }
 });
 

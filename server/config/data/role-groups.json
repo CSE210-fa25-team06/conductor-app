@@ -7,6 +7,10 @@
       "description": "Default group for all new users upon initial signup."
     },
     {
+      "name": "Teaching Staff",
+      "isDefault": false
+    },
+    {
       "name": "Team Alpha",
       "isDefault": false
     },
@@ -37,6 +41,7 @@
         "EDIT_OWN_PROFILE_DATA",
         "USER_SUBMIT_JOURNAL",
         "USER_SUBMIT_PRIVATE_THOUGHTS",
+        "VIEW_CLASS_DIRECTORY",
         "VIEW_DOCS_MANAGER",
         "VIEW_FAQ_SYSTEM",
         "VIEW_OWN_GROUP_JOURNALS",
@@ -55,6 +60,7 @@
         "GROUP_MANAGE_METADATA",
         "RUN_RETROSPECTIVE_TOOL",
         "SCHEDULE_OWN_GROUP_MEETINGS",
+        "VIEW_CLASS_DIRECTORY",
         "VIEW_GROUP_DIRECTORY",
         "VIEW_OWN_GROUP_JOURNALS",
         "VIEW_OWN_GROUP_SCORECARDS"
@@ -70,6 +76,7 @@
         "PROMOTE_TO_FAQ",
         "VIEW_OWN_GROUP_JOURNALS",
         "VIEW_CLASS_DIRECTORY",
+        "VIEW_CLASS_DIRECTORY",
         "SUBMIT_NEGATIVE_INTERACTION",
         "SUBMIT_LAB_OBSERVATIONS"
       ]
@@ -80,9 +87,10 @@
       "privilege_level": 50,
       "description": "Can manage and grade all student groups and submissions.",
       "default_permissions": [
-"ACCESS_LAB_QUEUE",
+        "ACCESS_LAB_QUEUE",
         "APPLY_RUBRIC_EVALUATION",
         "ASSIGN_GROUPS",
+        "ASSIGN_ROLES",
         "CAPTURE_INCIDENT_DATA",
         "CAPTURE_MEETING_NOTES",
         "CREATE_EVALUATION_JOURNAL_ENTRY",
@@ -97,7 +105,9 @@
         "MANAGE_FAQ_CONTENT",
         "MANAGE_LAB_QUEUE",
         "MANAGE_MEETING_MANAGER",
+        "MANAGE_PERMISSIONS",
         "PROMOTE_TO_FAQ",
+        "PROVISION_USERS",
         "RUN_RETROSPECTIVE_TOOL",
         "SCHEDULE_OWN_GROUP_MEETINGS",
         "SUBMIT_LAB_OBSERVATIONS",

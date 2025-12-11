@@ -7,9 +7,9 @@ const { createJournal, updateJournal, deleteJournal, getJournals } = require("..
 const { loadUserContext } = require('../middleware/user-context');
 
 const router = express.Router();
+// GET / - Grabs all the journals to load
 router.use(loadUserContext);
 
-// GET / - Grabs all the journals to load
 router.get("/", getJournals);
 
 router.post("/create", (req, res) => {
@@ -22,6 +22,9 @@ router.post("/create", (req, res) => {
     */
     createJournal(req, res);
 });
+
+// POST /journal/create - Create a new journal entry
+router.post("/create", createJournal);
 
 // PUT /journals/:id - Update an existing journal entry
 router.put("/:id", updateJournal);

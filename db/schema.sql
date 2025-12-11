@@ -7,24 +7,6 @@
 --
 
 -- =========================================================================
--- DEVELOPMENT CLEANUP (FOR DEBUGGING PURPOSES ONLY. REMOVE BEFORE DEPLOYING.)
--- =========================================================================
-DROP TABLE IF EXISTS messages CASCADE;
-DROP TABLE IF EXISTS message_threads CASCADE;
-DROP TABLE IF EXISTS journals CASCADE;
-DROP TABLE IF EXISTS attendance CASCADE;
-DROP TABLE IF EXISTS attendance_sessions CASCADE;
-DROP TABLE IF EXISTS user_auth CASCADE;
-DROP TABLE IF EXISTS activity_log CASCADE;
-DROP TABLE IF EXISTS activity CASCADE;
-DROP TABLE IF EXISTS user_roles CASCADE;
-DROP TABLE IF EXISTS role_permissions CASCADE;
-DROP TABLE IF EXISTS permissions CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS roles CASCADE;
-DROP TABLE IF EXISTS groups CASCADE;
-
--- =========================================================================
 -- CORE ENTITIES (PARENTS)
 -- =========================================================================
 
@@ -156,6 +138,14 @@ CREATE TABLE attendance (
     UNIQUE (user_id, session_id)
 );
 
+CREATE INDEX idx_attendance_user_id ON attendance(user_id);
+
+-- Optimizes SQL queries for retrieving attendance based on the associated user_id (very common condition used by all user roles)
+
+CREATE INDEX idx_attendance_date ON attendance(date);
+
+-- An index based on the date, because other users retrieve attendance by date mostly
+
 -- Table: journals
 -- Stores weekly student journal submissions.
 CREATE TABLE journals (
@@ -169,6 +159,10 @@ CREATE TABLE journals (
     created_at    TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     edited_at     TIMESTAMP WITH TIME ZONE
 );
+
+CREATE INDEX idx_journals_user_id ON journals(user_id);
+
+-- Optimizes SQL queries for retrieving journals based on the associated user_id (very common condition on this query in the app's logic)
 
 -- Table: message_threads
 -- Parent table for organizing conversations between users.
@@ -191,3 +185,18 @@ CREATE TABLE messages (
     sent_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     thread_id    INT NOT NULL REFERENCES message_threads(id) ON DELETE CASCADE -- Links message to its thread
 );
+
+-- sentiments table for emotional tracking
+CREATE TABLE IF NOT EXISTS sentiments (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    sentiment VARCHAR(20) NOT NULL CHECK (sentiment IN ('happy', 'neutral', 'sad')),
+    comment TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Helpful index for querying a user's sentiments by recency
+CREATE INDEX IF NOT EXISTS sentiments_user_created_idx
+  ON sentiments (user_id, created_at DESC);

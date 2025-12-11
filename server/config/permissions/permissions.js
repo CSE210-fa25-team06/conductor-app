@@ -11,6 +11,4 @@ permissionsData.permissions.forEach(p => {
     PERMISSIONS[p.name] = p.name;
 });
 
-console.log(PERMISSIONS);
-
 module.exports = PERMISSIONS;

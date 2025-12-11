@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Control Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Admin Control Panel for managing roles, groups, and permissions in the Conductor app.">
+</head>
+<body>
+    <section id="import-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Import Users</h2>
+                <button type="button" class="modal-close" data-target="import-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <p>Upload a CSV file to provision multiple users at once.</p>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem; color: #555;">
+                    <strong>Required CSV Columns:</strong>
+                    <code style="display:block; margin-top:5px; padding:5px; background:#eee; border-radius:4px;">
+                        email, name, role, group
+                    </code>
+                </div>
+
+                <div class="form-group">
+                    <label for="csv-file-input">Select CSV File:</label>
+                    <input type="file" id="csv-file-input" accept=".csv" style="padding:10px; border:1px dashed #ccc;">
+                </div>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="import-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="btn-process-import">Create Users</button>
+            </footer>
+        </div>
+    </section>
+
+    <header class="settings-header">
+        <h1>Admin Control Panel</h1>
+        <button id="btn-admin-help" class="help-icon-btn" title="Admin Guide" type="button">
+            <span class="icon">?</span>
+        </button>
+    </header>
+
+    <section class="admin-actions-wrapper">
+        <div class="settings-subtitle"></div>
+    </section>
+    <main>
+        <section id="admin-content-wrapper">
+            <form class="settings-controls" role="search">
+                <label class="search-box">
+                    <span class="visually-hidden">Search users</span>
+                    <input type="text" id="user-search" placeholder="Search by name or email">
+                </label>
+
+                <div class="filter-box">
+                    <label for="role-filter">Filter by role:</label>
+                    <select id="role-filter">
+                        <option value="">All Roles</option>
+                    </select>
+                </div>
+            </form>
+
+            <section class="users-table-container">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Current Role</th>
+                            <th>Group</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body"></tbody>
+                </table>
+            </section>
+
+            <section id="loading-indicator" class="loading-indicator hidden" role="status" aria-live="polite">
+                <p>Loading data…</p>
+            </section>
+
+        </section>
+    </main>
+
+    <!-- ROLE MODAL -->
+    <section id="role-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="role-modal-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="role-modal-title">Assign Roles</h2>
+                <button type="button" class="modal-close" data-target="role-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <p>Assign roles for: <strong id="modal-user-name"></strong></p>
+                <div id="role-checkbox-container"></div>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="role-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="modal-assign" style="background-color:#06c;">
+                    Save Roles
+                </button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- GROUP MODAL -->
+    <section id="group-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="group-modal-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="group-modal-title">Assign Group</h2>
+                <button type="button" class="modal-close" data-target="group-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <p>Assign group for: <strong id="group-user-name"></strong></p>
+
+                <fieldset class="form-group">
+                    <label for="group-select">Select Group:</label>
+                    <select id="group-select" class="role-select"></select>
+                </fieldset>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="group-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="group-save" style="background-color:#06c;">
+                    Save Group
+                </button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- REMOVE USER MODAL -->
+    <section id="remove-user-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="remove-user-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="remove-user-title">Remove User</h2>
+                <button type="button" class="modal-close" data-target="remove-user-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <p>Are you sure you want to remove this user?</p>
+                <p><strong id="remove-user-name"></strong></p>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="remove-user-modal">Cancel</button>
+                <button type="button" class="button button-primary remove-user-btn" id="remove-user-confirm">Remove User</button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- PERMISSIONS MODAL -->
+    <section id="permissions-modal" class="modal-overlay hidden" role="dialog" aria-modal="true"
+        aria-labelledby="permissions-title">
+        <div class="modal-content modal-large">
+            <header class="modal-header">
+                <h3 id="permissions-title">Configure Role</h3>
+                <button type="button" class="modal-close" data-target="permissions-modal">&times;</button>
+            </header>
+
+            <section class="modal-body flex-body">
+                <div class="controls-row">
+                    <fieldset style="flex:1;">
+                        <label for="perm-role-select">Select Role:</label>
+                        <select id="perm-role-select" style="width:100%; padding:8px;"></select>
+                    </fieldset>
+
+                    <fieldset style="width:150px;">
+                        <label for="perm-role-level">Privilege Level (0–100):</label>
+                        <input type="number" id="perm-role-level" min="0" max="100" style="width:100%;">
+                    </fieldset>
+                </div>
+
+                <section class="permissions-table-container">
+                    <table class="permissions-table">
+                        <thead>
+                            <tr>
+                                <th class="col-check">Enable</th>
+                                <th>Permission</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="perm-table-body"></tbody>
+                    </table>
+                </section>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="permissions-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="perm-save" disabled
+                    style="background-color:#06c;">
+                    Save Changes
+                </button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- CREATE GROUP MODAL -->
+    <section id="create-group-modal" class="modal hidden" role="dialog" aria-modal="true"
+        aria-labelledby="create-group-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="create-group-title">Create New Group</h2>
+                <button type="button" class="modal-close" data-target="create-group-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <fieldset class="form-group">
+                    <label for="new-group-name">Group Name</label>
+                    <input type="text" id="new-group-name">
+                </fieldset>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="create-group-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="create-group-save"
+                    style="background-color:#06c;">
+                    Create Group
+                </button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- CREATE ROLE MODAL -->
+    <section id="create-role-modal" class="modal hidden" role="dialog" aria-modal="true"
+        aria-labelledby="create-role-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="create-role-title">Create New Role</h2>
+                <button type="button" class="modal-close" data-target="create-role-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <fieldset class="form-group">
+                    <label for="new-role-name">Role Name</label>
+                    <input type="text" id="new-role-name">
+                </fieldset>
+
+                <fieldset class="form-group">
+                    <label for="new-role-desc">Description</label>
+                    <input type="text" id="new-role-desc">
+                </fieldset>
+
+                <fieldset class="form-group">
+                    <label for="new-role-level">Privilege Level (0–100)</label>
+                    <input type="number" id="new-role-level" min="0" max="100">
+                    <p style="font-size:0.85rem; color:#666;">0 = Guest, 1 = Student, 100 = Professor</p>
+                </fieldset>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="create-role-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="create-role-save"
+                    style="background-color:#06c;">
+                    Create Role
+                </button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- DEFAULTS MODAL -->
+    <section id="defaults-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="defaults-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="defaults-title">System Defaults</h2>
+                <button type="button" class="modal-close" data-target="defaults-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <p>Select the default assignments for new users.</p>
+
+                <fieldset class="form-group">
+                    <label for="default-role-select">Default Role:</label>
+                    <select id="default-role-select" class="role-select"></select>
+                </fieldset>
+
+                <fieldset class="form-group" style="margin-top:1.5rem;">
+                    <label for="default-group-select">Default Group:</label>
+                    <select id="default-group-select" class="role-select"></select>
+                </fieldset>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-secondary" data-target="defaults-modal">Cancel</button>
+                <button type="button" class="button button-primary" id="save-defaults-btn"
+                    style="background-color:#06c;">
+                    Save Defaults
+                </button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- NEW HELP MODAL -->
+    <section id="help-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Admin Feature Guide</h2>
+                <button type="button" class="modal-close" data-target="help-modal">&times;</button>
+            </header>
+
+            <section class="modal-body">
+                <div class="help-section">
+                    <h3>Privilege Levels (0–100)</h3>
+                    <p>The Privilege Level establishes a strict role hierarchy. Lower numbers indicate fewer administrative responsibilities.</p>
+                    <ul class="help-list">
+                        <li><strong>Unprivileged role (level ≤ 1):</strong> Guests, Students, Group Leaders.</li>
+                        <li><strong>Privileged role (level &gt; 1):</strong> Tutors, TAs, Professors. These roles have admin powers and <span style="color:#c62828;">cannot</span> be defaults.</li>
+                    </ul>
+                </div>
+
+                <hr style="margin:1.5rem 0; border:0; border-top:1px solid #eee;">
+
+                <div class="help-section">
+                    <h3>Configuring Role Permissions</h3>
+                    <p>You can redefine what each role is allowed to do using the <strong>Manage Role Permissions</strong> tool.</p>
+                    <ul class="help-list">
+                        <li><strong>View permissions:</strong> Select a role to see all permissions.</li>
+                        <li><strong>Toggle permissions:</strong> Check or uncheck boxes to grant or revoke access.</li>
+                        <li><strong>Save changes:</strong> Changes apply immediately to every user with that role.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <footer class="modal-footer">
+                <button type="button" class="button button-primary" data-target="help-modal">Got it</button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- TOASTS -->
+    <div id="toast-container" role="status" aria-live="polite"></div>
+
+</body>
+</html>

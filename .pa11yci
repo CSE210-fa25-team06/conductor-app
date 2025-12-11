@@ -7,54 +7,36 @@
   },
   "urls": [
     {
-      "url": "http://localhost:3000/",
-      "_comment" : "Tests login page."
+      "url": "http://localhost:3000/index.html",
+      "_comment": "Login page"
     },
     {
-      "url": "http://localhost:3000/api/auth/login",
-      "_comment" : "This actually tests the dashboard page, since we are 'logged in.' Future page tests navigate from the 'dashboard' using this url."
+      "url": "http://localhost:3000/dashboard.html",
+      "_comment": "Dashboard main page"
     },
     {
-      "url": "http://localhost:3000/api/auth/login",
-      "actions": [
-        "click element #directory",
-        "wait for element .directory to be visible"
-      ],
-      "_comment": "Tests directory page. As it is right now, only users with elevated permissions can view this page."
+      "url": "http://localhost:3000/dashboard.html#directory",
+      "_comment": "Directory page"
     },
     {
-      "url": "http://localhost:3000/api/auth/login",
-      "actions": [
-        "click element #attendance",
-        "wait for element .attendance-container to be visible"
-      ],
-      "_comment": "Test attendance page."
+      "url": "http://localhost:3000/dashboard.html#attendance",
+      "_comment": "Attendance page"
     },
     {
-      "url": "http://localhost:3000/api/auth/login",
-      "actions": [
-        "click element #journal",
-        "wait for element .journal-overview-container to be visible"
-      ],
-      "_comment": "Test journal homepage."
+      "url": "http://localhost:3000/dashboard.html#journal",
+      "_comment": "Journal page"
     },
     {
-      "url": "http://localhost:3000/api/auth/login",
-      "actions": [
-        "click element #journal",
-        "wait for element .journal-overview-container to be visible",
-        "click element #createJournalBtn",
-        "wait for element #journalModal to be visible"
-      ],
-      "_comment": "Test journal submission page."
+      "url": "http://localhost:3000/dashboard.html#profile",
+      "_comment": "Profile page"
     },
     {
-      "url": "http://localhost:3000/api/auth/login",
-      "actions": [
-        "click element #profile-btn",
-        "wait for element #dropdown to be visible"
-      ],
-      "_comment": "Test profile button."
+      "url": "http://localhost:3000/dashboard.html#settings",
+      "_comment": "Settings page"
+    },
+    {
+      "url": "http://localhost:3000/dashboard.html#statistics",
+      "_comment": "Statistics page"
     }
   ]
 }

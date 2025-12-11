@@ -1,4 +1,8 @@
 /**
+ * OpenTelemetry Instrumentation MUST be the first thing to be imported.
+ */
+require('./tracing');
+/**
  * @file server/app.js
  * @description Main entry point for the Conductor Express API server.
  * Initializes Express, configures middleware (JSON parsing, session, Passport),
@@ -10,10 +14,13 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const path = require('path');
+const { RedisStore } = require("connect-redis");
+const { createClient } = require("redis");
 
 // Routers
 const usersRouter = require('./routes/users');
 const journalRouter = require('./routes/journals');
+const sentimentRouter = require('./routes/sentiments');
 const groupsRouter = require('./routes/groups');
 const attendanceRouter = require('./routes/attendance');
 const authRouter = require('./routes/api/auth/auth-router');
@@ -71,11 +78,18 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'client')));
 
+
+const redisClient = createClient({
+  url: process.env.REDIS_URL,
+});
+redisClient.connect().catch(console.error);
 /**
  * Express-Session Middleware Configuration.
  */
 app.use(session({
-  // Secret used to sign the session ID cookie. MUST be secure.
+  store: new RedisStore({
+    client: redisClient,
+  }),
   secret: process.env.SESSION_SECRET, 
   resave: false,
   saveUninitialized: false, 
@@ -104,6 +118,7 @@ app.use(passport.session());
 // =========================================================================
 app.use('/users', usersRouter);            // enables class directory
 app.use('/journals', journalRouter);      // enables journal posting
+app.use('/sentiments', sentimentRouter);  // enables sentiment tracking
 app.use('/groups', groupsRouter);          // enables group fetching
 app.use('/attendance', attendanceRouter);  // enables attendance routes
 // Mount the authentication router for all /api/auth/* routes.
@@ -143,6 +158,11 @@ if (process.env.ENVIRONMENT === "DEV") {
       console.error("Swagger generation failed:", err);
     });
 }
+
+// New endpoint to generate a 500 error for testing
+app.get('/error-test', (req, res, next) => {
+  next(new Error('This is a simulated 500 error!'));
+});
 
 // =========================================================================
 // SERVER START

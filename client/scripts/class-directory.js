@@ -18,11 +18,9 @@ export function renderClassDirectory(containerEl) {
     // 2. Render the UI Structure
     containerEl.innerHTML = `
       <main class="directory">
-        <!-- <h1>Class Directory</h1> -->
-        
         <form aria-label="Search class directory" id="search-form">
-          <label for="search" class="sr-only">Search by first name</label>
-          <input type="text" id="search" name="search" placeholder="Search by first name">
+          <label for="search" class="sr-only">Search</label>
+          <input type="text" id="search" name="search" placeholder="Search by name or email">
           <button type="submit" hidden>Search</button>
           <label for="role-filter" class="sr-only">Filter by role</label>
           <select id="role-filter" name="role">
@@ -30,7 +28,7 @@ export function renderClassDirectory(containerEl) {
             <option value="Student">Student</option>
             <option value="Group Leader">Team Lead</option>
             <option value="Tutor">Tutor</option>
-            <option value="Teaching Assistant">Teaching Assistant</option>
+            <option value="TA">Teaching Assistant</option>
             <option value="Professor">Instructor</option>
           </select>
         </form>
@@ -42,8 +40,8 @@ export function renderClassDirectory(containerEl) {
               <th scope="col">Name</th>
               <th scope="col">Role</th>
               <th scope="col">Group</th>
-              <th scope="col">Contact</th>
-              <th scope="col">Availability</th>
+              <th scope="col">Email</th>
+              <th scope="col">Attendance</th>
             </tr>
           </thead>
           <tbody id="directory-table-body">
@@ -64,7 +62,8 @@ export function renderClassDirectory(containerEl) {
     };
 
     if (searchInput) {
-        searchInput.addEventListener('input', triggerDirectoryLoad);
+        // UPDATED: Use debounce to prevent API spamming while typing
+        searchInput.addEventListener('input', debounce(triggerDirectoryLoad, 100));
     }
 
     if (roleSelect) {
@@ -103,8 +102,7 @@ async function loadDirectory(query, role, containerEl) {
 
     const response = await fetch(url);
 
-    // FIX 1: Handle 403 Forbidden by replacing the ENTIRE container
-    // This matches the Journal Page behavior (hiding the header/search).
+    // Handle 403 Forbidden by replacing the ENTIRE container
     if (response.status === 403) {
        containerEl.innerHTML = `
             <div class="error">
@@ -140,7 +138,7 @@ async function loadDirectory(query, role, containerEl) {
     users.forEach((user) => {
       const row = document.createElement('tr');
       
-      // FIX 2: Sort roles alphabetically and use the dot separator
+      // Sort roles alphabetically and use the dot separator
       const roleString = Array.isArray(user.roles) 
           ? user.roles.sort().join(' • ') 
           : '—';
@@ -151,30 +149,24 @@ async function loadDirectory(query, role, containerEl) {
         <td>${roleString}</td>
         <td>${user.group_name || '—'}</td>
         <td><a href="mailto:${user.email}">${user.contact_info || user.email}</a></td>
-        <td>${formatAvailability(user.availability)}</td>
+        <td>${user.attendance || '—'}</td>
       `;
       tbody.appendChild(row);
     });
 
   } catch (error) {
     console.error('Error in loadDirectory:', error);
-    // Optional: You could also wipe the container here on critical network failure
     const tbody = document.getElementById('directory-table-body');
     if (tbody) tbody.innerHTML = `<tr><td colspan="6">Network error loading directory.</td></tr>`;
   }
 }
 
-/**
- * Helper: Convert JSON availability to readable string
- */
-function formatAvailability(availability) {
-    if (!availability) return '—';
-    try {
-        const obj = typeof availability === 'string' ? JSON.parse(availability) : availability;
-        return Object.entries(obj)
-            .map(([day, time]) => `${day}: ${time}`)
-            .join(', ');
-    } catch {
-        return availability;
-    }
+// Helper function
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
 }

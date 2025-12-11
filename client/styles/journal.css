@@ -31,7 +31,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
 }
 
 /* Typography */
@@ -43,6 +43,18 @@
 .page-description {
   color: #666;
   margin: 0 0 1.5rem;
+}
+
+#journal-modal h2.modal-title {
+  color: white;
+}
+
+#sentiment-modal h2.modal-title {
+  color: white;
+}
+
+#sentiment-modal main {
+  overflow-y: visible !important;
 }
 
 /* Lists and cards */
@@ -149,9 +161,22 @@
 
 /* Form elements */
 .journal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.journal-form input,
+.journal-form select,
+.journal-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  font-size: 1rem;
 }
 
 .form-group {
@@ -197,12 +222,17 @@
   align-self: flex-start;
 }
 
-.submit-btn:hover { background: #0056b3; }
-.submit-btn:active { background: #004494; }
+.submit-btn:hover {
+  background: #0056b3;
+}
 
-.submit-btn:disabled { 
-  background: #ccc; 
-  cursor: not-allowed; 
+.submit-btn:active {
+  background: #004494;
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .form-actions {
@@ -223,7 +253,9 @@
   transition: all 0.2s;
 }
 
-.back-btn:hover { background: #f0f7ff; }
+.back-btn:hover {
+  background: #f0f7ff;
+}
 
 /* Modal styles */
 .modal-overlay {
@@ -248,7 +280,6 @@
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
-  overflow-y: auto;
   position: relative;
   animation: modal-slide-in 0.3s ease-out;
 }
@@ -283,7 +314,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #666;
+  color: white;
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -321,12 +352,16 @@
 
 /* Update button text in modal */
 .modal-body #back-btn::before {
-  content: 'Cancel';
+  content: "Cancel";
   font-size: 1rem;
 }
 
 .modal-body #back-btn {
   font-size: 0;
+}
+
+.header-top .button + .button {
+  margin-left: 0.6rem;
 }
 
 /* --- Metadata Styling (Name, Role, Group) --- */
@@ -346,7 +381,7 @@
 }
 
 .author-role {
-  background-color: #e3f2fd; /* Light Blue Badge */
+  background-color: #e3f2fd;
   color: #0d47a1;
   padding: 2px 8px;
   border-radius: 12px;
@@ -418,7 +453,6 @@
   margin-top: 2rem;
 }
 
-/* The 'Yes, Delete' button */
 button.danger {
   background-color: #dc3545;
   color: white;
@@ -434,8 +468,6 @@ button.danger:hover {
   background-color: #bb2d3b;
 }
 
-/* The 'No' button in delete modal uses default button styles, 
-   but let's ensure it looks like a secondary action */
 #cancel-delete {
   background: white;
   border: 1px solid #ddd;
@@ -452,9 +484,217 @@ button.danger:hover {
 
 /* Fix for Error Box Width */
 #journal-list .error {
-  /* Ensure it fills the flex container */
   width: 100%;
-  
-  /* Optional: Add a subtle shadow to make it pop like the cards */
   box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+}
+
+#create-emotional-tracker-btn {
+  margin-left: auto;
+}
+
+/* Sentiment form styles */
+.sentiment-options {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.sentiment-option {
+  flex: 1;
+  max-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.sentiment-option:hover {
+  border-color: #06c;
+  background: #f0f7ff;
+}
+
+.sentiment-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sentiment-icon {
+  font-size: 3rem;
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+.sentiment-option input[type="radio"]:checked + .sentiment-icon {
+  transform: scale(1.2);
+}
+
+.sentiment-label {
+  font-size: 0.95rem;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.sentiment-option input[type="radio"]:checked ~ .sentiment-label {
+  font-weight: bold;
+  color: #06c;
+}
+
+.sentiment-option:has(input[type="radio"]:checked) {
+  border-color: #06c;
+  background: #f0f7ff;
+  box-shadow: 0 2px 8px rgb(0 102 204 / 20%);
+}
+
+#sentiment-form {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Sentiment entry display styles */
+.sentiment-entry {
+  position: relative;
+  background: linear-gradient(135deg, #fff8e1 0%, #fff 100%);
+  border-left: 4px solid #ffa726;
+}
+
+.sentiment-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid #ffa726;
+  font-weight: 600;
+}
+
+.sentiment-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.sentiment-text {
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* Sentiment entry action placement */
+.sentiment-entry .journal-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Shared sentiment buttons */
+.sentiment-edit-btn,
+.sentiment-delete-btn {
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.sentiment-edit-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.sentiment-edit-btn:hover {
+  border-color: #06c;
+  color: #06c;
+  background: #f0f7ff;
+}
+
+.sentiment-delete-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #c62828;
+}
+
+.sentiment-delete-btn:hover {
+  background: #fff5f5;
+  border-color: #c62828;
+}
+
+/* Mobile styling */
+@media (width <= 600px) {
+  .header-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  /* Stack buttons vertically */
+  .header-top > button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .header-top > button + button {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Mobile layout for sentiment entries */
+@media (width <= 600px) {
+  .sentiment-entry-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sentiment-entry .journal-actions {
+    position: static;
+    top: auto;
+    right: auto;
+    width: 100%;
+    margin-top: 0.25rem;
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sentiment-edit-btn,
+  .sentiment-delete-btn {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+
+  .sentiment-icon {
+    font-size: 2rem;
+  }
+
+  .sentiment-option {
+    padding: 0.75rem;
+  }
+
+  .sentiment-label {
+    font-size: 0.85rem;
+  }
 }

@@ -11,9 +11,11 @@ const {
   markAttendance,
   getStudentAttendanceHistory,
   getAttendanceByDate,
+  showScanPage,
   startAttendance,
   endAttendance,
   scanAttendance,
+  getAttendanceStats
 } = require("../controllers/attendanceController");
 
 const router = express.Router();
@@ -66,6 +68,9 @@ router.get("/by-date", (req, res) => {
   getAttendanceByDate(req, res);
 });
 
+// Get redirect for users who scan QR code
+router.get("/attend", showScanPage);
+
 // Start attendance
 router.post("/start", requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), startAttendance) // Added permissions
 
@@ -74,6 +79,9 @@ router.post("/end", requirePermission(PERMISSIONS.MANAGE_ALL_ATTENDANCE), endAtt
 
 //Scan students for who attended
 router.post("/scan", scanAttendance)
+
+router.get('/stats', getAttendanceStats);
+
 
 // Show which students attended class (Professor view)
 //router.get("/session/:session_id/students", professorView)
