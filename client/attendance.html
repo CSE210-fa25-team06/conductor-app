@@ -10,9 +10,7 @@
 </head>
 
 <body>
-
-  <!-- Instructions -->
-  <div id="attendance-instructions">
+  <header id="attendance-instructions" aria-label="Attendance instructions">
     <p>
       Clicking <strong>Start Meeting</strong> will generate a QR code that students
       can scan with their phones to record their attendance.
@@ -20,40 +18,43 @@
     <p style="margin-top: 6px; font-weight: 600;">
       For instructor use only.
     </p>
-  </div>
+  </header>
 
-    <div class="attendance-center-wrapper">
+  <!-- Centered interactive main content -->
+  <main id="attendance-center" aria-labelledby="giant-clock">
+    
+    <section id="clock-container" aria-live="polite">
+      <time id="giant-clock" aria-label="Current time">00:00:00</time>
+    </section>
 
-        <!-- Clock -->
-        <div id="clock-container">
-            <div id="giant-clock">00:00:00</div>
-        </div>
+    <button type="button" class="button" id="start-meeting-btn">
+      Start Meeting
+    </button>
 
-        <!-- Start Meeting Button -->
-        <button type="button" class="button" id="start-meeting-btn">
-            Start Meeting
-        </button>
-
-    </div>
+  </main>
 
   <!-- QR Code Modal Template -->
   <template id="QRModal">
-    <div class="modal-overlay" id="modalRoot">
+    <section class="modal-overlay" id="modalRoot" role="dialog" aria-modal="true">
       <article class="modal-content">
-        <section class="modal-header">
+
+        <header class="modal-header">
           <h2 class="modal-title">Scan for Attendance</h2>
-          <button type="button" class="modal-close" id="closeModal">&times;</button>
-        </section>
+          <button type="button" class="modal-close" id="closeModal" aria-label="Close">&times;</button>
+        </header>
 
         <section class="centered-modal-body">
-          <img id="qr-image" 
+          <img id="qr-image"
                src="https://icon-library.com/images/no-connection-icon/no-connection-icon-16.jpg"
-               alt="QR Code">
+               alt="QR code for students to scan">
 
-          <button type="button" class="button" id="endMeeting">End Meeting</button>
+          <button type="button" class="button" id="endMeeting">
+            End Meeting
+          </button>
         </section>
+
       </article>
-    </div>
+    </section>
   </template>
 
 </body>
