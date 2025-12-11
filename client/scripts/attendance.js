@@ -20,11 +20,16 @@ export function renderAttendance(containerEl) {
    MEETING START LOGIC
 ----------------------------- */
 
-function initAttendanceLogic() {
+async function initAttendanceLogic() {
   startClock();
   const startBtn = document.getElementById("start-meeting-btn");
-  if (startBtn) {
+  const resp = await fetch('/api/auth/session', { cache: 'no-store' });
+  const userRole = (await resp.json()).user.effectiveRoleName
+
+  if (startBtn && ["Professor", "TA"].includes(userRole)) {
     startBtn.addEventListener("click", createQRAndStartMeeting);
+  } else {
+    startBtn.disabled = true;
   }
 }
 
