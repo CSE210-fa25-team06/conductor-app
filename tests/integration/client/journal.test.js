@@ -12,6 +12,7 @@ test.beforeEach(async ({ page }) => {
     const loginButton = page.locator('a#google-login');
     await loginButton.click();
     await page.getByTestId('journal-tab').click();
+    await page.waitForTimeout(1500);
     await expect(page.getByText('My Journals')).toBeVisible();
 });
 
