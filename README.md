@@ -224,3 +224,18 @@ Stores automated test files and documentation for both client and server.
   - `journal_changes.md` – Summary of modifications, mock models, and results for the Journal feature.
 
 ---
+### **Team Members**
+1. Melvyn Tan
+2. Isheta Bansal  
+3. Patryk Tomalak 
+4. Adam Deziri
+5. Jared Ziv  
+6. Austin Guiney  
+7. Tej Gaonkar
+8. Akshay Kamath  
+9. Sai Siri Chinta  
+10. Lei Hu
+11. Tongke Zhang
+12. Jintu Xu
+13. Junjie Han
+
