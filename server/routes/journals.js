@@ -10,7 +10,16 @@ const router = express.Router();
 // GET / - Grabs all the journals to load
 router.use(loadUserContext);
 
-router.get("/", getJournals);
+router.get("/", 
+    /** 
+     *  @swagger
+     *  #swagger.tags = ['Journals']
+     *  #swagger.summary = 'Get all journals'
+     *  #swagger.description = 'Returns a list of all journal entries.'
+     *  #swagger.responses[200] = { description: "List of journals returned successfully" }
+     */
+    getJournals
+);
 
 router.post("/create", (req, res) => {
     /** 
@@ -23,12 +32,27 @@ router.post("/create", (req, res) => {
     createJournal(req, res);
 });
 
-// POST /journal/create - Create a new journal entry
-router.post("/create", createJournal);
+router.put("/:id", 
+    /** 
+     *  @swagger
+     *  #swagger.tags = ['Journals']
+     *  #swagger.summary = 'Update a journal entry'
+     *  #swagger.description = 'Updates an existing journal entry by its ID.'
+     *  #swagger.responses[200] = { description: "Journal updated successfully" }
+     *  #swagger.responses[404] = { description: "Journal not found" }
+     */
+    updateJournal
+);
 
-// PUT /journals/:id - Update an existing journal entry
-router.put("/:id", updateJournal);
-
-// DELETE /journals/:id - Delete an existing journal entry
-router.delete("/:id", deleteJournal);
+router.delete("/:id", 
+    /** 
+     *  @swagger
+     *  #swagger.tags = ['Journals']
+     *  #swagger.summary = 'Delete a journal entry'
+     *  #swagger.description = 'Deletes an existing journal entry by its ID.'
+     *  #swagger.responses[200] = { description: "Journal deleted successfully" }
+     *  #swagger.responses[404] = { description: "Journal not found" }
+     */
+    deleteJournal
+);
 module.exports = router;
