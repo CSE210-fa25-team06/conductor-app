@@ -211,22 +211,13 @@ export function initCalendarSection() {
       
       console.log("Event created successfully");
   
-      const created = await response.json();
-  
-      if (editingEventId) {
-        calendar.refetchEvents();
-        await loadEventDetails(editingEventId);
-        editingEventId = null;
-      } else {
-        calendar.addEvent({
-          id: created.id,
-          title: created.title,
-          start: created.start_time,
-          end: created.end_time,
-          display: "auto"
-        });
-        calendar.refetchEvents();
-      }
+    const created = await response.json();
+
+    await calendar.refetchEvents();
+    if (editingEventId) {
+      await loadEventDetails(editingEventId);
+      editingEventId = null;
+    }
   
       eventForm.reset();
       selectedAttendees = [];

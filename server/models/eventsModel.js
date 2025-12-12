@@ -33,6 +33,7 @@ async function listEventsByCourse(courseId, userId) {
           AND split_part(e.visibility, ':', 2)::int = me.group_id)
       OR a.user_id IS NOT NULL
     )
+    GROUP BY e.id, e.title, e.start_time, e.end_time, e.visibility
     ORDER BY e.start_time;
   `;
   const { rows } = await pool.query(query, [normalizedCourseId, normalizedUserId]);
