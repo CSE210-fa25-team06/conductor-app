@@ -1,0 +1,65 @@
+<div class="calendar-layout">
+  <div class="calendar-widget-container">
+    <div class="calendar-header">
+      <h2>Calendar</h2>
+      <button id="addEventBtn" class="btn-primary">+ Add Event</button>
+    </div>
+
+    <!-- Add Event Popover -->
+    <div id="eventModal" class="calendar-event-modal hidden">
+      <div class="modal-content">
+        <h3>Create Event</h3>
+        <form id="eventForm">
+          <label>Title <input type="text" name="title" required /></label>
+          <label>Description <textarea name="description"></textarea></label>
+          <label>Location <input type="text" name="location" /></label>
+          <label>Start <input type="datetime-local" name="start" required /></label>
+          <label>End <input type="datetime-local" name="end" required /></label>
+
+        <label>Visibility
+          <select name="visibility" id="eventVisibility">
+            <option value="class" data-static="true">Class-wide</option>
+            <option value="private" data-static="true">Private</option>
+          </select>
+        </label>
+
+        <label>Attendees
+          <div class="attendee-select">
+            <div id="attendeeChips" class="attendee-chips"></div>
+            <input type="text" id="attendeeSearch" placeholder="Search by name or email" autocomplete="off" />
+            <ul id="attendeeSuggestions" class="attendee-suggestions hidden"></ul>
+            <input type="hidden" name="attendees" id="attendeeIds" />
+          </div>
+        </label>
+
+          <div class="modal-actions">
+            <button type="button" id="cancelEventBtn">Cancel</button>
+            <button type="submit" class="btn-primary">Save Event</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="calendar"></div>
+  </div>
+
+  <aside id="eventDetailsPanel" class="calendar-details-panel hidden">
+    <div class="panel-header">
+      <h3 id="eventDetailsTitle">Event Details</h3>
+      <button id="closeDetailsBtn" aria-label="Close details">&times;</button>
+    </div>
+    <p id="eventDetailsTime" class="detail-line"></p>
+    <p id="eventDetailsLocation" class="detail-line"></p>
+    <p id="eventDetailsDescription" class="detail-line"></p>
+    <div class="detail-line">
+      <strong>Attendees:</strong>
+      <span id="eventDetailsAttendees"></span>
+    </div>
+    <p id="eventDetailsMyStatus" class="detail-line"></p>
+
+    <div class="panel-actions">
+      <button id="editEventBtn" class="btn-secondary hidden">Edit Event</button>
+      <button id="markAttendanceBtn" class="btn-primary">Mark Attendance</button>
+    </div>
+  </aside>
+</div>

@@ -1,0 +1,258 @@
+.calendar-layout {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    margin: 0;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  
+  .calendar-widget-container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    flex: 0 0 65%;
+    max-width: 960px;
+    min-width: 360px;
+    position: relative;
+    box-shadow: 0 15px 35px rgb(15 23 42 / 6%);
+    width: 65%;
+    margin-left: 40px;
+  }
+  
+  #calendar {
+    background: #f8fbff;
+    border-radius: 10px;
+    padding: 10px;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .btn-primary {
+    background: #3B82F6;
+    border: none;
+    padding: 8px 12px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* Modal */
+  .modal.hidden {
+    display: none;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 350px;
+  }
+  
+  .modal-content label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.95rem;
+  }
+  
+  .modal-content input,
+  .modal-content textarea,
+  .modal-content select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  
+  .modal-content textarea {
+    min-height: 70px;
+    resize: vertical;
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .calendar-event-modal {
+    position: absolute;
+    top: 55px;
+    right: 15px;
+    background: none;
+    display: block;
+    width: 320px;
+    z-index: 5;
+  }
+  
+  .calendar-event-modal.hidden {
+    display: none;
+  }
+  
+  .calendar-event-modal .modal-content {
+    width: 100%;
+    box-shadow: 0 15px 35px rgb(15 23 42 / 20%);
+  }
+  
+  
+  .calendar-details-panel {
+    flex: 0 0 35%;
+    max-width: 360px;
+    min-width: 260px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    box-shadow: 0 20px 45px rgb(15 23 42 / 14%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 360px;
+  }
+  
+  .calendar-details-panel.hidden {
+    display: none;
+  }
+  
+  .calendar-details-panel .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+  }
+  
+  .calendar-details-panel .panel-header button {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    color: #6b7280;
+  }
+  
+  .calendar-details-panel .detail-line {
+    color: #374151;
+    font-size: 0.95rem;
+  }
+  
+  .calendar-details-panel .panel-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .calendar-details-panel .panel-actions .hidden {
+    display: none;
+  }
+  
+  .calendar-details-panel .panel-actions button {
+    flex: 1;
+  }
+  
+  .btn-secondary {
+    background: #f1f5f9;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+  }
+  
+  .attendee-select {
+    position: relative;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .attendee-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .attendee-chips .chip {
+    background: #e0f2fe;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .attendee-chips .chip button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    color: #0f172a;
+  }
+  
+  #attendeeSearch {
+    border: none;
+    outline: none;
+    padding: 4px 0;
+    font-size: 0.95rem;
+  }
+  
+  .attendee-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 10;
+    margin: 4px 0 0;
+    list-style: none;
+    padding: 4px 0;
+  }
+  
+  .attendee-suggestions.hidden {
+    display: none;
+  }
+  
+  .attendee-suggestions li {
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  
+  .attendee-suggestions li:hover {
+    background: #eff6ff;
+  }
+  @media (max-width: 900px) {
+    .calendar-layout {
+      flex-direction: column;
+    }
+  
+    .calendar-widget-container,
+    .calendar-details-panel {
+      flex: 1 1 auto;
+    }
+  }
+  
