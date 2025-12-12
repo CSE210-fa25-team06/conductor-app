@@ -43,11 +43,11 @@
   }
   
   /* Modal */
-  .modal.hidden {
+  .calendar-generic-modal.hidden {
     display: none;
   }
   
-  .modal {
+  .calendar-generic-modal {
     position: fixed;
     inset: 0;
     background: rgb(0 0 0 / 40%);
@@ -56,14 +56,14 @@
     align-items: center;
   }
   
-  .modal-content {
+  .calendar-widget-container .modal-content {
     background: white;
     padding: 20px;
     border-radius: 8px;
     width: 350px;
   }
   
-  .modal-content label {
+  .calendar-widget-container .modal-content label {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -71,9 +71,9 @@
     font-size: 0.95rem;
   }
   
-  .modal-content input,
-  .modal-content textarea,
-  .modal-content select {
+  .calendar-widget-container .modal-content input,
+  .calendar-widget-container .modal-content textarea,
+  .calendar-widget-container .modal-content select {
     width: 100%;
     padding: 8px;
     border: 1px solid #d1d5db;
@@ -82,12 +82,12 @@
     font-family: inherit;
   }
   
-  .modal-content textarea {
+  .calendar-widget-container .modal-content textarea {
     min-height: 70px;
     resize: vertical;
   }
   
-  .modal-actions {
+  .calendar-widget-container .modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
