@@ -11,12 +11,28 @@ async function listEventsByCourse(courseId, userId) {
   }
 
   const query = `
-    SELECT e.id, e.title, e.start_time AS start, e.end_time AS "end", e.visibility
-    FROM events e
+    WITH me AS (
+      SELECT id, group_id
+      FROM users
+      WHERE id = $2
+    )
+    SELECT e.id,
+           e.title,
+           e.start_time AS start,
+           e.end_time AS "end",
+           e.visibility
+    FROM me
+    JOIN events e ON e.course_id = $1
     LEFT JOIN attendance a
-      ON a.event_id = e.id AND a.user_id = $2
-    WHERE e.course_id = $1
-      AND (e.created_by = $2 OR a.user_id IS NOT NULL)
+      ON a.event_id = e.id AND a.user_id = me.id
+    WHERE (
+      e.visibility = 'class'
+      OR e.created_by = me.id
+      OR (e.visibility LIKE 'group:%'
+          AND me.group_id IS NOT NULL
+          AND split_part(e.visibility, ':', 2)::int = me.group_id)
+      OR a.user_id IS NOT NULL
+    )
     ORDER BY e.start_time;
   `;
   const { rows } = await pool.query(query, [normalizedCourseId, normalizedUserId]);
