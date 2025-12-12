@@ -1,4 +1,5 @@
 /* Calendar Logic */
+/* global FullCalendar */
 
 export function initCalendarSection() {
     const calendarEl = document.getElementById("calendar");
@@ -35,7 +36,7 @@ export function initCalendarSection() {
     const closeDetailsBtn = document.getElementById("closeDetailsBtn");
     const editEventBtn = document.getElementById("editEventBtn");
     const markAttendanceBtn = document.getElementById("markAttendanceBtn");
-    const attendeeSearchInput = document.getElementById("attendeeSearch");
+    const attendeeSearchInput = document.getElementById("attendee-search");
     const attendeeSuggestions = document.getElementById("attendeeSuggestions");
     const attendeeChips = document.getElementById("attendeeChips");
     const attendeeHiddenInput = document.getElementById("attendeeIds");
@@ -211,7 +212,7 @@ export function initCalendarSection() {
       
       console.log("Event created successfully");
   
-    const created = await response.json();
+    await response.json();
 
     await calendar.refetchEvents();
     if (editingEventId) {

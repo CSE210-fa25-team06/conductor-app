@@ -49,8 +49,8 @@
   
   .modal {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4);
+    inset: 0;
+    background: rgb(0 0 0 / 40%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -210,7 +210,7 @@
     color: #0f172a;
   }
   
-  #attendeeSearch {
+  #attendee-search {
     border: none;
     outline: none;
     padding: 4px 0;
@@ -245,7 +245,8 @@
   .attendee-suggestions li:hover {
     background: #eff6ff;
   }
-  @media (max-width: 900px) {
+
+  @media (width <= 900px) {
     .calendar-layout {
       flex-direction: column;
     }
