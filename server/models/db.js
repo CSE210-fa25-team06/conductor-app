@@ -18,11 +18,11 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../', '.env') });
 // });
 // --- End of tests ----
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST || process.env.SERVER_HOST, 
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  user: process.env.DB_USER || process.env.PGUSER,
+  host: process.env.DB_HOST || process.env.PGHOST || process.env.SERVER_HOST,
+  database: process.env.DB_NAME || process.env.PGDATABASE,
+  password: process.env.DB_PASSWORD || process.env.PGPASSWORD,
+  port: process.env.DB_PORT || process.env.PGPORT || 5432,
 });
 
 const { resolveUserPermissions } = require('../utils/permission-resolver');

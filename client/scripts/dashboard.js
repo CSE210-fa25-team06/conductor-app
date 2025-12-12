@@ -2,6 +2,7 @@ import { renderAttendance } from './attendance.js';
 import { renderStatistics } from './statistics.js';
 import { renderClassDirectory } from './class-directory.js';
 import { renderProfilePage } from './profile.js';
+import { initCalendarSection } from './widgets/calendar.js';
 
 const VALID_SECTIONS = ['dashboard', 'directory', 'attendance', 'journal', 'profile', 'settings', 'statistics'];
 const SECTION_NAMES = {
@@ -295,7 +296,7 @@ function loadDropdownSection(section, isInitialLoad = false) {
     }, isInitialLoad ? 0 : 250);
 }
 
-function renderDashboardContent(container) {
+async function renderDashboardContent(container) {
     container.innerHTML = `
         <div class="dashboard-cards">
             <div class="card" data-section="directory">
@@ -325,6 +326,10 @@ function renderDashboardContent(container) {
         </div>
     `;
     container.classList.remove('centered');
+
+    //Load the calendar above the cards
+
+    await loadCalendarWidget(container);
 }
 
 function setupCardEventListeners() {
@@ -383,6 +388,86 @@ async function renderSettingsSection(container) {
         container.innerHTML = `<p class="error">Failed to load settings: ${error.message}</p>`;
     }
 }
+
+async function loadCalendarWidget(container) {
+
+    // Create a placeholder div ABOVE the cards
+
+    const calendarDiv = document.createElement("section");
+
+    calendarDiv.id = "calendar-section";
+
+    calendarDiv.style.marginBottom = "2rem"; // spacing above cards
+
+    container.prepend(calendarDiv);
+
+
+
+    // Load the calendar HTML widget
+    try {
+        const response = await fetch("dashboard_widgets/calendar.html", { cache: "no-store" });
+        if (!response.ok) {
+            throw new Error(`Failed to load calendar widget: ${response.status}`);
+        }
+        const html = await response.text();
+        calendarDiv.innerHTML = html;
+    } catch (error) {
+        console.error("Unable to inject calendar widget:", error);
+        calendarDiv.remove();
+        return;
+    }
+
+
+
+    // Small delay to ensure DOM is fully ready
+
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+
+
+    // Now initialize FullCalendar on the injected HTML
+
+    initCalendarSection();
+
+}
+
+
+
+// async function loadDashboardWidgets(content) {
+
+//     content.innerHTML = "";
+
+  
+
+//     const calendarHTML = await fetch("dashboard_widgets/calendar.html").then(r => r.text());
+
+//     const calendarWrapper = document.createElement("div");
+
+//     calendarWrapper.innerHTML = calendarHTML;
+
+//     content.appendChild(calendarWrapper);
+
+  
+
+//     if (!document.querySelector('link[data-style="calendar"]')) {
+
+//       const style = document.createElement("link");
+
+//       style.rel = "stylesheet";
+
+//       style.href = "styles/calendar.css";
+
+//       style.dataset.style = "calendar";
+
+//       document.head.appendChild(style);
+
+//     }
+
+  
+
+//     import("./widgets/calendar.js").then(module => module.initCalendarSection());
+
+//   }
 
 function handleLogout(e) {
     e.preventDefault();

@@ -4,7 +4,12 @@ Conductor is a lightweight platform to help instructors, TAs, and students manag
 
 The repository is organized into folders that separate the frontend, backend, database, and testing components. Each team can work independently while keeping the project consistent and maintainable.
 
-All project documentation, including feature specifications, architectural notes, API references, DevOps instructions, and deployment workflows, is located in the /docs folder. This directory serves as the central source of truth for understanding how every part of the system works, from frontend components to backend services, CI/CD pipelines, monitoring, and infrastructure. For detailed explanations of each feature or subsystem, refer to the corresponding markdown file inside the documentation folder.
+## Documentation
+All project documentation, including feature specifications, architectural notes, API references, DevOps instructions, and deployment workflows, is located in the [/documentation](./documentation/) folder. This directory serves as the central source of truth for understanding how every part of the system works, from frontend components to backend services, CI/CD pipelines, monitoring, and infrastructure. For detailed explanations of each feature or subsystem, refer to the corresponding markdown file inside the documentation folder. Swagger documentation on backend APIs can be viewed at 
+[http://localhost:3000/api/docs/](http://localhost:3000/api/docs/) once the application is running.
+
+## Deployment
+The live site is deployed on an AWS EC2 instance. You can view it [here](https://conductor.pt0.me/) - https://conductor.pt0.me/. 
 
 ### **Quick Start with Docker**
 To run the full stack (App + Database) without manual setup:
@@ -221,3 +226,18 @@ Stores automated test files and documentation for both client and server.
   - `journal_changes.md` – Summary of modifications, mock models, and results for the Journal feature.
 
 ---
+### **Team Members**
+1. Melvyn Tan
+2. Isheta Bansal  
+3. Patryk Tomalak 
+4. Adam Deziri
+5. Jared Ziv  
+6. Austin Guiney  
+7. Tej Gaonkar
+8. Akshay Kamath  
+9. Sai Siri Chinta  
+10. Lei Hu
+11. Tongke Zhang
+12. Jintu Xu
+13. Junjie Han
+

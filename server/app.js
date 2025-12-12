@@ -27,6 +27,7 @@ const authRouter = require('./routes/api/auth/auth-router');
 const groupsRolesRouter = require('./routes/api/admin/groups-roles-router');
 const userRoleRouter = require('./routes/api/admin/user-role-router');
 const configRouter = require('./routes/api/config-router');
+const eventsRouter = require('./routes/events');
 
 // Configuration
 // Load environment variables from the project root .env file.
@@ -135,6 +136,7 @@ app.use('/api/admin', groupsRolesRouter);
 app.use('/api/admin', userRoleRouter); // <-- NEW MOUNT
 // #swagger.tags = ['Config']
 app.use('/api/config', configRouter);
+app.use('/api/events', eventsRouter);
 
 /**
  * GET /
