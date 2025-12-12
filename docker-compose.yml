@@ -113,6 +113,7 @@ services:
         condition: service_started
     environment:
       NODE_ENV: development
+      ENVIRONMENT: DEV # for swagger /api/docs
       
       SERVER_HOST: 0.0.0.0
       DB_HOST: db
@@ -132,6 +133,7 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:-dev_secret}
       AUTH_SECRET: ${AUTH_SECRET:-dev_secret}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      BASE_URL: ${BASE_URL}
       
       # OpenTelemetry Configuration
       OTEL_SERVICE_NAME: conductor-app
