@@ -4,7 +4,9 @@ Conductor is a lightweight platform to help instructors, TAs, and students manag
 
 The repository is organized into folders that separate the frontend, backend, database, and testing components. Each team can work independently while keeping the project consistent and maintainable.
 
-All project documentation, including feature specifications, architectural notes, API references, DevOps instructions, and deployment workflows, is located in the [/documentation](./documentation/) folder. This directory serves as the central source of truth for understanding how every part of the system works, from frontend components to backend services, CI/CD pipelines, monitoring, and infrastructure. For detailed explanations of each feature or subsystem, refer to the corresponding markdown file inside the documentation folder.
+## Documentation
+All project documentation, including feature specifications, architectural notes, API references, DevOps instructions, and deployment workflows, is located in the [/documentation](./documentation/) folder. This directory serves as the central source of truth for understanding how every part of the system works, from frontend components to backend services, CI/CD pipelines, monitoring, and infrastructure. For detailed explanations of each feature or subsystem, refer to the corresponding markdown file inside the documentation folder. Swagger documentation on backend APIs can be viewed at 
+[http://localhost:3000/api/docs/](http://localhost:3000/api/docs/) once the application is running.
 
 ## Deployment
 The live site is deployed on an AWS EC2 instance. You can view it [here](https://conductor.pt0.me/) - https://conductor.pt0.me/. 
